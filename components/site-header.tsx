@@ -3,11 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, Suspense, useEffect, useState } from "react";
 import { Menu, Search, ShoppingBag, User, X } from "lucide-react";
 import { CATEGORIES } from "@/lib/catalog";
 import { useAuth } from "@/lib/stores/auth";
 import { cartCount, useCart } from "@/lib/stores/cart";
+import { CategorySubNav } from "@/components/category-sub-nav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -65,13 +66,13 @@ export function SiteHeader() {
           />
         </Link>
 
-        <form onSubmit={onSearch} className="mx-auto hidden max-w-md flex-1 md:flex">
+        <form onSubmit={onSearch} className="mx-4 hidden max-w-sm flex-1 md:flex lg:max-w-md">
           <div className="relative w-full">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6B6B6B]" />
             <Input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search by code, title, category"
+              placeholder="Search by code"
               className="pl-9"
               aria-label="Search catalog"
             />
@@ -143,7 +144,7 @@ export function SiteHeader() {
       </div>
 
       <nav className="hidden border-t border-[#1A1A1A] lg:block">
-        <ul className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-center gap-x-5 gap-y-1 px-4 py-2">
+        <ul className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-center gap-x-5 gap-y-1 px-4 py-2.5">
           {CATEGORIES.map((c) => (
             <li key={c.slug}>
               <Link
@@ -151,15 +152,30 @@ export function SiteHeader() {
                 className={cn(
                   "text-[11px] font-semibold uppercase tracking-[0.16em] text-[#C8C8C8] hover:text-[#B6FF00]",
                   activeSlug === c.slug &&
-                    "text-[#B6FF00] underline decoration-2 underline-offset-8",
+                    "text-white underline decoration-[#B6FF00] decoration-2 underline-offset-8",
                 )}
               >
                 {c.name}
               </Link>
             </li>
           ))}
+          <li>
+            <Link
+              href="/promotions"
+              className={cn(
+                "text-[11px] font-semibold uppercase tracking-[0.16em] text-[#B6FF00] hover:text-[#C8FF00]",
+                pathname === "/promotions" &&
+                  "underline decoration-2 underline-offset-8",
+              )}
+            >
+              New collections
+            </Link>
+          </li>
         </ul>
       </nav>
+      <Suspense fallback={null}>
+        <CategorySubNav />
+      </Suspense>
 
       {open ? (
         <div className="border-t border-[#1F1F1F] bg-[#0B0B0B] px-4 py-4 lg:hidden">
@@ -183,7 +199,7 @@ export function SiteHeader() {
             ))}
           </ul>
           <Button asChild className="mt-4 w-full" variant="outline">
-            <Link href="/promotions">Promotions</Link>
+            <Link href="/promotions">New collections</Link>
           </Button>
         </div>
       ) : null}

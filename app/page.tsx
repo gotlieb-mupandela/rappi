@@ -3,7 +3,8 @@ import { HubTile } from "@/components/hub-tile";
 import { ProductCard } from "@/components/product-card";
 import { Button } from "@/components/ui/button";
 import { CATEGORIES, TAGLINE } from "@/lib/catalog";
-import { products } from "@/lib/products";
+import { collectionTiles, kidsHubGroups, shoeHubGroups } from "@/lib/hubs";
+import { products, productsByCategory } from "@/lib/products";
 import type { Product } from "@/lib/types";
 
 export default function HomePage() {
@@ -14,6 +15,10 @@ export default function HomePage() {
   )
     .map((code) => products.find((p) => p.code === code))
     .filter((p): p is Product => Boolean(p));
+  const collections = collectionTiles();
+  const footwear = shoeHubGroups();
+  const kids = kidsHubGroups();
+  const football = productsByCategory("football");
 
   return (
     <div>
@@ -50,9 +55,95 @@ export default function HomePage() {
             Sportswear · Football · Running & Fitness · Shoes
           </p>
         </div>
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {featured.map((c) => (
-            <HubTile key={c.slug} slug={c.slug} name={c.name} compact />
+            <HubTile
+              key={c.slug}
+              slug={c.slug}
+              name={c.name}
+              compact
+              product={productsByCategory(c.slug)[0]}
+            />
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-[1440px] px-4 pb-10 lg:px-6">
+        <div className="mb-6 flex items-end justify-between">
+          <h2 className="font-[family-name:var(--font-oswald)] text-3xl uppercase tracking-wide">
+            New collections
+          </h2>
+          <Link
+            href="/promotions"
+            className="text-xs uppercase tracking-wider text-[#B6FF00]"
+          >
+            View all
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          {collections.map((c) => (
+            <HubTile
+              key={c.key}
+              slug={c.key === "footwear" ? "shoes" : "sportswear"}
+              name={c.name}
+              count={c.count}
+              href={c.href}
+              product={c.sample}
+            />
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-[1440px] px-4 pb-10 lg:px-6">
+        <div className="mb-6 flex items-end justify-between">
+          <h2 className="font-[family-name:var(--font-oswald)] text-3xl uppercase tracking-wide">
+            Footwear
+          </h2>
+          <Link
+            href="/category/shoes"
+            className="text-xs uppercase tracking-wider text-[#B6FF00]"
+          >
+            Shop shoes
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          {footwear.map((g) => (
+            <HubTile
+              key={g.key}
+              slug="shoes"
+              name={g.name}
+              count={g.count}
+              href={g.href}
+              product={g.sample}
+              banner={g.banner}
+              shape="square"
+            />
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-[1440px] px-4 pb-10 lg:px-6">
+        <div className="mb-6 flex items-end justify-between">
+          <h2 className="font-[family-name:var(--font-oswald)] text-3xl uppercase tracking-wide">
+            Kids
+          </h2>
+          <Link
+            href="/shop/sportswear?sub=tees-kids"
+            className="text-xs uppercase tracking-wider text-[#B6FF00]"
+          >
+            Shop kids
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          {kids.map((g) => (
+            <HubTile
+              key={g.key}
+              slug="sportswear"
+              name={g.name}
+              count={g.count}
+              href={g.href}
+              product={g.sample}
+            />
           ))}
         </div>
       </section>
@@ -63,7 +154,12 @@ export default function HomePage() {
         </h2>
         <div className="grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
           {rest.map((c) => (
-            <HubTile key={c.slug} slug={c.slug} name={c.name} />
+            <HubTile
+              key={c.slug}
+              slug={c.slug}
+              name={c.name}
+              product={productsByCategory(c.slug)[0]}
+            />
           ))}
         </div>
       </section>
@@ -77,8 +173,10 @@ export default function HomePage() {
             View all SKUs
           </Link>
         </div>
-        <div className="grid grid-cols-2 gap-x-3 gap-y-8 md:grid-cols-4">
-          {spotlight.map((p) => (p ? <ProductCard key={p.code} product={p} /> : null))}
+        <div className="grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+          {(spotlight.length ? spotlight : football.slice(0, 6)).map((p) => (
+            <ProductCard key={p.code} product={p} />
+          ))}
         </div>
       </section>
     </div>

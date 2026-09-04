@@ -40,7 +40,7 @@ export function ProductCard({
     return (
       <article className="grid grid-cols-[88px_minmax(0,1fr)_auto] items-center gap-4 border-b border-[var(--border)] py-3">
         <Link href={productPath(product.code)} className="block w-[88px]">
-          <ProductVisual product={product} />
+          <ProductVisual product={product} className="aspect-square" />
         </Link>
         <Link href={productPath(product.code)} className="min-w-0">
           <p className="font-mono text-sm font-bold">{product.code}</p>
@@ -76,21 +76,21 @@ export function ProductCard({
             </Badge>
           ) : null}
           <ProductVisual product={product} />
-          {stock === 0 ? (
-            <div className="absolute inset-x-0 bottom-0 bg-[#C4122F] py-1 text-center text-[10px] font-bold uppercase tracking-widest text-white">
-              Out of stock
-            </div>
-          ) : low ? (
-            <div className="absolute inset-x-0 bottom-0 bg-[#B86A00] py-1 text-center text-[10px] font-bold uppercase tracking-widest text-white">
-              Low stock
-            </div>
-          ) : (
-            <div className="absolute inset-x-0 bottom-0 bg-[var(--accent)]/90 py-1 text-center text-[10px] font-bold uppercase tracking-widest text-[var(--on-accent)]">
-              In stock
-            </div>
-          )}
         </div>
-        <div className="mt-2 space-y-0.5 text-left">
+        {stock === 0 ? (
+          <div className="bg-[#C4122F] py-1.5 text-center text-[10px] font-bold uppercase tracking-widest text-white">
+            Out of stock
+          </div>
+        ) : low ? (
+          <div className="bg-[#B86A00] py-1.5 text-center text-[10px] font-bold uppercase tracking-widest text-white">
+            Low stock
+          </div>
+        ) : (
+          <div className="bg-[#1F3D12] py-1.5 text-center text-[10px] font-bold uppercase tracking-widest text-[#B6FF00]">
+            In stock
+          </div>
+        )}
+        <div className="mt-2 space-y-0.5 text-center">
           <p className="font-mono text-[13px] font-bold tracking-wide text-white">
             {product.code}
           </p>

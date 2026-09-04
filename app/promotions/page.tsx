@@ -1,28 +1,60 @@
-import Link from "next/link";
+import { Suspense } from "react";
 import { Breadcrumbs } from "@/components/breadcrumbs";
-import { Button } from "@/components/ui/button";
+import { CatalogFilters } from "@/components/catalog-filters";
+import { HubTile } from "@/components/hub-tile";
+import { collectionTiles } from "@/lib/hubs";
 import { products } from "@/lib/products";
 
 export default function PromotionsPage() {
-  const offers = products.filter((p) => p.badge === "offer");
+  const highlighted = products.filter(
+    (p) => p.badge === "offer" || p.badge === "new",
+  );
+  const collections = collectionTiles();
+
   return (
     <div className="mx-auto max-w-[1440px] px-4 py-8 lg:px-6">
-      <Breadcrumbs items={[{ href: "/", label: "Home" }, { label: "Promotions" }]} />
-      <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
-        <h1 className="font-[family-name:var(--font-oswald)] text-4xl uppercase">
-          Promotions [{offers.length}]
-        </h1>
-        <Button asChild variant="outline">
-          <Link href="/search">Size guide — see product pages</Link>
-        </Button>
+      <Breadcrumbs
+        items={[{ href: "/", label: "Home" }, { label: "New collections" }]}
+      />
+      <h1 className="mt-6 font-[family-name:var(--font-oswald)] text-4xl uppercase tracking-wide md:text-5xl">
+        New collections
+      </h1>
+      <p className="mt-2 max-w-xl text-sm text-[#A0A0A0]">
+        Opening-season footwear and apparel. Highlighted SKUs carry New or Offer
+        badges from the current stock list.
+      </p>
+
+      <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
+        {collections.map((c) => (
+          <HubTile
+            key={c.key}
+            slug={c.key === "footwear" ? "shoes" : "sportswear"}
+            name={c.name}
+            count={c.count}
+            href={c.href}
+            product={c.sample}
+          />
+        ))}
       </div>
-      {offers.length === 0 ? (
-        <p className="mt-16 text-sm text-[#A0A0A0]">No promotions on this opening stock list.</p>
-      ) : (
-        <p className="mt-4 text-sm text-[#A0A0A0]">
-          Highlighted opening-stock prices. Open search and filter Offer badges from product cards.
-        </p>
-      )}
+
+      <h2 className="mt-14 font-[family-name:var(--font-oswald)] text-3xl uppercase tracking-wide">
+        Highlighted stock [{highlighted.length}]
+      </h2>
+      <div className="mt-8">
+        {highlighted.length === 0 ? (
+          <p className="text-sm text-[#A0A0A0]">
+            No promotions on this opening stock list.
+          </p>
+        ) : (
+          <Suspense>
+            <CatalogFilters
+              products={highlighted}
+              basePath="/promotions"
+              grouped
+            />
+          </Suspense>
+        )}
+      </div>
     </div>
   );
 }

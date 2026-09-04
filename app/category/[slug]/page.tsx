@@ -4,6 +4,7 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { HubTile } from "@/components/hub-tile";
 import { Button } from "@/components/ui/button";
 import { CATEGORIES, categoryBySlug } from "@/lib/catalog";
+import { shoeHubGroups } from "@/lib/hubs";
 import { productsByCategory, subcategoriesFor } from "@/lib/products";
 
 export function generateStaticParams() {
@@ -20,6 +21,7 @@ export default async function CategoryHubPage({
   if (!cat) notFound();
   const items = productsByCategory(slug);
   const subs = subcategoriesFor(slug);
+  const shoeGroups = slug === "shoes" ? shoeHubGroups() : [];
 
   return (
     <div className="mx-auto max-w-[1440px] px-4 py-8 lg:px-6">
@@ -40,17 +42,35 @@ export default async function CategoryHubPage({
         </Button>
       </div>
 
-      <div className="mt-10 grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-        {subs.map((s) => (
-          <HubTile
-            key={s.slug}
-            slug={slug}
-            name={s.name}
-            count={s.count}
-            href={`/shop/${slug}?sub=${encodeURIComponent(s.slug)}`}
-          />
-        ))}
-      </div>
+      {slug === "shoes" && shoeGroups.length > 0 ? (
+        <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">
+          {shoeGroups.map((g) => (
+            <HubTile
+              key={g.key}
+              slug={slug}
+              name={g.name}
+              count={g.count}
+              href={g.href}
+              product={g.sample}
+              banner={g.banner}
+              shape="square"
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="mt-10 grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+          {subs.map((s) => (
+            <HubTile
+              key={s.slug}
+              slug={slug}
+              name={s.name}
+              count={s.count}
+              href={`/shop/${slug}?sub=${encodeURIComponent(s.slug)}`}
+              product={items.find((p) => p.subcategory === s.slug)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

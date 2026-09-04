@@ -3,7 +3,7 @@ import { ProductCard } from "@/components/product-card";
 import { SUBCATEGORY_LABELS } from "@/lib/catalog";
 
 const GRID =
-  "grid grid-cols-2 gap-x-3 gap-y-7 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5";
+  "grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6";
 
 export function ProductGrid({
   products,
@@ -70,7 +70,7 @@ export function ProductGrid({
       ) : null}
       {entries.map(([sub, list]) => (
         <section key={sub} id={sub}>
-          <div className="mb-4 border-b border-[var(--border)] pb-2">
+          <div className="mb-4 bg-[#1A1A1A] px-3 py-2">
             <h2 className="text-sm font-bold uppercase tracking-[0.16em] text-white">
               {SUBCATEGORY_LABELS[sub] ?? sub} [{list.length}]
             </h2>

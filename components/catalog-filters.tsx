@@ -8,6 +8,7 @@ import { ProductGrid } from "@/components/product-grid";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { matchesAudience } from "@/lib/hubs";
 import { LayoutGrid, List } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -31,6 +32,7 @@ export function CatalogFilters({
   const maxPrice = params.get("max") ?? "";
   const q = params.get("q") ?? "";
   const cat = params.get("cat") ?? categorySlug ?? "all";
+  const audience = params.get("audience") ?? "all";
   const [draftQ, setDraftQ] = useState(q);
   const [layout, setLayout] = useState<"grid" | "list">("grid");
 
@@ -50,6 +52,7 @@ export function CatalogFilters({
     return products.filter((p) => {
       if (cat !== "all" && p.category !== cat) return false;
       if (sub !== "all" && p.subcategory !== sub) return false;
+      if (!matchesAudience(p, audience === "all" ? null : audience)) return false;
       if (size !== "all" && !p.sizes.some((s) => s.size === size && s.stock > 0)) {
         return false;
       }
@@ -61,7 +64,7 @@ export function CatalogFilters({
       }
       return true;
     });
-  }, [products, cat, sub, size, maxPrice, q]);
+  }, [products, cat, sub, size, maxPrice, q, audience]);
 
   function setParam(key: string, value: string) {
     const next = new URLSearchParams(params.toString());

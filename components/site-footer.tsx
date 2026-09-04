@@ -49,6 +49,11 @@ export function SiteFooter() {
               </Link>
             </li>
             <li>
+              <Link href="/promotions" className="hover:text-[#B6FF00]">
+                New collections
+              </Link>
+            </li>
+            <li>
               <Link href="/search" className="hover:text-[#B6FF00]">
                 Search
               </Link>

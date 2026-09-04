@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Oswald } from "next/font/google";
+import { Geist_Mono, Inter, Oswald } from "next/font/google";
 import { Suspense } from "react";
 import { Providers } from "@/components/providers";
 import { SiteFooter } from "@/components/site-footer";
@@ -8,8 +8,8 @@ import { TAGLINE } from "@/lib/catalog";
 import "./globals.css";
 import "./tokens.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
@@ -30,15 +30,19 @@ export const metadata: Metadata = {
   },
   description:
     "RAPPI SPORTS HUB — consumer sports catalog. Equip. Perform. Inspire.",
+  icons: {
+    icon: "/brand/rappi-logo.png",
+    apple: "/brand/rappi-logo.png",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${oswald.variable} h-full antialiased`}
+      className={`${inter.variable} ${geistMono.variable} ${oswald.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-[#0B0B0B] text-white">
+      <body className="flex min-h-full flex-col bg-bg text-ink">
         <Providers>
           <Suspense fallback={null}>
             <SiteHeader />

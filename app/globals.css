@@ -1,49 +1,19 @@
+@import "./tokens.css";
 @import "tailwindcss";
-
-:root {
-  --bg: #0b0b0b;
-  --bg-elevated: #121212;
-  --surface: #1a1a1a;
-  --surface-2: #222222;
-  --surface-hover: #2a2a2a;
-  --accent: #b6ff00;
-  --accent-bright: #c8ff00;
-  --accent-dim: #8fcc00;
-  --accent-muted: rgba(182, 255, 0, 0.14);
-  --accent-glow: 0 0 24px rgba(182, 255, 0, 0.35);
-  --text: #ffffff;
-  --text-secondary: #e8e8e8;
-  --muted: #a0a0a0;
-  --muted-2: #6b6b6b;
-  --on-accent: #0b0b0b;
-  --border: #2a2a2a;
-  --border-strong: #3a3a3a;
-  --border-accent: rgba(182, 255, 0, 0.45);
-  --font-display: var(--font-oswald), "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
-  --font-body: var(--font-geist-sans), "Segoe UI", system-ui, sans-serif;
-  --header-h: 4rem;
-  --container: 1280px;
-  --radius: 0.75rem;
-  --radius-lg: 1rem;
-  --radius-pill: 9999px;
-  --background: var(--bg);
-  --foreground: var(--text);
-}
 
 @theme inline {
   --color-background: var(--bg);
   --color-foreground: var(--text);
   --color-bg: var(--bg);
-  --color-bg-elevated: var(--bg-elevated);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
   --color-accent: var(--accent);
   --color-ink: var(--text);
-  --color-muted: var(--muted);
   --color-border: var(--border);
+  --color-muted: var(--muted);
   --color-rappi-lime: var(--accent);
-  --font-sans: var(--font-body);
-  --font-display: var(--font-oswald);
+  --font-sans: var(--font-inter), var(--font-body);
+  --font-display: var(--font-oswald), "Oswald", "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
@@ -54,24 +24,7 @@ html {
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: var(--font-body);
-}
-
-.btn-accent {
-  background: var(--accent);
-  color: var(--on-accent);
-  font-weight: 700;
-  border-radius: var(--radius-pill);
-}
-
-.surface-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-}
-
-.surface-card:hover {
-  box-shadow: 0 0 0 1px var(--border-accent), var(--accent-glow);
+  font-family: var(--font-inter), var(--font-body);
 }
 
 ::selection {

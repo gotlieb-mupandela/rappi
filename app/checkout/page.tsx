@@ -112,7 +112,7 @@ export default function CheckoutPage() {
       />
       <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-[family-name:var(--font-oswald)] text-4xl uppercase">
+          <h1 className="font-[family-name:var(--font-oswald)] text-3xl uppercase sm:text-4xl">
             Shipping & billing
           </h1>
           <p className="mt-2 max-w-xl text-sm text-[#A0A0A0]">
@@ -185,11 +185,11 @@ export default function CheckoutPage() {
           <h2 className="text-sm font-bold uppercase tracking-wider">Order summary</h2>
           <ul className="mt-4 divide-y divide-[#2A2A2A] text-sm">
             {rows.map((r) => (
-              <li key={`${r.code}-${r.size}`} className="flex justify-between py-2">
-                <span>
+              <li key={`${r.code}-${r.size}`} className="flex flex-col gap-1 py-2 sm:flex-row sm:justify-between">
+                <span className="break-all">
                   {r.code} · {r.size} × {r.qty}
                 </span>
-                <span>{formatPrice(r.price * r.qty)}</span>
+                <span className="shrink-0">{formatPrice(r.price * r.qty)}</span>
               </li>
             ))}
           </ul>

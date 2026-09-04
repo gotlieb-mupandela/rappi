@@ -16,7 +16,7 @@ export default function PromotionsPage() {
       <Breadcrumbs
         items={[{ href: "/", label: "Home" }, { label: "New collections" }]}
       />
-      <h1 className="mt-6 font-[family-name:var(--font-oswald)] text-4xl uppercase tracking-wide md:text-5xl">
+      <h1 className="mt-6 font-[family-name:var(--font-oswald)] text-3xl uppercase tracking-wide md:text-5xl">
         New collections
       </h1>
       <p className="mt-2 max-w-xl text-sm text-[#A0A0A0]">

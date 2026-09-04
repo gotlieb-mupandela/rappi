@@ -38,13 +38,13 @@ export function ProductDetail({ product }: { product: Product }) {
         <p className="text-[11px] uppercase tracking-[0.18em] text-[#B6FF00]">
           {cat?.name} / {SUBCATEGORY_LABELS[product.subcategory] ?? product.subcategory}
         </p>
-        <h1 className="mt-2 font-mono text-3xl font-bold tracking-tight text-white">
+        <h1 className="mt-2 break-all font-mono text-2xl font-bold tracking-tight text-white sm:text-3xl">
           {product.code}
         </h1>
         <p className="mt-1 text-sm uppercase tracking-[0.14em] text-[#A0A0A0]">
           {product.name}
         </p>
-        <p className="mt-5 text-3xl font-semibold text-white">
+        <p className="mt-5 text-2xl font-semibold text-white sm:text-3xl">
           {formatPrice(product.price)}
           <span className="ml-2 text-sm font-normal text-[#A0A0A0]">unit price</span>
         </p>
@@ -52,7 +52,39 @@ export function ProductDetail({ product }: { product: Product }) {
           {totalStock(product)} in stock across sizes.
         </p>
 
-        <div className="mt-8 overflow-x-auto border border-[#2A2A2A]">
+        <div className="mt-8 md:hidden">
+          <p className="mb-2 text-[11px] uppercase tracking-wider text-[#A0A0A0]">Size</p>
+          <div className="flex flex-wrap gap-2">
+            {matrix.map((row) => (
+              <button
+                key={row.size}
+                type="button"
+                disabled={row.stock === 0}
+                onClick={() => {
+                  setSize(row.size);
+                  setQty(1);
+                }}
+                className={cn(
+                  "min-h-11 min-w-11 border px-3 text-sm font-semibold uppercase",
+                  size === row.size
+                    ? "border-[#B6FF00] bg-[#1C2410] text-[#B6FF00]"
+                    : "border-[#2A2A2A] text-white",
+                  row.stock === 0 && "opacity-40",
+                )}
+              >
+                {row.size}
+              </button>
+            ))}
+          </div>
+          {selected ? (
+            <p className="mt-2 text-sm text-[#A0A0A0]">
+              {selected.stock} in size {size}
+              {isLowStock(selected.stock) ? " · low stock" : ""}
+            </p>
+          ) : null}
+        </div>
+
+        <div className="mt-8 hidden overflow-x-auto border border-[#2A2A2A] md:block">
           <table className="w-full min-w-[420px] text-left text-xs">
             <thead className="bg-[#161616] uppercase tracking-wider text-[#A0A0A0]">
               <tr>
@@ -102,7 +134,7 @@ export function ProductDetail({ product }: { product: Product }) {
           </p>
         ) : null}
 
-        <div className="mt-6 flex flex-wrap items-end gap-3">
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
           <label className="space-y-1">
             <span className="block text-[11px] uppercase tracking-wider text-[#A0A0A0]">
               Qty
@@ -113,14 +145,14 @@ export function ProductDetail({ product }: { product: Product }) {
               max={Math.max(stock, 1)}
               value={qty}
               onChange={(e) => setQty(Number(e.target.value))}
-              className="h-12 w-20 rounded-md border border-[#2A2A2A] bg-[#121212] px-3 text-white"
+              className="h-12 w-full rounded-md border border-[#2A2A2A] bg-[#121212] px-3 text-white sm:w-20"
             />
           </label>
           <Button
             size="lg"
             onClick={addToCart}
             disabled={stock === 0}
-            className="min-w-48"
+            className="w-full sm:min-w-48 sm:w-auto"
           >
             Add to cart
           </Button>

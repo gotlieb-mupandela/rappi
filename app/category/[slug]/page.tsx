@@ -30,14 +30,14 @@ export default async function CategoryHubPage({
       />
       <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-[family-name:var(--font-oswald)] text-4xl uppercase tracking-wide md:text-5xl">
+          <h1 className="font-[family-name:var(--font-oswald)] text-3xl uppercase tracking-wide md:text-5xl">
             {cat.name}
           </h1>
           <p className="mt-2 max-w-xl text-sm text-[#A0A0A0]">
             {cat.blurb} {items.length} SKUs in opening stock.
           </p>
         </div>
-        <Button asChild variant="outline">
+        <Button asChild variant="outline" className="w-full sm:w-auto">
           <Link href={`/shop/${slug}`}>View all products</Link>
         </Button>
       </div>

@@ -56,12 +56,12 @@ export function ProductGrid({
   return (
     <div className="space-y-10">
       {entries.length > 1 ? (
-        <nav className="flex flex-wrap gap-x-5 gap-y-2 border-b border-[var(--border)] pb-2">
+        <nav className="scroll-touch flex gap-x-5 overflow-x-auto border-b border-[var(--border)] pb-2">
           {entries.map(([sub, list]) => (
             <a
               key={sub}
               href={`#${sub}`}
-              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)] hover:text-[var(--accent)]"
+              className="inline-flex min-h-10 shrink-0 items-center whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)] hover:text-[var(--accent)]"
             >
               {SUBCATEGORY_LABELS[sub] ?? sub} [{list.length}]
             </a>

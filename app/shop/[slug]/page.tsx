@@ -20,7 +20,7 @@ export default async function ShopListingPage({
   const items = productsByCategory(slug);
 
   return (
-    <div className="mx-auto max-w-[1440px] px-4 py-8 lg:px-6">
+    <div className="mx-auto max-w-[1440px] px-3 py-6 sm:px-4 sm:py-8 lg:px-6">
       <Breadcrumbs
         items={[
           { href: "/", label: "Home" },
@@ -28,7 +28,7 @@ export default async function ShopListingPage({
           { label: "Products" },
         ]}
       />
-      <h1 className="mt-6 font-[family-name:var(--font-oswald)] text-4xl uppercase tracking-wide">
+      <h1 className="mt-6 font-[family-name:var(--font-oswald)] text-3xl uppercase tracking-wide sm:text-4xl">
         {cat.name} [{items.length}]
       </h1>
       <div className="mt-8">

@@ -81,11 +81,11 @@ function ConfirmationInner() {
         <h2 className="text-sm font-bold uppercase tracking-wider">Items</h2>
         <ul className="mt-3 divide-y divide-[#2A2A2A] text-sm">
           {order.items.map((item) => (
-            <li key={`${item.code}-${item.size}`} className="flex justify-between py-2">
-              <span>
+            <li key={`${item.code}-${item.size}`} className="flex flex-col gap-1 py-2 sm:flex-row sm:justify-between">
+              <span className="break-words">
                 {item.code} · {item.name} · {item.size} × {item.qty}
               </span>
-              <span>{formatPrice(item.price * item.qty)}</span>
+              <span className="shrink-0 font-semibold">{formatPrice(item.price * item.qty)}</span>
             </li>
           ))}
         </ul>

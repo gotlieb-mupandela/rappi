@@ -35,6 +35,7 @@ export function CatalogFilters({
   const audience = params.get("audience") ?? "all";
   const [draftQ, setDraftQ] = useState(q);
   const [layout, setLayout] = useState<"grid" | "list">("grid");
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const sizeOptions = useMemo(() => {
     const set = new Set<string>();
@@ -75,8 +76,18 @@ export function CatalogFilters({
   }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[220px_minmax(0,1fr)]">
-      <aside className="space-y-6">
+    <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-8">
+      <div className="lg:hidden">
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          onClick={() => setFiltersOpen((v) => !v)}
+        >
+          {filtersOpen ? "Hide filters" : "Filters"}
+        </Button>
+      </div>
+      <aside className={cn("space-y-6", filtersOpen ? "block" : "hidden lg:block")}>
         {showCategoryFilter ? (
           <FilterBlock title="Category">
             <FilterLink active={cat === "all"} onClick={() => setParam("cat", "all")}>

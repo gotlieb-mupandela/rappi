@@ -38,18 +38,21 @@ export function ProductCard({
 
   if (layout === "list") {
     return (
-      <article className="grid grid-cols-[88px_minmax(0,1fr)_auto] items-center gap-4 border-b border-[var(--border)] py-3">
-        <Link href={productPath(product.code)} className="block w-[88px]">
+      <article className="grid grid-cols-[72px_minmax(0,1fr)] items-center gap-3 border-b border-[var(--border)] py-3 sm:grid-cols-[88px_minmax(0,1fr)_auto] sm:gap-4">
+        <Link href={productPath(product.code)} className="block w-[72px] sm:w-[88px]">
           <ProductVisual product={product} className="aspect-square" />
         </Link>
         <Link href={productPath(product.code)} className="min-w-0">
-          <p className="font-mono text-sm font-bold">{product.code}</p>
+          <p className="truncate font-mono text-sm font-bold">{product.code}</p>
           <p className="truncate text-[11px] uppercase tracking-wider text-[var(--muted)]">
             {product.item}
           </p>
+          <p className="mt-1 text-sm font-semibold sm:hidden">
+            {formatPrice(product.unitPrice)}
+          </p>
         </Link>
-        <div className="flex items-center gap-4">
-          <p className="text-sm font-semibold">{formatPrice(product.unitPrice)}</p>
+        <div className="col-span-2 flex items-center justify-between sm:col-span-1 sm:justify-end sm:gap-4">
+          <p className="hidden text-sm font-semibold sm:block">{formatPrice(product.unitPrice)}</p>
           <button
             type="button"
             onClick={quickAdd}
@@ -91,7 +94,7 @@ export function ProductCard({
           </div>
         )}
         <div className="mt-2 space-y-0.5 text-center">
-          <p className="font-mono text-[13px] font-bold tracking-wide text-white">
+          <p className="font-mono text-[11px] font-bold tracking-wide break-all text-white sm:text-[13px]">
             {product.code}
           </p>
           <p className="line-clamp-2 text-[11px] uppercase leading-snug tracking-wider text-[var(--muted)]">
@@ -106,7 +109,7 @@ export function ProductCard({
         type="button"
         aria-label={`Add ${product.code} to cart`}
         onClick={quickAdd}
-        className="absolute right-2 top-2 z-10 rounded-sm p-1.5 text-white/80 hover:text-[var(--accent)]"
+        className="absolute right-1 top-1 z-10 flex h-10 w-10 items-center justify-center rounded-sm text-white/80 hover:text-[var(--accent)] sm:right-2 sm:top-2 sm:h-auto sm:w-auto sm:p-1.5"
       >
         <ShoppingBag className="h-4 w-4" />
       </button>

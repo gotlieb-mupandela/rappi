@@ -24,12 +24,12 @@ export function CategorySubNav() {
 
   return (
     <nav className="border-t border-[#1A1A1A] bg-[#121212]">
-      <ul className="mx-auto flex max-w-[1440px] gap-x-6 overflow-x-auto px-4 py-2.5 lg:justify-center lg:px-6">
+      <ul className="scroll-touch mx-auto flex max-w-[1440px] gap-x-5 overflow-x-auto px-3 py-2.5 sm:gap-x-6 sm:px-4 lg:justify-center lg:px-6">
         <li className="shrink-0">
           <Link
             href={`/shop/${slug}`}
             className={cn(
-              "whitespace-nowrap text-[12px] font-medium uppercase tracking-[0.12em] text-[#C8C8C8] hover:text-[#B6FF00]",
+              "inline-flex min-h-11 items-center whitespace-nowrap text-[12px] font-medium uppercase tracking-[0.12em] text-[#C8C8C8] hover:text-[#B6FF00]",
               onShop && !active &&
                 "text-white underline decoration-[#B6FF00] decoration-2 underline-offset-8",
             )}
@@ -42,7 +42,7 @@ export function CategorySubNav() {
             <Link
               href={`/shop/${slug}?sub=${encodeURIComponent(s.slug)}`}
               className={cn(
-                "whitespace-nowrap text-[12px] font-medium uppercase tracking-[0.12em] text-[#C8C8C8] hover:text-[#B6FF00]",
+                "inline-flex min-h-11 items-center whitespace-nowrap text-[12px] font-medium uppercase tracking-[0.12em] text-[#C8C8C8] hover:text-[#B6FF00]",
                 active === s.slug &&
                   "text-white underline decoration-[#B6FF00] decoration-2 underline-offset-8",
               )}

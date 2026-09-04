@@ -49,7 +49,27 @@ export default function OrdersPage() {
           <p className="mt-2 text-sm text-[#A0A0A0]">Place a stub order from checkout to see it here.</p>
         </div>
       ) : (
-        <div className="mt-8 overflow-x-auto border border-[#B6FF00]/35">
+        <>
+        <div className="mt-8 space-y-4 md:hidden">
+          {mine.map((order) => {
+            const active =
+              order.status === "shipped" ? "Shipped" : order.status === "preparing" ? "Preparing" : "Reserved";
+            return (
+              <article key={order.id} className="border border-[#2A2A2A] bg-[#141414] p-4">
+                <p className="font-mono text-lg font-bold text-[#B6FF00]">{order.id}</p>
+                <p className="mt-1 text-xs text-[#A0A0A0]">{formatDate(order.createdAt)}</p>
+                <p className="mt-3 text-sm">
+                  {order.name}
+                  <br />
+                  {order.city}, {order.country}
+                </p>
+                <p className="mt-3 text-lg font-semibold">{formatPrice(order.total)}</p>
+                <p className="mt-1 text-xs uppercase tracking-wider text-[#B6FF00]">{active}</p>
+              </article>
+            );
+          })}
+        </div>
+        <div className="mt-8 hidden overflow-x-auto border border-[#B6FF00]/35 md:block">
           <table className="w-full min-w-[860px] text-left text-sm">
             <thead className="bg-[#161616] text-[11px] uppercase tracking-wider text-[#A0A0A0]">
               <tr>
@@ -101,6 +121,7 @@ export default function OrdersPage() {
             </tbody>
           </table>
         </div>
+        </>
       )}
     </div>
   );

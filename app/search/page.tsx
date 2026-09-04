@@ -18,7 +18,7 @@ export default async function SearchPage({
       <Breadcrumbs
         items={[{ href: "/", label: "Home" }, { label: "Search results" }]}
       />
-      <h1 className="mt-6 font-[family-name:var(--font-oswald)] text-4xl uppercase tracking-wide">
+      <h1 className="mt-6 font-[family-name:var(--font-oswald)] text-3xl uppercase tracking-wide sm:text-4xl">
         Search results [{titleCount}]
       </h1>
       <p className="mt-2 text-sm text-[#A0A0A0]">

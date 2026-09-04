@@ -23,23 +23,23 @@ export default function HomePage() {
   return (
     <div>
       <section className="border-b border-[#1F1F1F] bg-[radial-gradient(circle_at_top_left,_rgba(182,255,0,0.12),_transparent_42%),linear-gradient(#101010,#0B0B0B)]">
-        <div className="mx-auto max-w-[1440px] px-4 py-14 lg:px-6 lg:py-20">
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#B6FF00]">
+        <div className="mx-auto max-w-[1440px] px-4 py-8 sm:py-14 lg:px-6 lg:py-20">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#B6FF00] sm:text-xs sm:tracking-[0.28em]">
             {TAGLINE}
           </p>
-          <h1 className="mt-3 max-w-3xl font-[family-name:var(--font-oswald)] text-5xl uppercase leading-[0.95] tracking-tight text-white md:text-7xl">
+          <h1 className="mt-3 max-w-3xl font-[family-name:var(--font-oswald)] text-4xl uppercase leading-[0.95] tracking-tight text-white sm:text-5xl md:text-7xl">
             RAPPI SPORTS HUB
           </h1>
-          <p className="mt-5 max-w-xl text-base text-[#A0A0A0]">
+          <p className="mt-5 max-w-xl text-sm text-[#A0A0A0] sm:text-base">
             Opening shop stock. {products.length} SKUs across sportswear, football,
             court sports, and kit. Retail unit prices. Browse as a guest or sign in to
             track orders.
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Button asChild size="lg">
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <Button asChild size="lg" className="w-full sm:w-auto">
               <Link href="/category/sportswear">Shop sportswear</Link>
             </Button>
-            <Button asChild size="lg" variant="outline">
+            <Button asChild size="lg" variant="outline" className="w-full sm:w-auto">
               <Link href="/search">Search by code</Link>
             </Button>
           </div>
@@ -48,10 +48,10 @@ export default function HomePage() {
 
       <section className="mx-auto max-w-[1440px] px-4 py-10 lg:px-6">
         <div className="mb-6 flex items-end justify-between">
-          <h2 className="font-[family-name:var(--font-oswald)] text-3xl uppercase tracking-wide">
+          <h2 className="font-[family-name:var(--font-oswald)] text-2xl uppercase tracking-wide sm:text-3xl">
             Featured
           </h2>
-          <p className="text-xs uppercase tracking-[0.16em] text-[#A0A0A0]">
+          <p className="hidden text-xs uppercase tracking-[0.16em] text-[#A0A0A0] sm:block">
             Sportswear · Football · Running & Fitness · Shoes
           </p>
         </div>
@@ -70,7 +70,7 @@ export default function HomePage() {
 
       <section className="mx-auto max-w-[1440px] px-4 pb-10 lg:px-6">
         <div className="mb-6 flex items-end justify-between">
-          <h2 className="font-[family-name:var(--font-oswald)] text-3xl uppercase tracking-wide">
+          <h2 className="font-[family-name:var(--font-oswald)] text-2xl uppercase tracking-wide sm:text-3xl">
             New collections
           </h2>
           <Link
@@ -96,7 +96,7 @@ export default function HomePage() {
 
       <section className="mx-auto max-w-[1440px] px-4 pb-10 lg:px-6">
         <div className="mb-6 flex items-end justify-between">
-          <h2 className="font-[family-name:var(--font-oswald)] text-3xl uppercase tracking-wide">
+          <h2 className="font-[family-name:var(--font-oswald)] text-2xl uppercase tracking-wide sm:text-3xl">
             Footwear
           </h2>
           <Link
@@ -124,7 +124,7 @@ export default function HomePage() {
 
       <section className="mx-auto max-w-[1440px] px-4 pb-10 lg:px-6">
         <div className="mb-6 flex items-end justify-between">
-          <h2 className="font-[family-name:var(--font-oswald)] text-3xl uppercase tracking-wide">
+          <h2 className="font-[family-name:var(--font-oswald)] text-2xl uppercase tracking-wide sm:text-3xl">
             Kids
           </h2>
           <Link
@@ -149,7 +149,7 @@ export default function HomePage() {
       </section>
 
       <section className="mx-auto max-w-[1440px] px-4 pb-10 lg:px-6">
-        <h2 className="mb-6 font-[family-name:var(--font-oswald)] text-3xl uppercase tracking-wide">
+        <h2 className="mb-6 font-[family-name:var(--font-oswald)] text-2xl uppercase tracking-wide sm:text-3xl">
           Shop by sport
         </h2>
         <div className="grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
@@ -166,7 +166,7 @@ export default function HomePage() {
 
       <section className="mx-auto max-w-[1440px] px-4 pb-16 lg:px-6">
         <div className="mb-6 flex items-end justify-between">
-          <h2 className="font-[family-name:var(--font-oswald)] text-3xl uppercase tracking-wide">
+          <h2 className="font-[family-name:var(--font-oswald)] text-2xl uppercase tracking-wide sm:text-3xl">
             Opening stock
           </h2>
           <Link href="/search" className="text-xs uppercase tracking-wider text-[#B6FF00]">

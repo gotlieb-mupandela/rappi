@@ -29,7 +29,7 @@ export default function LoginPage() {
 
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-[1440px] items-center justify-center px-4 py-16">
-      <div className="w-full max-w-md border border-[#2A2A2A] bg-[#141414] p-8">
+      <div className="w-full max-w-md border border-[#2A2A2A] bg-[#141414] p-5 sm:p-8">
         <p className="text-[11px] uppercase tracking-[0.22em] text-[#B6FF00]">{TAGLINE}</p>
         <h1 className="mt-2 font-[family-name:var(--font-oswald)] text-4xl uppercase">
           Sign in

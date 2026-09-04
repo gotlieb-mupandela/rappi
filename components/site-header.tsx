@@ -32,6 +32,13 @@ export function SiteHeader() {
     setOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
   function onSearch(e: FormEvent) {
     e.preventDefault();
     const query = q.trim();
@@ -44,24 +51,25 @@ export function SiteHeader() {
   )?.slug;
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[#1F1F1F] bg-[#0B0B0B]/95 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-[1440px] items-center gap-4 px-4 lg:px-6">
+    <header className="sticky top-0 z-50 border-b border-[#1F1F1F] bg-[#0B0B0B]/95 pt-[env(safe-area-inset-top)] backdrop-blur">
+      <div className="mx-auto flex h-14 max-w-[1440px] items-center gap-2 px-3 sm:h-16 sm:gap-4 sm:px-4 lg:px-6">
         <button
           type="button"
-          className="lg:hidden text-white"
-          aria-label="Menu"
+          className="flex h-11 w-11 shrink-0 items-center justify-center text-white lg:hidden"
+          aria-label={open ? "Close menu" : "Open menu"}
+          aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
 
-        <Link href="/" className="flex shrink-0 items-center">
+        <Link href="/" className="flex min-w-0 shrink items-center">
           <Image
             src="/brand/rappi-logo.png"
             alt="RAPPI SPORTS HUB"
             width={210}
             height={56}
-            className="h-10 w-auto"
+            className="h-8 w-auto max-w-[148px] object-contain sm:h-10 sm:max-w-none"
             priority
           />
         </Link>
@@ -79,22 +87,22 @@ export function SiteHeader() {
           </div>
         </form>
 
-        <div className="ml-auto flex items-center gap-1">
+        <div className="ml-auto flex items-center gap-0.5 sm:gap-1">
           <Link
             href="/search"
-            className="flex h-10 w-10 items-center justify-center text-white hover:text-[#B6FF00] md:hidden"
+            className="flex h-11 w-11 items-center justify-center text-white hover:text-[#B6FF00] md:hidden"
             aria-label="Search"
           >
             <Search className="h-5 w-5" />
           </Link>
           <Link
             href="/cart"
-            className="relative flex h-10 w-10 items-center justify-center text-white hover:text-[#B6FF00]"
+            className="relative flex h-11 w-11 items-center justify-center text-white hover:text-[#B6FF00]"
             aria-label="Cart"
           >
             <ShoppingBag className="h-5 w-5" />
             {ready && count > 0 ? (
-              <span className="absolute -right-0.5 -top-0.5 min-w-4 rounded-full bg-[#B6FF00] px-1 text-center text-[10px] font-bold leading-4 text-[#0B0B0B]">
+              <span className="absolute right-1 top-1 min-w-4 rounded-full bg-[#B6FF00] px-1 text-center text-[10px] font-bold leading-4 text-[#0B0B0B]">
                 {count}
               </span>
             ) : null}
@@ -103,7 +111,7 @@ export function SiteHeader() {
             <div className="relative group">
               <Link
                 href="/account"
-                className="flex items-center gap-2 px-2 text-white hover:text-[#B6FF00]"
+                className="flex h-11 items-center gap-2 px-2 text-white hover:text-[#B6FF00]"
               >
                 <User className="h-5 w-5" />
                 <span className="hidden text-[11px] font-semibold uppercase tracking-wider sm:inline">
@@ -132,7 +140,7 @@ export function SiteHeader() {
           ) : (
             <Link
               href="/login"
-              className="flex items-center gap-2 px-2 text-white hover:text-[#B6FF00]"
+              className="flex h-11 items-center gap-2 px-2 text-white hover:text-[#B6FF00]"
             >
               <User className="h-5 w-5" />
               <span className="hidden text-[11px] font-semibold uppercase tracking-wider sm:inline">
@@ -178,29 +186,54 @@ export function SiteHeader() {
       </Suspense>
 
       {open ? (
-        <div className="border-t border-[#1F1F1F] bg-[#0B0B0B] px-4 py-4 lg:hidden">
+        <div className="max-h-[calc(100dvh-3.5rem-env(safe-area-inset-top))] overflow-y-auto border-t border-[#1F1F1F] bg-[#0B0B0B] px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] lg:hidden">
           <form onSubmit={onSearch} className="mb-4">
             <Input
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search by code, title, category"
+              className="h-11"
             />
           </form>
-          <ul className="grid grid-cols-2 gap-2">
+          <ul className="grid grid-cols-2 gap-1">
             {CATEGORIES.map((c) => (
               <li key={c.slug}>
                 <Link
                   href={`/category/${c.slug}`}
-                  className="block py-2 text-xs font-semibold uppercase tracking-wider text-white hover:text-[#B6FF00]"
+                  className={cn(
+                    "flex min-h-11 items-center px-2 text-xs font-semibold uppercase tracking-wider text-white hover:text-[#B6FF00]",
+                    activeSlug === c.slug && "text-[#B6FF00]",
+                  )}
                 >
                   {c.name}
                 </Link>
               </li>
             ))}
           </ul>
-          <Button asChild className="mt-4 w-full" variant="outline">
-            <Link href="/promotions">New collections</Link>
-          </Button>
+          <div className="mt-4 grid gap-2">
+            <Button asChild className="w-full" variant="outline">
+              <Link href="/promotions">New collections</Link>
+            </Button>
+            <Button asChild className="w-full" variant="outline">
+              <Link href={user ? "/account" : "/login"}>
+                {user ? "My account" : "Sign in"}
+              </Link>
+            </Button>
+            {user ? (
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full"
+                onClick={() => {
+                  logout();
+                  setOpen(false);
+                  router.push("/");
+                }}
+              >
+                Logout
+              </Button>
+            ) : null}
+          </div>
         </div>
       ) : null}
     </header>

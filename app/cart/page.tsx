@@ -41,7 +41,7 @@ export default function CartPage() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <Breadcrumbs items={[{ href: "/", label: "Home" }, { label: "Cart" }]} />
-          <h1 className="mt-4 font-[family-name:var(--font-oswald)] text-4xl uppercase">
+          <h1 className="mt-4 font-[family-name:var(--font-oswald)] text-3xl uppercase sm:text-4xl">
             Cart [{count}]
           </h1>
         </div>
@@ -77,7 +77,7 @@ export default function CartPage() {
           {rows.map(({ line, product, lineTotal }) => (
             <div
               key={`${line.code}-${line.size}`}
-              className="grid gap-4 border border-[#2A2A2A] bg-[#141414] p-4 md:grid-cols-[96px_minmax(0,1fr)_auto]"
+              className="grid gap-4 border border-[#2A2A2A] bg-[#141414] p-4 sm:grid-cols-[96px_minmax(0,1fr)_auto]"
             >
               <Link href={productPath(product.code)} className="block w-24">
                 <ProductVisual product={product} />
@@ -132,14 +132,14 @@ export default function CartPage() {
               </div>
             </div>
           ))}
-          <div className="flex flex-wrap items-center justify-between border border-[#B6FF00]/40 bg-[#141414] px-5 py-4">
+          <div className="sticky bottom-0 z-20 flex flex-col gap-3 border border-[#B6FF00]/40 bg-[#141414] px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-5">
             <p className="text-sm uppercase tracking-wider text-[#A0A0A0]">
               {count} unit{count === 1 ? "" : "s"}
             </p>
             <p className="text-xl font-semibold">
               Subtotal {formatPrice(subtotal)}
             </p>
-            <Button asChild size="lg">
+            <Button asChild size="lg" className="w-full sm:w-auto">
               <Link href="/checkout">Checkout</Link>
             </Button>
           </div>

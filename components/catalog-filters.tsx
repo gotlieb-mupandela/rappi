@@ -8,6 +8,7 @@ import { ProductGrid } from "@/components/product-grid";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { LayoutGrid, List } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function CatalogFilters({
@@ -31,6 +32,7 @@ export function CatalogFilters({
   const q = params.get("q") ?? "";
   const cat = params.get("cat") ?? categorySlug ?? "all";
   const [draftQ, setDraftQ] = useState(q);
+  const [layout, setLayout] = useState<"grid" | "list">("grid");
 
   const sizeOptions = useMemo(() => {
     const set = new Set<string>();
@@ -177,10 +179,36 @@ export function CatalogFilters({
       </aside>
 
       <div>
-        <p className="mb-4 text-xs uppercase tracking-[0.16em] text-[#A0A0A0]">
-          {filtered.length} article{filtered.length === 1 ? "" : "s"} found
-        </p>
-        <ProductGrid products={filtered} grouped={grouped} />
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <p className="text-xs uppercase tracking-[0.16em] text-[var(--muted)]">
+            {filtered.length} article{filtered.length === 1 ? "" : "s"} found
+          </p>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              aria-label="Grid view"
+              onClick={() => setLayout("grid")}
+              className={cn(
+                "p-1.5",
+                layout === "grid" ? "text-[var(--accent)]" : "text-[var(--muted-2)]",
+              )}
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              aria-label="List view"
+              onClick={() => setLayout("list")}
+              className={cn(
+                "p-1.5",
+                layout === "list" ? "text-[var(--accent)]" : "text-[var(--muted-2)]",
+              )}
+            >
+              <List className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        <ProductGrid products={filtered} grouped={grouped} layout={layout} />
       </div>
     </div>
   );

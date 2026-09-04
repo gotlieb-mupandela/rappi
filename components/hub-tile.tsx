@@ -38,7 +38,7 @@ export function HubTile({
       <div
         className={cn(
           "relative overflow-hidden bg-[#161616] transition-all duration-200 group-hover:shadow-[0_0_28px_rgba(182,255,0,0.16)]",
-          compact ? "aspect-[3/4]" : "aspect-square",
+          compact ? "aspect-[3/4]" : "aspect-[3/4]",
         )}
         style={{
           backgroundImage: `linear-gradient(160deg, ${accent}26 0%, #121212 58%, #0E0E0E 100%)`,

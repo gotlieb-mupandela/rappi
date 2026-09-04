@@ -1,0 +1,14 @@
+[
+  { "slug": "sportswear", "name": "Sportswear", "count": 73 },
+  { "slug": "football", "name": "Football", "count": 24 },
+  { "slug": "basketball", "name": "Basketball", "count": 9 },
+  { "slug": "netball", "name": "Netball", "count": 9 },
+  { "slug": "swimming", "name": "Swimming", "count": 10 },
+  { "slug": "rugby", "name": "Rugby", "count": 12 },
+  { "slug": "cricket", "name": "Cricket", "count": 5 },
+  { "slug": "boxing", "name": "Boxing", "count": 1 },
+  { "slug": "hockey", "name": "Hockey", "count": 1 },
+  { "slug": "running-fitness", "name": "Running & Fitness", "count": 16 },
+  { "slug": "shoes", "name": "Shoes", "count": 16 },
+  { "slug": "balls-bags", "name": "Balls & Bags", "count": 8 }
+]

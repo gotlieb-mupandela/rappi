@@ -4,19 +4,25 @@ export type SizeStock = {
 };
 
 export type Product = {
+  id: string;
   code: string;
   item: string;
   title: string;
   name: string;
+  displayName: string;
   category: string;
   subcategory: string;
   gender: "men" | "women" | "kids" | "unisex";
   price: number;
+  unitPrice: number;
   currency: "USD";
   sheetCategory: string | null;
   totalQty: number;
+  stockQty: number;
   badge: "new" | "offer" | null;
+  sizeOptions: string[];
   sizes: SizeStock[];
+  imageUrl: string;
 };
 
 export type CartLine = {

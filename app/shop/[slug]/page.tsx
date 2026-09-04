@@ -31,7 +31,6 @@ export default async function ShopListingPage({
       <h1 className="mt-6 font-[family-name:var(--font-oswald)] text-4xl uppercase tracking-wide">
         {cat.name} [{items.length}]
       </h1>
-      <p className="mt-2 text-sm text-[#A0A0A0]">{cat.blurb}</p>
       <div className="mt-8">
         <Suspense>
           <CatalogFilters

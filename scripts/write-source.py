@@ -289,7 +289,7 @@ TITLES = {
 }
 
 
-def map_category(item: str, cat) -> str:
+def map_category(item: str, cat, code: str) -> str:
     i = item.upper()
     c = (cat or "").upper()
     if i in {"SWIMWEAR", "GOOGELS"} or (i == "CAPS" and c == "NETBALL"):
@@ -300,7 +300,7 @@ def map_category(item: str, cat) -> str:
         return "cricket"
     if c in {"BALLS", "BAGS"} or "BAG" in i or i == "VOLLEYBALL" or "PADDEL" in i:
         return "balls-bags"
-    if i.startswith("RUNNING") or "YOGA" in i or i == "TOWELS":
+    if i.startswith("RUNNING") or "YOGA" in i or i == "TOWELS" or i == "TRAINING SHOES":
         return "running-fitness"
     if c == "SHOES" or (i == "SHOES" and c == "SHOES"):
         return "shoes"
@@ -310,13 +310,15 @@ def map_category(item: str, cat) -> str:
         return "basketball"
     if c == "BOXING" or "BOXING" in i:
         return "boxing"
-    if c == "HOCKEY" and i in {"SHORTS", "TRAINING SHOES"}:
+    if c == "HOCKEY" and i == "SHORTS":
         return "hockey"
     if c == "NETBALL" and i in {"DRESSES", "SKIRTS", "SHOES"}:
         return "netball"
+    if i == "SOCKS" or code == "401964.600":
+        return "sportswear"
     if (
         i.startswith("FOOTBALL")
-        or i in {"SOCKS", "SHIN GUARDS", "GOALKEEPER GLOVES"}
+        or i in {"SHIN GUARDS", "GOALKEEPER GLOVES"}
         or "SHIN" in i
         or "GOALKEEPER" in i
     ):
@@ -354,7 +356,7 @@ def main():
     products = []
     for i, row in enumerate(SOURCE):
         item = row["item"]
-        cat = map_category(item, row.get("cat"))
+        cat = map_category(item, row.get("cat"), row["code"])
         sub, gender = SUB_SLUG.get(item, ("general", "unisex"))
         if item == "JACKETS" and str(row.get("sizes", "")).startswith("6/"):
             gender = "kids"
@@ -364,32 +366,42 @@ def main():
         if item == "SHORTS" and cat == "hockey":
             sub = "shorts"
             gender = "unisex"
+        if item == "SOCKS" or row["code"] == "401964.600":
+            sub = "socks"
+        if item == "TRAINING SHOES":
+            sub = "training-shoes"
         sizes = parse_sizes(row.get("sizes"))
         stock = split_stock(sizes, row["qty"])
         title_base = TITLES.get(item, item.title())
         price = float(str(row["price"]).replace(" ", ""))
+        qty = int(row["qty"] or 0)
         badge = None
-        if row["qty"] <= 3:
-            badge = None
         if i % 17 == 0:
             badge = "new"
-        if price <= 4.5 and row["qty"] >= 8:
+        if price <= 4.5 and qty >= 8:
             badge = "offer"
+        sku_id = row["code"].replace(".", "-").replace("/", "-")
         products.append(
             {
+                "id": sku_id,
                 "code": row["code"],
                 "item": item,
-                "title": f"{title_base} · {row['code']}",
-                "name": title_base,
+                "title": f"{item} · {row['code']}",
+                "name": f"{item} · {row['code']}",
+                "displayName": title_base,
                 "category": cat,
                 "subcategory": sub,
                 "gender": gender,
                 "price": price,
+                "unitPrice": price,
                 "currency": "USD",
                 "sheetCategory": row.get("cat"),
-                "totalQty": int(row["qty"] or 0),
+                "totalQty": qty,
+                "stockQty": qty,
                 "badge": badge,
+                "sizeOptions": sizes,
                 "sizes": stock,
+                "imageUrl": "",
             }
         )
 
@@ -399,6 +411,26 @@ def main():
     print("SKU", len(products))
     for k, v in sorted(counts.items()):
         print(f"  {k}: {v}")
+    expected = {
+        "sportswear": 73,
+        "football": 24,
+        "basketball": 9,
+        "netball": 9,
+        "swimming": 10,
+        "rugby": 12,
+        "cricket": 5,
+        "boxing": 1,
+        "hockey": 1,
+        "running-fitness": 16,
+        "shoes": 16,
+        "balls-bags": 8,
+    }
+    assert dict(counts) == expected, (dict(counts), expected)
+    cats = [
+        {"slug": k, "name": k.replace("-", " ").title(), "count": expected[k]}
+        for k in expected
+    ]
+    (data / "categories.json").write_text(json.dumps(cats, indent=2) + "\n")
 
 
 if __name__ == "__main__":

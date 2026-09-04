@@ -1,25 +1,72 @@
 "use client";
 
 import Link from "next/link";
-import { Heart } from "lucide-react";
+import { type MouseEvent } from "react";
+import { ShoppingBag } from "lucide-react";
+import { toast } from "sonner";
 import type { Product } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { ProductVisual } from "@/components/product-visual";
 import { formatPrice } from "@/lib/format";
-import { totalStock } from "@/lib/products";
-import { useWishlist } from "@/lib/stores/wishlist";
+import { inStockSizes, isLowStock, totalStock } from "@/lib/products";
+import { useCart } from "@/lib/stores/cart";
 import { productPath } from "@/lib/utils";
-import { cn } from "@/lib/utils";
 
-export function ProductCard({ product }: { product: Product }) {
-  const wished = useWishlist((s) => s.codes.includes(product.code));
-  const toggle = useWishlist((s) => s.toggle);
+export function ProductCard({
+  product,
+  layout = "grid",
+}: {
+  product: Product;
+  layout?: "grid" | "list";
+}) {
+  const add = useCart((s) => s.add);
   const stock = totalStock(product);
+  const first = inStockSizes(product)[0];
+  const low = first ? isLowStock(first.stock) : false;
+
+  function quickAdd(e: MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!first) {
+      toast.error("Out of stock.");
+      return;
+    }
+    const result = add(product.code, first.size, 1);
+    if (result.ok) toast.success(result.message);
+    else toast.error(result.message);
+  }
+
+  if (layout === "list") {
+    return (
+      <article className="grid grid-cols-[88px_minmax(0,1fr)_auto] items-center gap-4 border-b border-[var(--border)] py-3">
+        <Link href={productPath(product.code)} className="block w-[88px]">
+          <ProductVisual product={product} />
+        </Link>
+        <Link href={productPath(product.code)} className="min-w-0">
+          <p className="font-mono text-sm font-bold">{product.code}</p>
+          <p className="truncate text-[11px] uppercase tracking-wider text-[var(--muted)]">
+            {product.item}
+          </p>
+        </Link>
+        <div className="flex items-center gap-4">
+          <p className="text-sm font-semibold">{formatPrice(product.unitPrice)}</p>
+          <button
+            type="button"
+            onClick={quickAdd}
+            className="text-[var(--accent)] hover:text-[var(--accent-bright)]"
+            aria-label={`Add ${product.code}`}
+          >
+            <ShoppingBag className="h-4 w-4" />
+          </button>
+        </div>
+      </article>
+    );
+  }
 
   return (
     <article className="group relative">
       <Link href={productPath(product.code)} className="block">
-        <div className="relative overflow-hidden border border-transparent transition-all duration-200 group-hover:border-[#B6FF00]/50 group-hover:shadow-[0_0_24px_rgba(182,255,0,0.12)]">
+        <div className="relative overflow-hidden bg-[var(--bg-elevated)] transition-shadow duration-200 group-hover:shadow-[0_0_0_1px_var(--border-accent),var(--accent-glow)]">
           {product.badge ? (
             <Badge
               variant={product.badge === "offer" ? "offer" : "new"}
@@ -30,36 +77,38 @@ export function ProductCard({ product }: { product: Product }) {
           ) : null}
           <ProductVisual product={product} />
           {stock === 0 ? (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/55 text-xs font-bold uppercase tracking-widest text-white">
+            <div className="absolute inset-x-0 bottom-0 bg-[#C4122F] py-1 text-center text-[10px] font-bold uppercase tracking-widest text-white">
               Out of stock
             </div>
-          ) : null}
+          ) : low ? (
+            <div className="absolute inset-x-0 bottom-0 bg-[#B86A00] py-1 text-center text-[10px] font-bold uppercase tracking-widest text-white">
+              Low stock
+            </div>
+          ) : (
+            <div className="absolute inset-x-0 bottom-0 bg-[var(--accent)]/90 py-1 text-center text-[10px] font-bold uppercase tracking-widest text-[var(--on-accent)]">
+              In stock
+            </div>
+          )}
         </div>
-        <div className="mt-2 space-y-0.5 px-0.5">
+        <div className="mt-2 space-y-0.5 text-left">
           <p className="font-mono text-[13px] font-bold tracking-wide text-white">
             {product.code}
           </p>
-          <p className="truncate text-[11px] uppercase tracking-wider text-[#A0A0A0]">
-            {product.name}
+          <p className="line-clamp-2 text-[11px] uppercase leading-snug tracking-wider text-[var(--muted)]">
+            {product.item}
           </p>
           <p className="text-sm font-semibold text-white">
-            {formatPrice(product.price)}
-          </p>
-          <p className="text-[10px] uppercase tracking-wider text-[#6B6B6B]">
-            {product.sizes.map((s) => s.size).join(" · ")}
+            {formatPrice(product.unitPrice)}
           </p>
         </div>
       </Link>
       <button
         type="button"
-        aria-label="Save"
-        onClick={() => toggle(product.code)}
-        className={cn(
-          "absolute right-2 top-2 z-10 rounded-full p-1.5 transition-colors",
-          wished ? "text-[#B6FF00]" : "text-white/70 hover:text-[#B6FF00]",
-        )}
+        aria-label={`Add ${product.code} to cart`}
+        onClick={quickAdd}
+        className="absolute right-2 top-2 z-10 rounded-sm p-1.5 text-white/80 hover:text-[var(--accent)]"
       >
-        <Heart className={cn("h-4 w-4", wished && "fill-current")} />
+        <ShoppingBag className="h-4 w-4" />
       </button>
     </article>
   );

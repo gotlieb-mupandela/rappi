@@ -41,7 +41,7 @@ Regenerate from the sheet JSON:
 npm run catalog
 ```
 
-Uncategorized apparel maps to **Sportswear**. Football-related rows (socks, shin guards, keeper gloves, footballs, boots, sets) map to **Football**. Mislabeled sheet categories are remapped (swimwear/caps/goggles → Swimming, rugby* → Rugby, cricket* → Cricket, running/yoga/towels → Running & Fitness, bags/volleyball → Balls & Bags).
+Uncategorized apparel (`cat` null) maps to **Sportswear**, except `FOOTBALL*` / `SOCKS` / `SHIN*` / `GOALKEEPER*` which map to **Football**. Mislabeled sheet categories are remapped (swimwear/caps/goggles → Swimming, rugby* → Rugby, cricket* → Cricket, shoe codes including TRAINING SHOES → Shoes, running/yoga/towels → Running & Fitness, bags/volleyball → Balls & Bags). Every source code is kept (184 SKUs).
 
 Search by product **CODE**, title, or category from the header or `/search`.
 

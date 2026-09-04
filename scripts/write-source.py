@@ -289,7 +289,14 @@ TITLES = {
 }
 
 
-def map_category(item: str, cat, code: str) -> str:
+def map_category(item: str, cat, _code: str) -> str:
+    """Map a sheet row to a storefront category slug.
+
+    cat=null apparel → Sportswear, except FOOTBALL*/SOCKS/SHIN*/GOALKEEPER* → Football.
+    Mislabeled sheet cats: SWIMWEAR/CAPS/GOOGELS → Swimming; RUGBY* → Rugby;
+    CRICKET* → Cricket; clearly-shoe codes (SHOES cat + TRAINING SHOES) → Shoes;
+    volleyball/bags/paddle balls → Balls & Bags.
+    """
     i = item.upper()
     c = (cat or "").upper()
     if i in {"SWIMWEAR", "GOOGELS"} or (i == "CAPS" and c == "NETBALL"):
@@ -300,12 +307,13 @@ def map_category(item: str, cat, code: str) -> str:
         return "cricket"
     if c in {"BALLS", "BAGS"} or "BAG" in i or i == "VOLLEYBALL" or "PADDEL" in i:
         return "balls-bags"
-    if i.startswith("RUNNING") or "YOGA" in i or i == "TOWELS" or i == "TRAINING SHOES":
-        return "running-fitness"
-    if c == "SHOES" or (i == "SHOES" and c == "SHOES"):
-        return "shoes"
+    # Netball court shoes stay in Netball; hockey-filed TRAINING SHOES and SHOES-cat rows go to Shoes.
     if i == "SHOES" and c == "NETBALL":
         return "netball"
+    if c == "SHOES" or i == "TRAINING SHOES":
+        return "shoes"
+    if i.startswith("RUNNING") or "YOGA" in i or i == "TOWELS":
+        return "running-fitness"
     if c == "BASKETBALL" or "BASKETBALL" in i:
         return "basketball"
     if c == "BOXING" or "BOXING" in i:
@@ -314,12 +322,12 @@ def map_category(item: str, cat, code: str) -> str:
         return "hockey"
     if c == "NETBALL" and i in {"DRESSES", "SKIRTS", "SHOES"}:
         return "netball"
-    if i == "SOCKS" or code == "401964.600":
-        return "sportswear"
     if (
         i.startswith("FOOTBALL")
-        or i in {"SHIN GUARDS", "GOALKEEPER GLOVES"}
+        or i == "SOCKS"
+        or i.startswith("SHIN")
         or "SHIN" in i
+        or i.startswith("GOALKEEPER")
         or "GOALKEEPER" in i
     ):
         return "football"
@@ -356,7 +364,7 @@ def main():
     products = []
     for i, row in enumerate(SOURCE):
         item = row["item"]
-        cat = map_category(item, row.get("cat"), row["code"])
+        cat = map_category(item, row.get("cat"), row["code"])  # code kept for signature / future overrides
         sub, gender = SUB_SLUG.get(item, ("general", "unisex"))
         if item == "JACKETS" and str(row.get("sizes", "")).startswith("6/"):
             gender = "kids"
@@ -366,8 +374,6 @@ def main():
         if item == "SHORTS" and cat == "hockey":
             sub = "shorts"
             gender = "unisex"
-        if item == "SOCKS" or row["code"] == "401964.600":
-            sub = "socks"
         if item == "TRAINING SHOES":
             sub = "training-shoes"
         sizes = parse_sizes(row.get("sizes"))
@@ -412,8 +418,8 @@ def main():
     for k, v in sorted(counts.items()):
         print(f"  {k}: {v}")
     expected = {
-        "sportswear": 73,
-        "football": 24,
+        "sportswear": 68,
+        "football": 29,
         "basketball": 9,
         "netball": 9,
         "swimming": 10,
@@ -421,8 +427,8 @@ def main():
         "cricket": 5,
         "boxing": 1,
         "hockey": 1,
-        "running-fitness": 16,
-        "shoes": 16,
+        "running-fitness": 14,
+        "shoes": 18,
         "balls-bags": 8,
     }
     assert dict(counts) == expected, (dict(counts), expected)

@@ -1,0 +1,56 @@
+import { notFound } from "next/navigation";
+import Link from "next/link";
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { HubTile } from "@/components/hub-tile";
+import { Button } from "@/components/ui/button";
+import { CATEGORIES, categoryBySlug } from "@/lib/catalog";
+import { productsByCategory, subcategoriesFor } from "@/lib/products";
+
+export function generateStaticParams() {
+  return CATEGORIES.map((c) => ({ slug: c.slug }));
+}
+
+export default async function CategoryHubPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const cat = categoryBySlug(slug);
+  if (!cat) notFound();
+  const items = productsByCategory(slug);
+  const subs = subcategoriesFor(slug);
+
+  return (
+    <div className="mx-auto max-w-[1440px] px-4 py-8 lg:px-6">
+      <Breadcrumbs
+        items={[{ href: "/", label: "Home" }, { label: cat.name }]}
+      />
+      <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="font-[family-name:var(--font-oswald)] text-4xl uppercase tracking-wide md:text-5xl">
+            {cat.name}
+          </h1>
+          <p className="mt-2 max-w-xl text-sm text-[#A0A0A0]">
+            {cat.blurb} {items.length} SKUs in opening stock.
+          </p>
+        </div>
+        <Button asChild variant="outline">
+          <Link href={`/shop/${slug}`}>View all products</Link>
+        </Button>
+      </div>
+
+      <div className="mt-10 grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+        {subs.map((s) => (
+          <HubTile
+            key={s.slug}
+            slug={slug}
+            name={s.name}
+            count={s.count}
+            href={`/shop/${slug}?sub=${encodeURIComponent(s.slug)}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}

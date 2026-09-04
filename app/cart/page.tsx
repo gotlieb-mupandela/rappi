@@ -1,0 +1,150 @@
+"use client";
+
+import Link from "next/link";
+import { useMemo } from "react";
+import { toast } from "sonner";
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { ProductVisual } from "@/components/product-visual";
+import { Button } from "@/components/ui/button";
+import { formatPrice } from "@/lib/format";
+import { getProduct } from "@/lib/products";
+import { cartCount, useCart } from "@/lib/stores/cart";
+import { productPath } from "@/lib/utils";
+
+export default function CartPage() {
+  const lines = useCart((s) => s.lines);
+  const setQty = useCart((s) => s.setQty);
+  const remove = useCart((s) => s.remove);
+  const clear = useCart((s) => s.clear);
+  const count = cartCount(lines);
+
+  const rows = useMemo(
+    () =>
+      lines
+        .map((line) => {
+          const product = getProduct(line.code);
+          if (!product) return null;
+          return { line, product, lineTotal: product.price * line.qty };
+        })
+        .filter(Boolean) as Array<{
+        line: (typeof lines)[number];
+        product: NonNullable<ReturnType<typeof getProduct>>;
+        lineTotal: number;
+      }>,
+    [lines],
+  );
+
+  const subtotal = rows.reduce((s, r) => s + r.lineTotal, 0);
+
+  return (
+    <div className="mx-auto max-w-[1440px] px-4 py-8 lg:px-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <Breadcrumbs items={[{ href: "/", label: "Home" }, { label: "Cart" }]} />
+          <h1 className="mt-4 font-[family-name:var(--font-oswald)] text-4xl uppercase">
+            Cart [{count}]
+          </h1>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              clear();
+              toast.message("Cart emptied.");
+            }}
+            disabled={!rows.length}
+          >
+            Empty cart
+          </Button>
+          <Button asChild disabled={!rows.length}>
+            <Link href="/checkout">Checkout</Link>
+          </Button>
+        </div>
+      </div>
+
+      {!rows.length ? (
+        <div className="mt-10 border border-[#2A2A2A] bg-[#141414] px-6 py-16 text-center">
+          <p className="text-lg font-semibold">Your cart is empty</p>
+          <p className="mt-2 text-sm text-[#A0A0A0]">
+            Browse the catalog and add sizes from a product page.
+          </p>
+          <Button asChild className="mt-6">
+            <Link href="/">Continue shopping</Link>
+          </Button>
+        </div>
+      ) : (
+        <div className="mt-8 space-y-4">
+          {rows.map(({ line, product, lineTotal }) => (
+            <div
+              key={`${line.code}-${line.size}`}
+              className="grid gap-4 border border-[#2A2A2A] bg-[#141414] p-4 md:grid-cols-[96px_minmax(0,1fr)_auto]"
+            >
+              <Link href={productPath(product.code)} className="block w-24">
+                <ProductVisual product={product} />
+              </Link>
+              <div>
+                <Link href={productPath(product.code)} className="font-mono text-lg font-bold hover:text-[#B6FF00]">
+                  {product.code}
+                </Link>
+                <p className="text-xs uppercase tracking-wider text-[#A0A0A0]">
+                  {product.name}
+                </p>
+                <div className="mt-3 overflow-x-auto">
+                  <table className="text-xs">
+                    <thead className="uppercase tracking-wider text-[#6B6B6B]">
+                      <tr>
+                        <th className="pr-6 text-left font-medium">Size</th>
+                        <th className="pr-6 text-left font-medium">Price</th>
+                        <th className="pr-6 text-left font-medium">Qty</th>
+                        <th className="text-left font-medium">Line</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="pr-6 py-1 font-semibold">{line.size}</td>
+                        <td className="pr-6 py-1">{formatPrice(product.price)}</td>
+                        <td className="pr-6 py-1">
+                          <input
+                            type="number"
+                            min={0}
+                            max={product.sizes.find((s) => s.size === line.size)?.stock ?? line.qty}
+                            value={line.qty}
+                            onChange={(e) =>
+                              setQty(line.code, line.size, Number(e.target.value))
+                            }
+                            className="h-8 w-16 border border-[#2A2A2A] bg-[#0B0B0B] px-2"
+                          />
+                        </td>
+                        <td className="py-1 font-semibold">{formatPrice(lineTotal)}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div className="flex items-start justify-end">
+                <button
+                  type="button"
+                  onClick={() => remove(line.code, line.size)}
+                  className="text-xs uppercase tracking-wider text-[#A0A0A0] hover:text-white"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+          ))}
+          <div className="flex flex-wrap items-center justify-between border border-[#B6FF00]/40 bg-[#141414] px-5 py-4">
+            <p className="text-sm uppercase tracking-wider text-[#A0A0A0]">
+              {count} unit{count === 1 ? "" : "s"}
+            </p>
+            <p className="text-xl font-semibold">
+              Subtotal {formatPrice(subtotal)}
+            </p>
+            <Button asChild size="lg">
+              <Link href="/checkout">Checkout</Link>
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

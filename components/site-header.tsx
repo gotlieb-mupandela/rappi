@@ -1,0 +1,192 @@
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { FormEvent, useEffect, useState } from "react";
+import { Menu, Search, ShoppingBag, User, X } from "lucide-react";
+import { CATEGORIES } from "@/lib/catalog";
+import { useAuth } from "@/lib/stores/auth";
+import { cartCount, useCart } from "@/lib/stores/cart";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+
+export function SiteHeader() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const [q, setQ] = useState("");
+  const [open, setOpen] = useState(false);
+  const [ready, setReady] = useState(false);
+  const lines = useCart((s) => s.lines);
+  const user = useAuth((s) => s.user);
+  const logout = useAuth((s) => s.logout);
+  const count = cartCount(lines);
+
+  useEffect(() => {
+    setReady(true);
+  }, []);
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  function onSearch(e: FormEvent) {
+    e.preventDefault();
+    const query = q.trim();
+    router.push(query ? `/search?q=${encodeURIComponent(query)}` : "/search");
+    setOpen(false);
+  }
+
+  const activeSlug = CATEGORIES.find(
+    (c) => pathname === `/category/${c.slug}` || pathname.startsWith(`/shop/${c.slug}`),
+  )?.slug;
+
+  return (
+    <header className="sticky top-0 z-50 border-b border-[#1F1F1F] bg-[#0B0B0B]/95 backdrop-blur">
+      <div className="mx-auto flex h-16 max-w-[1440px] items-center gap-4 px-4 lg:px-6">
+        <button
+          type="button"
+          className="lg:hidden text-white"
+          aria-label="Menu"
+          onClick={() => setOpen((v) => !v)}
+        >
+          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
+
+        <Link href="/" className="flex shrink-0 items-center">
+          <Image
+            src="/brand/rappi-logo.png"
+            alt="RAPPI SPORTS HUB"
+            width={210}
+            height={56}
+            className="h-10 w-auto"
+            priority
+          />
+        </Link>
+
+        <form onSubmit={onSearch} className="mx-auto hidden max-w-md flex-1 md:flex">
+          <div className="relative w-full">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6B6B6B]" />
+            <Input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search by code, title, category"
+              className="pl-9"
+              aria-label="Search catalog"
+            />
+          </div>
+        </form>
+
+        <div className="ml-auto flex items-center gap-1">
+          <Link
+            href="/search"
+            className="flex h-10 w-10 items-center justify-center text-white hover:text-[#B6FF00] md:hidden"
+            aria-label="Search"
+          >
+            <Search className="h-5 w-5" />
+          </Link>
+          <Link
+            href="/cart"
+            className="relative flex h-10 w-10 items-center justify-center text-white hover:text-[#B6FF00]"
+            aria-label="Cart"
+          >
+            <ShoppingBag className="h-5 w-5" />
+            {ready && count > 0 ? (
+              <span className="absolute -right-0.5 -top-0.5 min-w-4 rounded-full bg-[#B6FF00] px-1 text-center text-[10px] font-bold leading-4 text-[#0B0B0B]">
+                {count}
+              </span>
+            ) : null}
+          </Link>
+          {ready && user ? (
+            <div className="relative group">
+              <Link
+                href="/account"
+                className="flex items-center gap-2 px-2 text-white hover:text-[#B6FF00]"
+              >
+                <User className="h-5 w-5" />
+                <span className="hidden text-[11px] font-semibold uppercase tracking-wider sm:inline">
+                  {user.name}
+                </span>
+              </Link>
+              <div className="invisible absolute right-0 top-full z-20 min-w-40 border border-[#2A2A2A] bg-[#1A1A1A] py-1 opacity-0 shadow-xl group-hover:visible group-hover:opacity-100">
+                <Link href="/account/orders" className="block px-3 py-2 text-xs uppercase tracking-wider hover:bg-[#222] hover:text-[#B6FF00]">
+                  Orders
+                </Link>
+                <Link href="/account/profile" className="block px-3 py-2 text-xs uppercase tracking-wider hover:bg-[#222] hover:text-[#B6FF00]">
+                  Profile
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    logout();
+                    router.push("/");
+                  }}
+                  className="block w-full px-3 py-2 text-left text-xs uppercase tracking-wider hover:bg-[#222] hover:text-[#B6FF00]"
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              className="flex items-center gap-2 px-2 text-white hover:text-[#B6FF00]"
+            >
+              <User className="h-5 w-5" />
+              <span className="hidden text-[11px] font-semibold uppercase tracking-wider sm:inline">
+                Account
+              </span>
+            </Link>
+          )}
+        </div>
+      </div>
+
+      <nav className="hidden border-t border-[#1A1A1A] lg:block">
+        <ul className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-center gap-x-5 gap-y-1 px-4 py-2">
+          {CATEGORIES.map((c) => (
+            <li key={c.slug}>
+              <Link
+                href={`/category/${c.slug}`}
+                className={cn(
+                  "text-[11px] font-semibold uppercase tracking-[0.16em] text-[#C8C8C8] hover:text-[#B6FF00]",
+                  activeSlug === c.slug &&
+                    "text-[#B6FF00] underline decoration-2 underline-offset-8",
+                )}
+              >
+                {c.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      {open ? (
+        <div className="border-t border-[#1F1F1F] bg-[#0B0B0B] px-4 py-4 lg:hidden">
+          <form onSubmit={onSearch} className="mb-4">
+            <Input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search by code, title, category"
+            />
+          </form>
+          <ul className="grid grid-cols-2 gap-2">
+            {CATEGORIES.map((c) => (
+              <li key={c.slug}>
+                <Link
+                  href={`/category/${c.slug}`}
+                  className="block py-2 text-xs font-semibold uppercase tracking-wider text-white hover:text-[#B6FF00]"
+                >
+                  {c.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <Button asChild className="mt-4 w-full" variant="outline">
+            <Link href="/promotions">Promotions</Link>
+          </Button>
+        </div>
+      ) : null}
+    </header>
+  );
+}

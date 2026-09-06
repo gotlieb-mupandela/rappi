@@ -12,3 +12,7 @@ export function productPath(code: string) {
 export function decodeProductCode(segments: string[]) {
   return segments.map(decodeURIComponent).join("/");
 }
+
+export function safeProductCode(code: string) {
+  return code.replace(/\./g, "-").replace(/\//g, "-");
+}

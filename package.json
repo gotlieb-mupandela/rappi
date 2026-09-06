@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start --hostname 127.0.0.1 --port 43123",
     "lint": "eslint",
-    "catalog": "python3 scripts/write-source.py"
+    "catalog": "python3 scripts/write-source.py",
+    "check:catalog": "python3 scripts/check-catalog.py",
+    "images": "python3 scripts/expand-product-images.py"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.23",

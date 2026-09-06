@@ -1,9 +1,10 @@
-export function formatPrice(value: number, currency = "USD") {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency,
+/** Format a stock-list unit price as Namibian dollars. Numeric values stay unchanged. */
+export function formatPrice(value: number) {
+  const n = new Intl.NumberFormat("en-NA", {
     minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(value);
+  return `N$${n}`;
 }
 
 export function formatDate(iso: string) {

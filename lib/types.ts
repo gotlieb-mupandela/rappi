@@ -15,7 +15,7 @@ export type Product = {
   gender: "men" | "women" | "kids" | "unisex";
   price: number;
   unitPrice: number;
-  currency: "USD";
+  currency: "NAD";
   sheetCategory: string | null;
   totalQty: number;
   stockQty: number;
@@ -23,6 +23,7 @@ export type Product = {
   sizeOptions: string[];
   sizes: SizeStock[];
   imageUrl: string;
+  images: string[];
 };
 
 export type CartLine = {

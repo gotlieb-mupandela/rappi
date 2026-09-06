@@ -353,7 +353,7 @@ def split_stock(sizes, qty):
 
 
 def main():
-    root = Path("/workspace")
+    root = Path(__file__).resolve().parents[1]
     data = root / "data"
     data.mkdir(exist_ok=True)
     (data / "products-source.json").write_text(json.dumps(SOURCE, indent=2) + "\n")
@@ -387,6 +387,20 @@ def main():
         if price <= 4.5 and qty >= 8:
             badge = "offer"
         sku_id = row["code"].replace(".", "-").replace("/", "-")
+        image_dir = root / "public" / "products" / sku_id
+        shots = []
+        if image_dir.is_dir():
+            for name in ("01.webp", "02.webp", "03.webp", "04.webp", "05.webp",
+                         "01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"):
+                if (image_dir / name).is_file():
+                    shots.append(f"/products/{sku_id}/{name}")
+            # keep 01..05 order, unique
+            ordered = []
+            for n in range(1, 6):
+                match = next((s for s in shots if s.rsplit("/", 1)[-1].startswith(f"{n:02d}.")), None)
+                if match and match not in ordered:
+                    ordered.append(match)
+            shots = ordered
         products.append(
             {
                 "id": sku_id,
@@ -400,14 +414,15 @@ def main():
                 "gender": gender,
                 "price": price,
                 "unitPrice": price,
-                "currency": "USD",
+                "currency": "NAD",
                 "sheetCategory": row.get("cat"),
                 "totalQty": qty,
                 "stockQty": qty,
                 "badge": badge,
                 "sizeOptions": sizes,
                 "sizes": stock,
-                "imageUrl": "",
+                "imageUrl": shots[0] if shots else "",
+                "images": shots,
             }
         )
 

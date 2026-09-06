@@ -30,6 +30,22 @@ SPOT = {
     "400027.P03": 17.4,
 }
 
+# Must match lib/catalog.ts CATEGORIES (header nav).
+NAV = (
+    "sportswear",
+    "football",
+    "basketball",
+    "netball",
+    "swimming",
+    "rugby",
+    "cricket",
+    "boxing",
+    "hockey",
+    "running-fitness",
+    "shoes",
+    "balls-bags",
+)
+
 
 def fail(msg: str) -> None:
     print(f"FAIL {msg}", file=sys.stderr)
@@ -50,8 +66,16 @@ def main() -> None:
         for key in REQUIRED:
             if key not in p:
                 fail(f"{p.get('code')} missing {key}")
+        if not isinstance(p.get("unitPrice"), (int, float)):
+            fail(f"{p['code']} unitPrice is not a number")
+        if not isinstance(p.get("stockQty"), (int, float)):
+            fail(f"{p['code']} stockQty is not a number")
+        if not isinstance(p.get("sizes"), list) or len(p["sizes"]) == 0:
+            fail(f"{p['code']} missing sizes[]")
         if p.get("currency") not in (None, "NAD"):
             fail(f"{p['code']} currency is {p.get('currency')}, expected NAD")
+        if p.get("category") not in NAV:
+            fail(f"{p['code']} category {p.get('category')!r} is not in nav")
         images = p.get("images") or []
         if not isinstance(images, list) or len(images) < 4:
             fail(f"{p['code']} needs 4–5 images, got {len(images)}")
@@ -76,9 +100,21 @@ def main() -> None:
         got = float(by[code]["unitPrice"])
         if abs(got - price) > 1e-9:
             fail(f"{code} price {got} != {price}")
+    by_cat: dict[str, int] = {slug: 0 for slug in NAV}
+    for p in products:
+        by_cat[p["category"]] = by_cat.get(p["category"], 0) + 1
+    for slug in NAV:
+        if by_cat.get(slug, 0) < 1:
+            fail(f"nav category {slug} has no products")
+    for p in products:
+        needle = str(p["code"]).lower()
+        hits = [x for x in products if needle in str(x.get("code", "")).lower()]
+        if not any(x["code"] == p["code"] for x in hits):
+            fail(f"{p['code']} not reachable via code search")
     print("OK 184 unique SKUs")
     print("OK required fields + NAD currency")
     print("OK spot-check prices")
+    print("OK nav categories each have ≥1 SKU; every SKU searchable by code")
     print(f"OK image coverage {len(products)}/184 with 4–5 photos each")
 
 

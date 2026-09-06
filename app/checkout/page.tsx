@@ -116,8 +116,8 @@ export default function CheckoutPage() {
             Shipping & billing
           </h1>
           <p className="mt-2 max-w-xl text-sm text-[#A0A0A0]">
-            Select a delivery address and shipping method, then place the order. Payment
-            is stubbed — no real charges.
+            Select a delivery address and shipping method, then place the order. Merchandise
+            and shipping are in Namibian dollars (N$). Payment is stubbed — no real charges.
           </p>
         </div>
       </div>
@@ -211,7 +211,7 @@ export default function CheckoutPage() {
             Place order
           </Button>
           <p className="mt-3 text-center text-[11px] text-[#6B6B6B]">
-            Checkout stub — no payment is collected.
+            Totals in N$. Checkout stub — no payment is collected.
           </p>
         </aside>
       </form>

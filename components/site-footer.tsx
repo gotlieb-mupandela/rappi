@@ -11,7 +11,8 @@ export function SiteFooter() {
             {TAGLINE}
           </p>
           <p className="mt-3 max-w-sm text-sm text-[#A0A0A0]">
-            Consumer sportswear and equipment storefront. Opening shop stock, sold at unit retail price. No wholesale tariffs.
+            Consumer sportswear and equipment storefront. Opening shop stock, sold at unit
+            retail prices in Namibian dollars (N$). No wholesale tariffs.
           </p>
         </div>
         <div>

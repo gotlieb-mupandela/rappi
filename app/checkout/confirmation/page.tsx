@@ -71,7 +71,7 @@ function ConfirmationInner() {
             <span>{formatPrice(order.shippingCost)}</span>
           </p>
           <p className="mt-2 flex justify-between text-lg font-semibold">
-            <span>Total</span>
+            <span>Total (N$)</span>
             <span>{formatPrice(order.total)}</span>
           </p>
         </section>

@@ -2,7 +2,7 @@
 
 Consumer sports catalog for **RAPPI SPORTS HUB**. Tagline: **EQUIP | PERFORM | INSPIRE**.
 
-Dark storefront with neon lime CTAs. Opening-shop stock only — **184 SKUs** in `/data/products.json`. Unit prices are retail (USD). Guest browse and cart are enabled. Checkout is a stub (no real payments).
+Dark storefront with neon lime CTAs. Opening-shop stock only — **184 SKUs** in `/data/products.json`. Unit prices are retail Namibian dollars (**N$**). Guest browse and cart are enabled. Checkout is a stub (no real payments).
 
 This is not a Joma brand clone. Layout and page density follow a professional B2B catalog pattern; branding, copy, and imagery are RAPPI.
 
@@ -33,13 +33,21 @@ Orders placed in checkout are stored in this browser (`localStorage`) and show u
 ## Catalog
 
 Source rows: `/data/products-source.json`  
-Normalized catalog: `/data/products.json`
+Normalized catalog: `/data/products.json` (treat as the product DB)
+
+Integrity checks (184 unique SKUs, NAD currency, spot-check prices, 4–5 photos each):
+
+```bash
+npm run check:catalog
+```
 
 Regenerate from the sheet JSON:
 
 ```bash
 npm run catalog
 ```
+
+Product photos live at `public/products/{safeCode}/01…05.webp`. `safeCode` is the SKU with `.` and `/` replaced by `-`. Cards use photo 01; the PDP gallery uses the full set. Rebuild photos from family bases with `npm run images` after placing bases in `data/catalog-bases/` (`pip3 install pillow` first).
 
 Uncategorized apparel (`cat` null) maps to **Sportswear**, except `FOOTBALL*` / `SOCKS` / `SHIN*` / `GOALKEEPER*` which map to **Football**. Mislabeled sheet categories are remapped (swimwear/caps/goggles → Swimming, rugby* → Rugby, cricket* → Cricket, shoe codes including TRAINING SHOES → Shoes, running/yoga/towels → Running & Fitness, bags/volleyball → Balls & Bags). Every source code is kept (184 SKUs).
 

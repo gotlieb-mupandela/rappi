@@ -40,7 +40,16 @@ export function ProductCard({
     return (
       <article className="grid grid-cols-[72px_minmax(0,1fr)] items-center gap-3 border-b border-[var(--border)] py-3 sm:grid-cols-[88px_minmax(0,1fr)_auto] sm:gap-4">
         <Link href={productPath(product.code)} className="block w-[72px] sm:w-[88px]">
-          <ProductVisual product={product} className="aspect-square" />
+          {product.imageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={product.imageUrl}
+              alt={product.code}
+              className="aspect-square w-full object-cover"
+            />
+          ) : (
+            <ProductVisual product={product} className="aspect-square" />
+          )}
         </Link>
         <Link href={productPath(product.code)} className="min-w-0">
           <p className="truncate font-mono text-sm font-bold">{product.code}</p>
@@ -78,7 +87,16 @@ export function ProductCard({
               {product.badge === "offer" ? "Offer" : "New"}
             </Badge>
           ) : null}
-          <ProductVisual product={product} />
+          {product.imageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={product.imageUrl}
+              alt={product.code}
+              className="aspect-[3/4] w-full object-cover object-center"
+            />
+          ) : (
+            <ProductVisual product={product} />
+          )}
         </div>
         {stock === 0 ? (
           <div className="bg-[#C4122F] py-1.5 text-center text-[10px] font-bold uppercase tracking-widest text-white">

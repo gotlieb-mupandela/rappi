@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import type { Product } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ProductVisual } from "@/components/product-visual";
+import { ProductGallery } from "@/components/product-gallery";
 import { formatPrice } from "@/lib/format";
 import { isLowStock, totalStock } from "@/lib/products";
 import { useCart } from "@/lib/stores/cart";
@@ -31,9 +31,7 @@ export function ProductDetail({ product }: { product: Product }) {
 
   return (
     <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-      <div className="border border-[#222] bg-[#141414]">
-        <ProductVisual product={product} className="aspect-[4/5] max-h-[640px]" />
-      </div>
+      <ProductGallery product={product} />
       <div>
         <p className="text-[11px] uppercase tracking-[0.18em] text-[#B6FF00]">
           {cat?.name} / {SUBCATEGORY_LABELS[product.subcategory] ?? product.subcategory}
@@ -158,7 +156,7 @@ export function ProductDetail({ product }: { product: Product }) {
           </Button>
         </div>
         <p className="mt-6 text-sm leading-6 text-[#A0A0A0]">
-          Opening-shop SKU {product.code}. Retail unit price in USD. Guest checkout is
+          Opening-shop SKU {product.code}. Retail unit price in Namibian dollars (N$). Guest checkout is
           available — no dealer tariff, net, or wholesale pricing.
         </p>
       </div>

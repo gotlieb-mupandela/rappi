@@ -161,7 +161,7 @@ export function CatalogFilters({
             type="number"
             min={0}
             step="0.01"
-            placeholder="USD"
+            placeholder="N$"
             defaultValue={maxPrice}
             onBlur={(e) => setParam("max", e.target.value)}
           />

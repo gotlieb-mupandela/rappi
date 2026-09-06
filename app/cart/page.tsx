@@ -44,6 +44,7 @@ export default function CartPage() {
           <h1 className="mt-4 font-[family-name:var(--font-oswald)] text-3xl uppercase sm:text-4xl">
             Cart [{count}]
           </h1>
+          <p className="mt-1 text-sm text-[#A0A0A0]">Prices in Namibian dollars (N$).</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button
@@ -80,7 +81,16 @@ export default function CartPage() {
               className="grid gap-4 border border-[#2A2A2A] bg-[#141414] p-4 sm:grid-cols-[96px_minmax(0,1fr)_auto]"
             >
               <Link href={productPath(product.code)} className="block w-24">
-                <ProductVisual product={product} />
+                {product.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={product.imageUrl}
+                    alt={product.code}
+                    className="aspect-square w-full object-cover"
+                  />
+                ) : (
+                  <ProductVisual product={product} />
+                )}
               </Link>
               <div>
                 <Link href={productPath(product.code)} className="font-mono text-lg font-bold hover:text-[#B6FF00]">

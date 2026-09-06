@@ -32,8 +32,8 @@ export default function HomePage() {
           </h1>
           <p className="mt-5 max-w-xl text-sm text-[#A0A0A0] sm:text-base">
             Opening shop stock. {products.length} SKUs across sportswear, football,
-            court sports, and kit. Retail unit prices. Browse as a guest or sign in to
-            track orders.
+            court sports, and kit. Retail unit prices in Namibian dollars (N$). Browse as
+            a guest or sign in to track orders.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Button asChild size="lg" className="w-full sm:w-auto">

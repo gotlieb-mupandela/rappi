@@ -57,7 +57,16 @@ export function HubTile({
         }
       >
         {product ? (
-          <ProductVisual product={product} className="aspect-auto h-full w-full" />
+          product.imageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={product.imageUrl}
+              alt=""
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <ProductVisual product={product} className="aspect-auto h-full w-full" />
+          )
         ) : (
           <div className="absolute inset-0 opacity-40 mix-blend-overlay [background-image:repeating-linear-gradient(90deg,transparent,transparent_18px,rgba(255,255,255,0.04)_19px)]" />
         )}

@@ -5,7 +5,7 @@ import { SectionHeading } from "@/components/section-heading";
 import { Button } from "@/components/ui/button";
 import { CATEGORIES, TAGLINE } from "@/lib/catalog";
 import { sampleForCategory } from "@/lib/classify";
-import { collectionTiles } from "@/lib/hubs";
+import { audienceTiles, collectionTiles } from "@/lib/hubs";
 import { categoryCountsFrom } from "@/lib/products";
 import { getCatalog, getSiteSettings } from "@/lib/supabase/catalog";
 import type { Product } from "@/lib/types";
@@ -26,6 +26,7 @@ export default async function HomePage() {
     .map((code) => byCode(code))
     .filter((p): p is Product => Boolean(p));
   const collections = collectionTiles(catalog);
+  const audiences = audienceTiles(catalog);
   const football = byCategory("football");
   const tagline = settings?.tagline ?? TAGLINE;
   const heroTitle = settings?.hero_title ?? "RAPPI SPORTS HUB";
@@ -89,7 +90,24 @@ export default async function HomePage() {
       </section>
 
       <section className="page-shell py-12 lg:py-16">
-        <SectionHeading eyebrow="01" title="Shop" href="/search" linkLabel="Browse all" />
+        <SectionHeading eyebrow="01" title="Men, Women & Kids" href="/shop/men" linkLabel="Shop men" />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 md:gap-4">
+          {audiences.map((a) => (
+            <HubTile
+              key={a.key}
+              slug={a.sample?.category ?? "sportswear"}
+              name={a.name}
+              count={a.count}
+              href={a.href}
+              product={a.sample}
+              shape="square"
+            />
+          ))}
+        </div>
+      </section>
+
+      <section className="page-shell pb-12 lg:pb-16">
+        <SectionHeading eyebrow="02" title="Shop" href="/search" linkLabel="Browse all" />
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
           {hubs.map((c, i) => (
             <div key={c.slug} className={cn(i === 0 && "col-span-2 md:row-span-2")}>
@@ -109,7 +127,7 @@ export default async function HomePage() {
 
       <section className="page-shell pb-12 lg:pb-16">
         <SectionHeading
-          eyebrow="02"
+          eyebrow="03"
           title="Collections"
           href="/promotions"
           linkLabel="View all"
@@ -130,7 +148,7 @@ export default async function HomePage() {
 
       <section className="page-shell pb-16 lg:pb-20">
         <SectionHeading
-          eyebrow="03"
+          eyebrow="04"
           title="Now in"
           href="/shop/sportswear"
           linkLabel="View all"

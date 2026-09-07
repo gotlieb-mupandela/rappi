@@ -23,6 +23,7 @@ export type ListingResult = {
   query: string;
   facets: {
     categories: ListingFacet[];
+    audiences: ListingFacet[];
     subs: ListingFacet[];
     sizes: string[];
   };

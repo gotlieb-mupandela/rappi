@@ -1,7 +1,7 @@
 import "server-only";
 
-import { CATEGORIES, SUBCATEGORY_LABELS } from "@/lib/catalog";
-import { matchesAudience } from "@/lib/hubs";
+import { AUDIENCES, CATEGORIES, SUBCATEGORY_LABELS } from "@/lib/catalog";
+import { matchesAudience, productAudience } from "@/lib/hubs";
 import {
   LISTING_PAGE_SIZE,
   type ListingFacet,
@@ -71,6 +71,20 @@ function facetCategories(list: Product[]): ListingFacet[] {
   })).filter((c) => c.count > 0);
 }
 
+function facetAudiences(list: Product[]): ListingFacet[] {
+  const counts = new Map<string, number>();
+  for (const p of list) {
+    const audience = productAudience(p);
+    if (audience === "unisex") continue;
+    counts.set(audience, (counts.get(audience) ?? 0) + 1);
+  }
+  return AUDIENCES.map((a) => ({
+    slug: a.slug,
+    name: a.name,
+    count: counts.get(a.slug) ?? 0,
+  })).filter((a) => a.count > 0);
+}
+
 function facetSubs(list: Product[]): ListingFacet[] {
   const counts = new Map<string, number>();
   for (const p of list) counts.set(p.subcategory, (counts.get(p.subcategory) ?? 0) + 1);
@@ -121,6 +135,7 @@ export function paginateListing(
     query: (query.q ?? "").trim(),
     facets: {
       categories: facetCategories(list),
+      audiences: facetAudiences(list),
       subs: facetSubs(list),
       sizes: facetSizes(list),
     },
@@ -133,7 +148,10 @@ export function buildListing(
   opts?: { categorySlug?: string; requireQuery?: boolean; pageSize?: number },
 ): ListingResult {
   const filtered = filterListing(catalog, query, opts);
-  return paginateListing(filtered, query, opts?.pageSize ?? LISTING_PAGE_SIZE);
+  const result = paginateListing(filtered, query, opts?.pageSize ?? LISTING_PAGE_SIZE);
+  const beforeAudience = filterListing(catalog, { ...query, audience: undefined }, opts);
+  result.facets.audiences = facetAudiences(beforeAudience);
+  return result;
 }
 
 export function buildTaxonomy(catalog: Product[]): StorefrontTaxonomy {

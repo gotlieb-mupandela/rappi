@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { BrandLogo } from "@/components/brand-logo";
-import { CATEGORIES, TAGLINE } from "@/lib/catalog";
+import { AUDIENCES, CATEGORIES, TAGLINE } from "@/lib/catalog";
 
 export function SiteFooter({
   categoryCounts,
@@ -24,6 +24,16 @@ export function SiteFooter({
             Shop
           </p>
           <ul className="mt-4 grid grid-cols-2 gap-y-2 text-sm">
+            {AUDIENCES.map((a) => (
+              <li key={a.slug}>
+                <Link
+                  href={`/shop/${a.slug}`}
+                  className="text-ink/90 transition-colors hover:text-[var(--accent)]"
+                >
+                  {a.name}
+                </Link>
+              </li>
+            ))}
             {CATEGORIES.filter((c) => !categoryCounts || (categoryCounts[c.slug] ?? 0) > 0).map(
               (c) => (
               <li key={c.slug}>

@@ -17,6 +17,7 @@ export function CatalogFilters({
   basePath,
   grouped = true,
   showCategoryFilter = false,
+  showAudienceFilter = true,
   emptyTitle,
   emptyBody,
 }: {
@@ -25,6 +26,7 @@ export function CatalogFilters({
   basePath: string;
   grouped?: boolean;
   showCategoryFilter?: boolean;
+  showAudienceFilter?: boolean;
   emptyTitle?: string;
   emptyBody?: string;
 }) {
@@ -35,6 +37,7 @@ export function CatalogFilters({
   const maxPrice = params.get("max") ?? "";
   const q = params.get("q") ?? "";
   const cat = params.get("cat") ?? categorySlug ?? "all";
+  const audience = params.get("audience") ?? "all";
   const [draftQ, setDraftQ] = useState(q);
   const [layout, setLayout] = useState<"grid" | "list">("grid");
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -92,6 +95,23 @@ export function CatalogFilters({
                 onClick={() => setParam("cat", c.slug)}
               >
                 {c.name} ({c.count})
+              </FilterLink>
+            ))}
+          </FilterBlock>
+        ) : null}
+
+        {showAudienceFilter && listing.facets.audiences.length > 0 ? (
+          <FilterBlock title="Shop for">
+            <FilterLink active={audience === "all"} onClick={() => setParam("audience", "all")}>
+              All ({listing.total})
+            </FilterLink>
+            {listing.facets.audiences.map((a) => (
+              <FilterLink
+                key={a.slug}
+                active={audience === a.slug}
+                onClick={() => setParam("audience", a.slug)}
+              >
+                {a.name} ({a.count})
               </FilterLink>
             ))}
           </FilterBlock>

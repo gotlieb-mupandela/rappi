@@ -6,7 +6,7 @@ import { FormEvent, Suspense, useEffect, useRef, useState } from "react";
 import { Menu, Search, ShoppingBag, User, X, ChevronDown } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { CATEGORIES, NAV_PRIMARY } from "@/lib/catalog";
+import { AUDIENCES, CATEGORIES, NAV_PRIMARY } from "@/lib/catalog";
 import { useAuth } from "@/lib/stores/auth";
 import { cartCount, useCart } from "@/lib/stores/cart";
 import { CategorySubNav } from "@/components/category-sub-nav";
@@ -102,6 +102,7 @@ export function SiteHeader({
   const activeSlug = CATEGORIES.find(
     (c) => pathname === `/category/${c.slug}` || pathname.startsWith(`/shop/${c.slug}`),
   )?.slug;
+  const activeAudience = AUDIENCES.find((a) => pathname.startsWith(`/shop/${a.slug}`))?.slug;
 
   return (
     <header
@@ -260,7 +261,18 @@ export function SiteHeader({
       ) : null}
 
       <nav className="hidden border-t border-[var(--border)] lg:block">
-        <ul className="page-shell flex items-center justify-center gap-x-5 py-2.5 xl:gap-x-7">
+        <ul className="page-shell flex flex-wrap items-center justify-center gap-x-5 gap-y-1 py-2.5 xl:gap-x-7">
+          {AUDIENCES.map((a) => (
+            <li key={a.slug}>
+              <Link
+                href={`/shop/${a.slug}`}
+                data-active={activeAudience === a.slug || undefined}
+                className="nav-link text-[11px] font-semibold uppercase tracking-[0.14em]"
+              >
+                {a.name}
+              </Link>
+            </li>
+          ))}
           {primaryNav.map((c) => (
             <li key={c.slug}>
               <Link
@@ -332,6 +344,21 @@ export function SiteHeader({
               className="h-11"
             />
           </form>
+          <ul className="mb-3 grid grid-cols-3 gap-1">
+            {AUDIENCES.map((a) => (
+              <li key={a.slug}>
+                <Link
+                  href={`/shop/${a.slug}`}
+                  className={cn(
+                    "flex min-h-11 items-center justify-center rounded-lg bg-[var(--hover)] px-2 text-xs font-semibold uppercase tracking-wider text-ink hover:text-[var(--accent)]",
+                    activeAudience === a.slug && "text-[var(--accent)]",
+                  )}
+                >
+                  {a.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
           <ul className="grid grid-cols-2 gap-1">
             {visibleCategories.map((c) => (
               <li key={c.slug}>

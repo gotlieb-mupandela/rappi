@@ -52,7 +52,8 @@ function isFootballBootFamily(family: string) {
 }
 
 const APPAREL_RE =
-  /\b(t-shirts?|tshirts?|shirts?|polo|shorts?|bermuda|hoodie|jackets?|anorak|raincoat|windbreaker|sweatshirts?|tracksuits?|pants?|trousers?|tights?|leggings?|bras?|socks?|dresses?|skirts?|gloves?|caps?|hats?|visor|bib|set)\b/i;
+  /\b(t-shirts?|tshirts?|shirts?|polo|shorts?|bermuda|hoodie|jackets?|anorak|raincoat|windbreaker|sweatshirts?|tracksuits?|pants?|trousers?|tights?|leggings?|bras?|socks?|dresses?|skirts?|gloves?|caps?|hats?|visor|bib|set|singlet|tanks?|vests?|sleeveless|crop(?:ped)?)\b/i;
+const HARD_FOOTWEAR_RE = /\b(shoe|sneaker|boot|sandal)\b/i;
 const FOOTWEAR_NAME_RE =
   /\b(sneaker|sandal|barefoot|shoe|boot|cleat|spike|trainer|footwear)\b/i;
 const BAG_RE =
@@ -65,13 +66,27 @@ function isBagName(name: string) {
 }
 
 function isApparelName(name: string) {
-  return APPAREL_RE.test(name);
+  const cleaned = name.replace(/\btop flex\b/gi, " ");
+  if (APPAREL_RE.test(cleaned)) return true;
+  // Training tops, not "Top Flex" football boots.
+  return /\btop\b/i.test(cleaned) && !FOOTWEAR_NAME_RE.test(cleaned);
+}
+
+function isApparelOnly(name: string) {
+  return isApparelName(name) && !HARD_FOOTWEAR_RE.test(name);
 }
 
 function isFootwearName(name: string) {
   if (isBagName(name)) return false;
-  if (FOOTWEAR_NAME_RE.test(name)) return !isApparelName(name) || /\b(shoe|sneaker|boot|sandal|barefoot)\b/.test(name);
-  return false;
+  if (isApparelOnly(name)) return false;
+  return FOOTWEAR_NAME_RE.test(name);
+}
+
+/** Joma Hook shorts are the rugby short line (names omit "rugby"). */
+function isRugbyHookShort(name: string) {
+  if (!/\bhook\b/.test(name)) return false;
+  if (isFootwearName(name) || isBagName(name)) return false;
+  return word(name, "short", "shorts", "bermuda");
 }
 
 function isFootballBootName(name: string) {
@@ -107,7 +122,9 @@ export function classifyStorefrontCategory(product: Product): string {
 
   if (word(blob, "cricket") || family === "cricket") return "cricket";
   if (word(blob, "hockey") || family === "hockey") return "hockey";
-  if (word(blob, "rugby", "skrum", "scrum")) return "rugby";
+  if (word(blob, "rugby", "skrum", "scrum") || family === "rugby" || family === "skrum" || isRugbyHookShort(name)) {
+    return "rugby";
+  }
   if (isCombatBoxingShort(name)) return "boxing";
 
   if (isSwimPiece(name, family)) return "swimming";
@@ -132,7 +149,10 @@ export function classifyStorefrontCategory(product: Product): string {
     return "football";
   }
 
-  if (isFootwearFamily(family) || isDedicatedShoeFamily(family) || isFootwearName(name)) {
+  if (
+    !isApparelOnly(name) &&
+    (isFootwearFamily(family) || isDedicatedShoeFamily(family) || isFootwearName(name))
+  ) {
     if (/\bbasket\b/.test(family) || /\bbasketball\b/.test(name)) return "basketball";
     return "shoes";
   }
@@ -143,7 +163,7 @@ export function classifyStorefrontCategory(product: Product): string {
       family === "padel" ||
       family === "volleyball" ||
       family === "football") &&
-    !isApparelName(name) &&
+    !isApparelOnly(name) &&
     !isBagName(name) &&
     !BALL_RE.test(name)
   ) {
@@ -345,6 +365,15 @@ export function classifyStorefrontSubcategory(
   const family = itemFamily(product.item || "");
   const name = `${product.displayName} ${product.name} ${product.item}`.toLowerCase();
 
+  if (category === "rugby") {
+    if (/\b(helmet|protection|protec|scrum cap)\b/.test(name)) return "protection";
+    if (BALL_RE.test(name)) return "balls";
+    if (/\bshorts?\b|\bbermuda\b/.test(name) && !/\b(shirt|jersey|tee)\b/.test(name)) {
+      return "shorts";
+    }
+    return "jerseys";
+  }
+
   for (const rule of SUB_RULES) {
     if (rule.test(name, family)) {
       if (rule.slug === "sneakers" && category !== "shoes") continue;
@@ -386,7 +415,23 @@ export function withStorefrontCategories<T extends Product>(catalog: T[]): T[] {
   return catalog.map(withStorefrontMerchandising);
 }
 
-function sampleScore(product: Product) {
+/** True when the SKU is actual footwear — never clothing, socks, or bags. */
+export function isStorefrontFootwear(product: Product) {
+  const family = itemFamily(product.item || "");
+  const name = `${product.displayName} ${product.name}`.toLowerCase();
+  if (isBagName(name) || isApparelOnly(name)) return false;
+  if (product.subcategory === "boots" || product.subcategory === "kids-shoes") return true;
+  if (product.category === "shoes") return true;
+  return (
+    isFootwearFamily(family) ||
+    isDedicatedShoeFamily(family) ||
+    isFootwearName(name) ||
+    isFootballBootFamily(family) ||
+    isFootballBootName(name)
+  );
+}
+
+function sampleScore(product: Product, slug?: string) {
   const n = `${product.displayName} ${product.item}`.toLowerCase();
   let score = 1;
   if (/\b(jersey|shirt|polo|short|bermuda|dress|sneaker|shoe|swim|boot|bag|ball)\b/.test(n)) {
@@ -396,7 +441,27 @@ function sampleScore(product: Product) {
   // Prefer lighter/colourful shots so dark tiles do not look empty.
   if (/\b(white|yellow|red|green|blue|navy|royal|orange|pink)\b/.test(n)) score += 3;
   if (/\bblack\b/.test(n) && !/\b(white|yellow|red|green)\b/.test(n)) score -= 2;
+
+  if (slug === "shoes") {
+    if (!isStorefrontFootwear(product) || isApparelOnly(n)) score -= 30;
+    if (HARD_FOOTWEAR_RE.test(n) || /\b(sneaker|barefoot|cleat|trainer)\b/.test(n)) score += 10;
+    if (/\b(junior| jr\b|kids|baby)\b/.test(n)) score -= 8;
+    if (/\bsneaker\b/.test(n) || /^sneaker/.test(itemFamily(product.item || ""))) score += 8;
+    if (/^barefoot/.test(itemFamily(product.item || ""))) score -= 4;
+  }
+  if (slug === "rugby") {
+    if (/\b(helmet|protection|protec)\b/.test(n)) score -= 12;
+    if (/\b(skrum|stone rugby|olimpiada rugby|hook)\b/.test(n)) score += 8;
+    if (/\b(jersey|shirt|short)\b/.test(n)) score += 4;
+  }
   return score;
+}
+
+export function sampleFromList(list: Product[], slug?: string): Product | undefined {
+  const imaged = list.filter(hasUsableProductImage);
+  const pool = imaged.length ? imaged : list;
+  if (!pool.length) return undefined;
+  return [...pool].sort((a, b) => sampleScore(b, slug) - sampleScore(a, slug))[0];
 }
 
 /** Prefer an in-hub SKU with a real photo; skip empty-image placeholders. */
@@ -404,11 +469,15 @@ export function sampleForCategory(
   catalog: Product[],
   slug: string,
 ): Product | undefined {
-  const inHub = catalog.filter((p) => p.category === slug && hasUsableProductImage(p));
-  if (!inHub.length) {
-    return catalog.find((p) => p.category === slug);
+  let inHub = catalog.filter((p) => p.category === slug && hasUsableProductImage(p));
+  if (slug === "shoes") {
+    inHub = inHub.filter(isStorefrontFootwear);
   }
-  return [...inHub].sort((a, b) => sampleScore(b) - sampleScore(a))[0];
+  if (!inHub.length) {
+    const fallback = catalog.filter((p) => p.category === slug);
+    return slug === "shoes" ? fallback.find(isStorefrontFootwear) : fallback[0];
+  }
+  return sampleFromList(inHub, slug);
 }
 
 export function firstImagedProduct(list: Product[]) {

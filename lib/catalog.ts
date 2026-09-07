@@ -144,6 +144,30 @@ export function categoryBySlug(slug: string) {
   return CATEGORIES.find((c) => c.slug === slug);
 }
 
+export const AUDIENCES = [
+  {
+    slug: "men",
+    name: "Men",
+    blurb: "Men’s kit from the current drop — tees, shorts, shoes, and match gear.",
+  },
+  {
+    slug: "women",
+    name: "Women",
+    blurb: "Women’s kit from the current drop — training layers, shoes, and court wear.",
+  },
+  {
+    slug: "kids",
+    name: "Kids",
+    blurb: "Junior and kids sizes for training, school, and match day.",
+  },
+] as const;
+
+export type AudienceSlug = (typeof AUDIENCES)[number]["slug"];
+
+export function audienceBySlug(slug: string) {
+  return AUDIENCES.find((a) => a.slug === slug);
+}
+
 export const DEMO_EMAIL = "shop@rappi.com";
 export const DEMO_PASSWORD = "rappi123";
 export const TAGLINE = "GEAR UP. SHOW UP. LEVEL UP.";

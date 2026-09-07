@@ -8,7 +8,7 @@ import { SectionHeading } from "@/components/section-heading";
 import { Button } from "@/components/ui/button";
 import { CATEGORIES, categoryBySlug } from "@/lib/catalog";
 import { sampleForCategory } from "@/lib/classify";
-import { shoeHubGroups } from "@/lib/hubs";
+import { audienceTiles, rugbyHubGroups, shoeHubGroups } from "@/lib/hubs";
 import { productsByCategory } from "@/lib/products";
 import { getCatalog } from "@/lib/supabase/catalog";
 import { productPath } from "@/lib/utils";
@@ -28,8 +28,23 @@ export default async function CategoryHubPage({
   const catalog = await getCatalog();
   const items = productsByCategory(slug, catalog);
   const sample = sampleForCategory(catalog, slug);
-  const preview = items.slice(0, 12);
+  const preview =
+    slug === "rugby"
+      ? [...items]
+          .sort((a, b) => {
+            const rank = (name: string) => {
+              const n = name.toLowerCase();
+              if (/\b(helmet|protection|protec)\b/.test(n)) return 2;
+              if (/\bball\b/.test(n)) return 1;
+              return 0;
+            };
+            return rank(a.displayName) - rank(b.displayName);
+          })
+          .slice(0, 12)
+      : items.slice(0, 12);
   const shoeGroups = slug === "shoes" ? shoeHubGroups(catalog) : [];
+  const rugbyGroups = slug === "rugby" ? rugbyHubGroups(catalog) : [];
+  const audiences = audienceTiles(catalog, { categorySlug: slug });
   const otherHubs = CATEGORIES.filter(
     (c) => c.slug !== slug && sampleForCategory(catalog, c.slug),
   );
@@ -87,6 +102,25 @@ export default async function CategoryHubPage({
         }
       />
       <div className="page-shell py-10 lg:py-14">
+        {audiences.length > 1 ? (
+          <section className="mb-12 lg:mb-16">
+            <SectionHeading title="Shop by athlete" href={`/shop/${slug}`} linkLabel="Shop all" />
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 md:gap-4">
+              {audiences.map((g) => (
+                <HubTile
+                  key={g.key}
+                  slug={slug}
+                  name={g.name}
+                  count={g.count}
+                  href={g.href}
+                  product={g.sample}
+                  shape="square"
+                />
+              ))}
+            </div>
+          </section>
+        ) : null}
+
         {shoeGroups.length > 0 ? (
           <section className="mb-12 lg:mb-16">
             <SectionHeading title="Shop by fit" href={`/shop/${slug}`} linkLabel="All shoes" />
@@ -100,6 +134,25 @@ export default async function CategoryHubPage({
                   href={g.href}
                   product={g.sample}
                   banner={g.banner}
+                  shape="square"
+                />
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {rugbyGroups.length > 0 ? (
+          <section className="mb-12 lg:mb-16">
+            <SectionHeading title="Shop rugby" href="/shop/rugby" linkLabel="All rugby" />
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+              {rugbyGroups.map((g) => (
+                <HubTile
+                  key={g.key}
+                  slug={slug}
+                  name={g.name}
+                  count={g.count}
+                  href={g.href}
+                  product={g.sample}
                   shape="square"
                 />
               ))}

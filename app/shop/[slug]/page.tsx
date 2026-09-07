@@ -4,12 +4,15 @@ import { Suspense } from "react";
 import { CatalogFilters } from "@/components/catalog-filters";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
-import { CATEGORIES, categoryBySlug } from "@/lib/catalog";
+import { AUDIENCES, CATEGORIES, audienceBySlug, categoryBySlug } from "@/lib/catalog";
 import { buildListing } from "@/lib/listing";
 import { getCatalog } from "@/lib/supabase/catalog";
 
 export function generateStaticParams() {
-  return CATEGORIES.map((c) => ({ slug: c.slug }));
+  return [
+    ...CATEGORIES.map((c) => ({ slug: c.slug })),
+    ...AUDIENCES.map((a) => ({ slug: a.slug })),
+  ];
 }
 
 export default async function ShopListingPage({
@@ -28,25 +31,36 @@ export default async function ShopListingPage({
 }) {
   const { slug } = await params;
   const sp = await searchParams;
+  const audience = audienceBySlug(slug);
   const cat = categoryBySlug(slug);
-  if (!cat) notFound();
+  if (!audience && !cat) notFound();
+
   const catalog = await getCatalog();
-  const listing = buildListing(catalog, sp, { categorySlug: slug });
+  const listing = audience
+    ? buildListing(catalog, { ...sp, audience: slug })
+    : buildListing(catalog, sp, { categorySlug: slug });
+
+  const title = audience?.name ?? cat?.name ?? slug;
+  const description = audience?.blurb ?? cat?.blurb;
+  const backHref = audience ? "/" : `/category/${slug}`;
+  const backLabel = audience ? "Back to home" : "Back to hub";
 
   return (
     <div>
       <PageHeader
         crumbs={[
           { href: "/", label: "Home" },
-          { href: `/category/${slug}`, label: cat.name },
-          { label: "Products" },
+          audience
+            ? { label: audience.name }
+            : { href: `/category/${slug}`, label: cat?.name ?? slug },
+          audience ? { label: "Products" } : { label: "Products" },
         ]}
         eyebrow={`${listing.total} piece${listing.total === 1 ? "" : "s"}`}
-        title={cat.name}
-        description={cat.blurb}
+        title={title}
+        description={description}
         actions={
           <Button asChild variant="outline" className="w-full sm:w-auto">
-            <Link href={`/category/${slug}`}>Back to hub</Link>
+            <Link href={backHref}>{backLabel}</Link>
           </Button>
         }
       />
@@ -60,10 +74,16 @@ export default async function ShopListingPage({
         >
           <CatalogFilters
             listing={listing}
-            categorySlug={slug}
+            categorySlug={audience ? undefined : slug}
             basePath={`/shop/${slug}`}
             grouped
-            emptyTitle={`No ${cat.name.toLowerCase()} in this filter`}
+            showCategoryFilter={Boolean(audience)}
+            showAudienceFilter={!audience}
+            emptyTitle={
+              audience
+                ? `No ${audience.name.toLowerCase()} pieces in this filter`
+                : `No ${cat?.name.toLowerCase()} in this filter`
+            }
             emptyBody="Clear filters or try another type."
           />
         </Suspense>

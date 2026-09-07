@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { CatalogFilters } from "@/components/catalog-filters";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
-import { CATEGORIES } from "@/lib/catalog";
+import { AUDIENCES, CATEGORIES } from "@/lib/catalog";
 import { buildListing } from "@/lib/listing";
 import { getCatalog } from "@/lib/supabase/catalog";
 
@@ -94,6 +94,16 @@ function EmptySearch() {
         Type a product name, SKU, or category. We only load matching pages — never the full catalog at once.
       </p>
       <ul className="mx-auto mt-8 flex max-w-2xl flex-wrap justify-center gap-2">
+        {AUDIENCES.map((a) => (
+          <li key={a.slug}>
+            <Link
+              href={`/shop/${a.slug}`}
+              className="inline-flex h-10 items-center rounded-full border border-[var(--border-strong)] px-4 text-[11px] font-semibold uppercase tracking-wider text-ink hover:border-[var(--accent)] hover:text-[var(--accent)]"
+            >
+              {a.name}
+            </Link>
+          </li>
+        ))}
         {CATEGORIES.filter((c) =>
           ["sportswear", "shoes", "football", "balls-bags", "swimming"].includes(c.slug),
         ).map((c) => (

@@ -51,8 +51,9 @@ function mapRow(
 }
 
 export const getCatalog = cache(async (): Promise<Product[]> => {
+  const offline = (bundled as Product[]).map(withProductImages);
   if (!isSupabaseConfigured()) {
-    return (bundled as Product[]).map(withProductImages);
+    return offline;
   }
 
   try {
@@ -63,7 +64,10 @@ export const getCatalog = cache(async (): Promise<Product[]> => {
         "id, code, item, title, name, display_name, category_slug, subcategory, gender, price, unit_price, sheet_category, stock_qty, badge, image_url, images",
       )
       .order("code");
-    if (error || !rows?.length) return (bundled as Product[]).map(withProductImages);
+    // Prefer the bundled Joma import when Supabase still has the old/small catalog.
+    if (error || !rows?.length || rows.length < Math.min(offline.length, 1000)) {
+      return offline;
+    }
 
     const { data: sizeRows } = await supabase
       .from("product_sizes")
@@ -81,7 +85,7 @@ export const getCatalog = cache(async (): Promise<Product[]> => {
       ),
     );
   } catch {
-    return (bundled as Product[]).map(withProductImages);
+    return offline;
   }
 });
 

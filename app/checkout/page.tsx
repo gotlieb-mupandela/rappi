@@ -51,7 +51,13 @@ export default function CheckoutPage() {
       .order("sort_order")
       .then(({ data }) => {
         if (data?.length) {
-          setShippingOptions(data.map((d) => ({ ...d, cost: Number(d.cost) })));
+          const byId = new Map(FALLBACK_SHIPPING.map((m) => [m.id, m.cost]));
+          setShippingOptions(
+            data.map((d) => ({
+              ...d,
+              cost: byId.has(d.id) ? byId.get(d.id)! : Number(d.cost),
+            })),
+          );
           setMethod(data[0].id);
         }
       });

@@ -2,13 +2,8 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-<<<<<<< HEAD
-import { CATEGORIES } from "@/lib/catalog";
-import type { StorefrontTaxonomy } from "@/lib/listing-types";
-=======
 import { CATEGORIES, SUBCATEGORY_LABELS } from "@/lib/catalog";
-import { subcategoriesFor } from "@/lib/products";
->>>>>>> a5c7f37 (Hide raw Joma family names from the category sub-nav.)
+import type { StorefrontTaxonomy } from "@/lib/listing-types";
 import { cn } from "@/lib/utils";
 
 export function CategorySubNav({ taxonomy }: { taxonomy: StorefrontTaxonomy }) {
@@ -21,13 +16,10 @@ export function CategorySubNav({ taxonomy }: { taxonomy: StorefrontTaxonomy }) {
 
   if (!slug) return null;
 
-<<<<<<< HEAD
-  const subs = (taxonomy[slug] ?? []).filter((s) => s.count > 0);
-  if (subs.length < 2 || subs.length > 8) return null;
-=======
-  const subs = subcategoriesFor(slug).filter((s) => SUBCATEGORY_LABELS[s.slug]);
+  const subs = (taxonomy[slug] ?? []).filter(
+    (s) => s.count > 0 && SUBCATEGORY_LABELS[s.slug],
+  );
   if (subs.length < 2) return null;
->>>>>>> a5c7f37 (Hide raw Joma family names from the category sub-nav.)
 
   const active = params.get("sub");
   const onShop = pathname.startsWith(`/shop/${slug}`);

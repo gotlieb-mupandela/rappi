@@ -112,8 +112,8 @@ export async function getSiteSettings() {
 export async function getShippingMethods() {
   if (!isSupabaseConfigured()) {
     return [
-      { id: "standard", name: "Standard (5–8 days)", cost: 12, sort_order: 1 },
-      { id: "express", name: "Express (2–3 days)", cost: 28, sort_order: 2 },
+      { id: "standard", name: "Standard (5–8 days)", cost: 100, sort_order: 1 },
+      { id: "express", name: "Express (2–3 days)", cost: 150, sort_order: 2 },
       { id: "pickup", name: "Hub pickup", cost: 0, sort_order: 3 },
     ];
   }
@@ -123,13 +123,21 @@ export async function getShippingMethods() {
       .from("shipping_methods")
       .select("*")
       .order("sort_order");
-    if (data?.length) return data;
+    if (data?.length) {
+      // Keep DB rows for labels/order, but lock costs to storefront rates.
+      const { SHIPPING_METHODS } = await import("@/lib/shipping");
+      const byId = new Map(SHIPPING_METHODS.map((m) => [m.id, m.cost]));
+      return data.map((row) => ({
+        ...row,
+        cost: byId.has(row.id) ? byId.get(row.id)! : Number(row.cost) || 0,
+      }));
+    }
   } catch {
     /* fall through */
   }
   return [
-    { id: "standard", name: "Standard (5–8 days)", cost: 12, sort_order: 1 },
-    { id: "express", name: "Express (2–3 days)", cost: 28, sort_order: 2 },
+    { id: "standard", name: "Standard (5–8 days)", cost: 100, sort_order: 1 },
+    { id: "express", name: "Express (2–3 days)", cost: 150, sort_order: 2 },
     { id: "pickup", name: "Hub pickup", cost: 0, sort_order: 3 },
   ];
 }

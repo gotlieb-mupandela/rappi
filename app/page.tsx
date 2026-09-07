@@ -30,7 +30,7 @@ export default async function HomePage() {
   const heroTitle = settings?.hero_title ?? "RAPPI SPORTS HUB";
   const heroBody =
     settings?.hero_body ??
-    `Selected kit across sportswear, football, court sports, and training. ${catalog.length} pieces, priced in Namibian dollars. Browse as a guest or sign in to follow orders.`;
+    "Your home for quality sportswear, footwear & equipment. Shop trusted brands for athletes, teams, schools and clubs — all at competitive prices in Namibian Dollars.";
 
   return (
     <div>

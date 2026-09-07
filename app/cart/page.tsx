@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { toast } from "sonner";
 import { Breadcrumbs } from "@/components/breadcrumbs";
-import { ProductVisual } from "@/components/product-visual";
+import { ProductImage } from "@/components/product-image";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/format";
 import { getProduct } from "@/lib/products";
@@ -37,7 +37,7 @@ export default function CartPage() {
   const subtotal = rows.reduce((s, r) => s + r.lineTotal, 0);
 
   return (
-    <div className="mx-auto max-w-[1440px] px-4 py-8 lg:px-6">
+    <div className="page-shell py-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <Breadcrumbs items={[{ href: "/", label: "Home" }, { label: "Cart" }]} />
@@ -64,7 +64,7 @@ export default function CartPage() {
       </div>
 
       {!rows.length ? (
-        <div className="mt-10 border border-[#2A2A2A] bg-[#141414] px-6 py-16 text-center">
+        <div className="mt-10 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-6 py-16 text-center">
           <p className="text-lg font-semibold">Your cart is empty</p>
           <p className="mt-2 text-sm text-[#A0A0A0]">
             Browse the catalog and add sizes from a product page.
@@ -78,22 +78,18 @@ export default function CartPage() {
           {rows.map(({ line, product, lineTotal }) => (
             <div
               key={`${line.code}-${line.size}`}
-              className="grid gap-4 border border-[#2A2A2A] bg-[#141414] p-4 sm:grid-cols-[96px_minmax(0,1fr)_auto]"
+              className="grid gap-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 sm:grid-cols-[96px_minmax(0,1fr)_auto]"
             >
-              <Link href={productPath(product.code)} className="block w-24">
-                {product.imageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={product.imageUrl}
-                    alt={product.code}
-                    className="aspect-square w-full object-cover"
-                  />
-                ) : (
-                  <ProductVisual product={product} />
-                )}
+              <Link href={productPath(product.code)} className="media-frame block w-24 overflow-hidden rounded-lg">
+                <ProductImage
+                  product={product}
+                  src={product.imageUrl}
+                  className="aspect-square w-full object-cover"
+                  fallbackClassName="aspect-square"
+                />
               </Link>
               <div>
-                <Link href={productPath(product.code)} className="font-mono text-lg font-bold hover:text-[#B6FF00]">
+                <Link href={productPath(product.code)} className="font-mono text-lg font-bold hover:text-[var(--accent)]">
                   {product.code}
                 </Link>
                 <p className="text-xs uppercase tracking-wider text-[#A0A0A0]">
@@ -122,7 +118,7 @@ export default function CartPage() {
                             onChange={(e) =>
                               setQty(line.code, line.size, Number(e.target.value))
                             }
-                            className="h-8 w-16 border border-[#2A2A2A] bg-[#0B0B0B] px-2"
+                            className="h-8 w-16 rounded-full border border-[var(--border)] bg-[var(--bg)] px-2"
                           />
                         </td>
                         <td className="py-1 font-semibold">{formatPrice(lineTotal)}</td>
@@ -142,7 +138,7 @@ export default function CartPage() {
               </div>
             </div>
           ))}
-          <div className="sticky bottom-0 z-20 flex flex-col gap-3 border border-[#B6FF00]/40 bg-[#141414] px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-5">
+          <div className="sticky bottom-0 z-20 flex flex-col gap-3 rounded-xl border border-[var(--accent)]/35 bg-[#101010]/95 px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-xl sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-5">
             <p className="text-sm uppercase tracking-wider text-[#A0A0A0]">
               {count} unit{count === 1 ? "" : "s"}
             </p>

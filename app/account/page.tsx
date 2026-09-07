@@ -28,22 +28,22 @@ export default function AccountPage() {
   }
 
   return (
-    <div className="mx-auto max-w-[1440px] px-4 py-8 lg:px-6">
+    <div className="page-shell py-8">
       <Breadcrumbs items={[{ href: "/", label: "Home" }, { label: "My account" }]} />
       <h1 className="mt-6 font-[family-name:var(--font-oswald)] text-4xl uppercase">
         My account
       </h1>
       <p className="mt-2 text-sm text-[#A0A0A0]">Signed in as {user.email}</p>
       <div className="mt-8 grid gap-4 md:grid-cols-3">
-        <Link href="/account/orders" className="border border-[#2A2A2A] bg-[#141414] p-6 hover:border-[#B6FF00]">
-          <p className="text-xs uppercase tracking-wider text-[#B6FF00]">Orders</p>
+        <Link href="/account/orders" className="surface-card p-6">
+          <p className="text-xs uppercase tracking-wider text-[var(--accent)]">Orders</p>
           <p className="mt-2 text-2xl font-semibold">{orders.length}</p>
-          <p className="mt-1 text-sm text-[#A0A0A0]">View, track, and reopen order details.</p>
+          <p className="mt-1 text-sm text-[var(--muted)]">View, track, and reopen order details.</p>
         </Link>
-        <Link href="/account/profile" className="border border-[#2A2A2A] bg-[#141414] p-6 hover:border-[#B6FF00]">
-          <p className="text-xs uppercase tracking-wider text-[#B6FF00]">Profile</p>
+        <Link href="/account/profile" className="surface-card p-6">
+          <p className="text-xs uppercase tracking-wider text-[var(--accent)]">Profile</p>
           <p className="mt-2 text-2xl font-semibold">{user.name}</p>
-          <p className="mt-1 text-sm text-[#A0A0A0]">Contact details for this demo shop.</p>
+          <p className="mt-1 text-sm text-[var(--muted)]">Contact details for this demo shop.</p>
         </Link>
         <button
           type="button"
@@ -51,7 +51,7 @@ export default function AccountPage() {
             logout();
             router.push("/");
           }}
-          className="border border-[#2A2A2A] bg-[#141414] p-6 text-left hover:border-white"
+          className="surface-card p-6 text-left"
         >
           <p className="text-xs uppercase tracking-wider text-[#A0A0A0]">Session</p>
           <p className="mt-2 text-2xl font-semibold">Logout</p>

@@ -1,5 +1,5 @@
 import type { Product } from "@/lib/types";
-import { products, productsByCategory } from "@/lib/products";
+import { products as bundled, productsByCategory } from "@/lib/products";
 
 export function isKidsShoe(product: Product) {
   if (product.gender === "kids") return true;
@@ -10,8 +10,8 @@ export function isKidsShoe(product: Product) {
   return nums.length > 0 && Math.max(...nums) <= 35;
 }
 
-export function shoeHubGroups() {
-  const shoes = productsByCategory("shoes");
+export function shoeHubGroups(catalog: Product[] = bundled) {
+  const shoes = productsByCategory("shoes", catalog);
   const training = shoes.filter((p) => p.subcategory === "training-shoes");
   const kids = shoes.filter((p) => isKidsShoe(p) && p.subcategory !== "training-shoes");
   const adult = shoes.filter(
@@ -51,14 +51,14 @@ export function shoeHubGroups() {
   ].filter((g) => g.count > 0);
 }
 
-export function kidsHubGroups() {
-  const kidsApparel = products.filter(
+export function kidsHubGroups(catalog: Product[] = bundled) {
+  const kidsApparel = catalog.filter(
     (p) => p.gender === "kids" || p.subcategory === "tees-kids" || p.subcategory === "jackets-kids",
   );
   const tees = kidsApparel.filter((p) => p.subcategory === "tees-kids" || p.item === "KIDS");
   const shorts = kidsApparel.filter((p) => p.item === "SHORTS KIDS");
   const jackets = kidsApparel.filter((p) => p.subcategory === "jackets-kids");
-  const kidsShoes = productsByCategory("shoes").filter(isKidsShoe);
+  const kidsShoes = productsByCategory("shoes", catalog).filter(isKidsShoe);
   return [
     {
       key: "tees",
@@ -91,11 +91,11 @@ export function kidsHubGroups() {
   ].filter((g) => g.count > 0);
 }
 
-export function collectionTiles() {
-  const footwear = products.filter(
+export function collectionTiles(catalog: Product[] = bundled) {
+  const footwear = catalog.filter(
     (p) => p.category === "shoes" || p.item.toUpperCase().includes("SHOE"),
   );
-  const apparel = products.filter((p) =>
+  const apparel = catalog.filter((p) =>
     ["sportswear", "running-fitness", "football", "basketball", "netball"].includes(
       p.category,
     ),

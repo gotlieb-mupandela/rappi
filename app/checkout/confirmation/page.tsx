@@ -47,7 +47,7 @@ function ConfirmationInner() {
       <p className="mt-2 text-sm text-[#A0A0A0]">{formatDate(order.createdAt)}</p>
 
       <div className="mt-8 grid gap-4 md:grid-cols-2">
-        <section className="border border-[#2A2A2A] bg-[#141414] p-5">
+        <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
           <h2 className="text-sm font-bold uppercase tracking-wider">Ship to</h2>
           <p className="mt-3 text-sm leading-6">
             {order.name}
@@ -60,7 +60,7 @@ function ConfirmationInner() {
           </p>
           <p className="mt-3 text-sm text-[#A0A0A0]">{order.shippingMethod}</p>
         </section>
-        <section className="border border-[#2A2A2A] bg-[#141414] p-5">
+        <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
           <h2 className="text-sm font-bold uppercase tracking-wider">Totals</h2>
           <p className="mt-3 flex justify-between text-sm">
             <span>Merchandise</span>
@@ -77,7 +77,7 @@ function ConfirmationInner() {
         </section>
       </div>
 
-      <section className="mt-4 border border-[#2A2A2A] bg-[#141414] p-5">
+      <section className="mt-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
         <h2 className="text-sm font-bold uppercase tracking-wider">Items</h2>
         <ul className="mt-3 divide-y divide-[#2A2A2A] text-sm">
           {order.items.map((item) => (

@@ -3,16 +3,17 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { CatalogFilters } from "@/components/catalog-filters";
 import { HubTile } from "@/components/hub-tile";
 import { collectionTiles } from "@/lib/hubs";
-import { products } from "@/lib/products";
+import { getCatalog } from "@/lib/supabase/catalog";
 
-export default function PromotionsPage() {
-  const highlighted = products.filter(
+export default async function PromotionsPage() {
+  const catalog = await getCatalog();
+  const highlighted = catalog.filter(
     (p) => p.badge === "offer" || p.badge === "new",
   );
-  const collections = collectionTiles();
+  const collections = collectionTiles(catalog);
 
   return (
-    <div className="mx-auto max-w-[1440px] px-4 py-8 lg:px-6">
+    <div className="page-shell py-8">
       <Breadcrumbs
         items={[{ href: "/", label: "Home" }, { label: "New collections" }]}
       />

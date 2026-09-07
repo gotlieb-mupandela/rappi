@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { CATEGORIES, categoryBySlug } from "@/lib/catalog";
 import { shoeHubGroups } from "@/lib/hubs";
 import { productsByCategory, subcategoriesFor } from "@/lib/products";
+import { getCatalog } from "@/lib/supabase/catalog";
 
 export function generateStaticParams() {
   return CATEGORIES.map((c) => ({ slug: c.slug }));
@@ -19,12 +20,13 @@ export default async function CategoryHubPage({
   const { slug } = await params;
   const cat = categoryBySlug(slug);
   if (!cat) notFound();
-  const items = productsByCategory(slug);
-  const subs = subcategoriesFor(slug);
-  const shoeGroups = slug === "shoes" ? shoeHubGroups() : [];
+  const catalog = await getCatalog();
+  const items = productsByCategory(slug, catalog);
+  const subs = subcategoriesFor(slug, catalog);
+  const shoeGroups = slug === "shoes" ? shoeHubGroups(catalog) : [];
 
   return (
-    <div className="mx-auto max-w-[1440px] px-4 py-8 lg:px-6">
+    <div className="page-shell py-8">
       <Breadcrumbs
         items={[{ href: "/", label: "Home" }, { label: cat.name }]}
       />

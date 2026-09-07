@@ -76,7 +76,7 @@ export function CatalogFilters({
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-8">
+    <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10">
       <div className="lg:hidden">
         <Button
           type="button"
@@ -87,7 +87,12 @@ export function CatalogFilters({
           {filtersOpen ? "Hide filters" : "Filters"}
         </Button>
       </div>
-      <aside className={cn("space-y-6", filtersOpen ? "block" : "hidden lg:block")}>
+      <aside
+        className={cn(
+          "space-y-6 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5",
+          filtersOpen ? "block" : "hidden lg:block",
+        )}
+      >
         {showCategoryFilter ? (
           <FilterBlock title="Category">
             <FilterLink active={cat === "all"} onClick={() => setParam("cat", "all")}>
@@ -130,10 +135,10 @@ export function CatalogFilters({
               type="button"
               onClick={() => setParam("size", "all")}
               className={cn(
-                "border px-2 py-1 text-[11px] uppercase",
+                "rounded-full border px-2.5 py-1 text-[11px] uppercase transition-colors",
                 size === "all"
-                  ? "border-[#B6FF00] text-[#B6FF00]"
-                  : "border-[#2A2A2A] text-[#A0A0A0] hover:border-white",
+                  ? "border-[var(--accent)] text-[var(--accent)]"
+                  : "border-[var(--border-strong)] text-[var(--muted)] hover:border-white",
               )}
             >
               All
@@ -144,10 +149,10 @@ export function CatalogFilters({
                 type="button"
                 onClick={() => setParam("size", s)}
                 className={cn(
-                  "border px-2 py-1 text-[11px] uppercase",
-                  size === s
-                    ? "border-[#B6FF00] text-[#B6FF00]"
-                    : "border-[#2A2A2A] text-[#A0A0A0] hover:border-white",
+                "rounded-full border px-2.5 py-1 text-[11px] uppercase transition-colors",
+                size === s
+                  ? "border-[var(--accent)] text-[var(--accent)]"
+                  : "border-[var(--border-strong)] text-[var(--muted)] hover:border-white",
                 )}
               >
                 {s}
@@ -203,8 +208,8 @@ export function CatalogFilters({
               aria-label="Grid view"
               onClick={() => setLayout("grid")}
               className={cn(
-                "p-1.5",
-                layout === "grid" ? "text-[var(--accent)]" : "text-[var(--muted-2)]",
+                "rounded-full p-2 transition-colors",
+                layout === "grid" ? "bg-white/[0.08] text-[var(--accent)]" : "text-[var(--muted-2)] hover:text-white",
               )}
             >
               <LayoutGrid className="h-4 w-4" />
@@ -214,8 +219,8 @@ export function CatalogFilters({
               aria-label="List view"
               onClick={() => setLayout("list")}
               className={cn(
-                "p-1.5",
-                layout === "list" ? "text-[var(--accent)]" : "text-[var(--muted-2)]",
+                "rounded-full p-2 transition-colors",
+                layout === "list" ? "bg-white/[0.08] text-[var(--accent)]" : "text-[var(--muted-2)] hover:text-white",
               )}
             >
               <List className="h-4 w-4" />
@@ -254,7 +259,7 @@ function FilterLink({
       onClick={onClick}
       className={cn(
         "block w-full text-left text-[12px] uppercase tracking-wider",
-        active ? "text-[#B6FF00]" : "text-[#C8C8C8] hover:text-white",
+        active ? "text-[var(--accent)]" : "text-[#C8C8C8] hover:text-white",
       )}
     >
       {children}

@@ -1,7 +1,8 @@
 import { Suspense } from "react";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { CatalogFilters } from "@/components/catalog-filters";
-import { products, searchProducts } from "@/lib/products";
+import { searchProducts } from "@/lib/products";
+import { getCatalog } from "@/lib/supabase/catalog";
 
 export default async function SearchPage({
   searchParams,
@@ -10,11 +11,12 @@ export default async function SearchPage({
 }) {
   const sp = await searchParams;
   const q = sp.q ?? "";
-  const list = searchProducts(q, sp.cat);
-  const titleCount = q ? list.length : products.length;
+  const catalog = await getCatalog();
+  const list = searchProducts(q, sp.cat, catalog);
+  const titleCount = q ? list.length : catalog.length;
 
   return (
-    <div className="mx-auto max-w-[1440px] px-4 py-8 lg:px-6">
+    <div className="page-shell py-8">
       <Breadcrumbs
         items={[{ href: "/", label: "Home" }, { label: "Search results" }]}
       />
@@ -29,7 +31,7 @@ export default async function SearchPage({
       <div className="mt-8">
         <Suspense>
           <CatalogFilters
-            products={q ? list : products}
+            products={q ? list : catalog}
             basePath="/search"
             grouped
             showCategoryFilter

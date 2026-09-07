@@ -2,20 +2,24 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useMemo, useState, type ReactNode } from "react";
+import { FormEvent, useEffect, useMemo, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatPrice } from "@/lib/format";
+import { placeOrder } from "@/lib/place-order";
 import { getProduct } from "@/lib/products";
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { useAuth } from "@/lib/stores/auth";
 import { useCart } from "@/lib/stores/cart";
 import { useOrders } from "@/lib/stores/orders";
 import type { Order } from "@/lib/types";
 
-const SHIPPING = [
+type ShippingRow = { id: string; name: string; cost: number };
+
+const FALLBACK_SHIPPING: ShippingRow[] = [
   { id: "standard", name: "Standard (5–8 days)", cost: 12 },
   { id: "express", name: "Express (2–3 days)", cost: 28 },
   { id: "pickup", name: "Hub pickup", cost: 0 },
@@ -27,14 +31,31 @@ export default function CheckoutPage() {
   const clear = useCart((s) => s.clear);
   const user = useAuth((s) => s.user);
   const addOrder = useOrders((s) => s.add);
+  const [shippingOptions, setShippingOptions] = useState<ShippingRow[]>(FALLBACK_SHIPPING);
+  const [submitting, setSubmitting] = useState(false);
 
   const [name, setName] = useState(user?.name ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [country, setCountry] = useState("");
-  const [method, setMethod] = useState(SHIPPING[0].id);
+  const [method, setMethod] = useState(FALLBACK_SHIPPING[0].id);
   const [notes, setNotes] = useState("");
+
+  useEffect(() => {
+    if (!isSupabaseConfigured()) return;
+    const supabase = createClient();
+    void supabase
+      .from("shipping_methods")
+      .select("id, name, cost")
+      .order("sort_order")
+      .then(({ data }) => {
+        if (data?.length) {
+          setShippingOptions(data.map((d) => ({ ...d, cost: Number(d.cost) })));
+          setMethod(data[0].id);
+        }
+      });
+  }, []);
 
   const rows = useMemo(
     () =>
@@ -55,10 +76,10 @@ export default function CheckoutPage() {
   );
 
   const subtotal = rows.reduce((s, r) => s + r.price * r.qty, 0);
-  const shipping = SHIPPING.find((s) => s.id === method) ?? SHIPPING[0];
-  const total = subtotal + shipping.cost;
+  const shipping = shippingOptions.find((s) => s.id === method) ?? shippingOptions[0];
+  const total = subtotal + (shipping?.cost ?? 0);
 
-  function onSubmit(e: FormEvent) {
+  async function onSubmit(e: FormEvent) {
     e.preventDefault();
     if (!rows.length) {
       toast.error("Cart is empty.");
@@ -68,26 +89,28 @@ export default function CheckoutPage() {
       toast.error("Complete shipping details.");
       return;
     }
-    const id = `RSH${Date.now().toString().slice(-8)}`;
-    const order: Order = {
-      id,
-      createdAt: new Date().toISOString(),
+    setSubmitting(true);
+    const result = await placeOrder({
       email,
       name,
       address,
       city,
       country,
-      shippingMethod: shipping.name,
+      shippingMethod: shipping.id,
       shippingCost: shipping.cost,
-      items: rows,
-      subtotal,
-      total,
-      status: "reserved",
-    };
-    addOrder(order);
+      shippingLabel: shipping.name,
+      notes,
+      lines,
+    });
+    setSubmitting(false);
+    if (!result.ok) {
+      toast.error(result.message);
+      return;
+    }
+    addOrder(result.order);
     clear();
     toast.success("Order placed.");
-    router.push(`/checkout/confirmation?id=${id}`);
+    router.push(`/checkout/confirmation?id=${result.order.id}`);
   }
 
   if (!rows.length) {
@@ -102,7 +125,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="mx-auto max-w-[1440px] px-4 py-8 lg:px-6">
+    <div className="page-shell py-8">
       <Breadcrumbs
         items={[
           { href: "/", label: "Home" },
@@ -115,7 +138,7 @@ export default function CheckoutPage() {
           <h1 className="font-[family-name:var(--font-oswald)] text-3xl uppercase sm:text-4xl">
             Shipping & billing
           </h1>
-          <p className="mt-2 max-w-xl text-sm text-[#A0A0A0]">
+          <p className="mt-2 max-w-xl text-sm text-[var(--muted)]">
             Select a delivery address and shipping method, then place the order. Merchandise
             and shipping are in Namibian dollars (N$). Payment is stubbed — no real charges.
           </p>
@@ -124,7 +147,7 @@ export default function CheckoutPage() {
 
       <form onSubmit={onSubmit} className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
         <div className="space-y-4">
-          <section className="border border-[#2A2A2A] bg-[#141414] p-5">
+          <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
             <h2 className="text-sm font-bold uppercase tracking-wider">Shipping address</h2>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <Field label="Full name">
@@ -146,13 +169,13 @@ export default function CheckoutPage() {
               </Field>
             </div>
           </section>
-          <section className="border border-[#2A2A2A] bg-[#141414] p-5">
+          <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
             <h2 className="text-sm font-bold uppercase tracking-wider">Shipping method</h2>
             <div className="mt-4 space-y-2">
-              {SHIPPING.map((s) => (
+              {shippingOptions.map((s) => (
                 <label
                   key={s.id}
-                  className="flex cursor-pointer items-center justify-between border border-[#2A2A2A] px-3 py-3 has-[:checked]:border-[#B6FF00]"
+                  className="flex cursor-pointer items-center justify-between rounded-xl border border-[var(--border)] px-3 py-3 transition-colors has-[:checked]:border-[var(--accent)]"
                 >
                   <span className="flex items-center gap-3 text-sm">
                     <input
@@ -170,20 +193,20 @@ export default function CheckoutPage() {
               ))}
             </div>
           </section>
-          <section className="border border-[#2A2A2A] bg-[#141414] p-5">
+          <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
             <Label>Order notes</Label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="mt-2 h-24 w-full rounded-md border border-[#2A2A2A] bg-[#121212] p-3 text-sm"
+              className="mt-2 h-24 w-full rounded-xl border border-[var(--border)] bg-[var(--bg-elevated)] p-3 text-sm"
               placeholder="Optional"
             />
           </section>
         </div>
 
-        <aside className="h-fit border border-[#B6FF00]/30 bg-[#141414] p-5">
+        <aside className="h-fit rounded-xl border border-[var(--accent)]/25 bg-[var(--surface)] p-5 lg:sticky lg:top-28">
           <h2 className="text-sm font-bold uppercase tracking-wider">Order summary</h2>
-          <ul className="mt-4 divide-y divide-[#2A2A2A] text-sm">
+          <ul className="mt-4 divide-y divide-[var(--border)] text-sm">
             {rows.map((r) => (
               <li key={`${r.code}-${r.size}`} className="flex flex-col gap-1 py-2 sm:flex-row sm:justify-between">
                 <span className="break-all">
@@ -194,11 +217,11 @@ export default function CheckoutPage() {
             ))}
           </ul>
           <div className="mt-4 space-y-1 text-sm">
-            <p className="flex justify-between text-[#A0A0A0]">
+            <p className="flex justify-between text-[var(--muted)]">
               <span>Merchandise</span>
               <span>{formatPrice(subtotal)}</span>
             </p>
-            <p className="flex justify-between text-[#A0A0A0]">
+            <p className="flex justify-between text-[var(--muted)]">
               <span>Shipping</span>
               <span>{shipping.cost ? formatPrice(shipping.cost) : "Free"}</span>
             </p>
@@ -207,10 +230,10 @@ export default function CheckoutPage() {
               <span>{formatPrice(total)}</span>
             </p>
           </div>
-          <Button type="submit" size="lg" className="mt-6 w-full">
-            Place order
+          <Button type="submit" size="lg" className="mt-6 w-full" disabled={submitting}>
+            {submitting ? "Placing…" : "Place order"}
           </Button>
-          <p className="mt-3 text-center text-[11px] text-[#6B6B6B]">
+          <p className="mt-3 text-center text-[11px] text-[var(--muted-2)]">
             Totals in N$. Checkout stub — no payment is collected.
           </p>
         </aside>

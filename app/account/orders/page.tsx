@@ -27,7 +27,7 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="mx-auto max-w-[1440px] px-4 py-8 lg:px-6">
+    <div className="page-shell py-8">
       <Breadcrumbs
         items={[
           { href: "/", label: "Home" },
@@ -44,7 +44,7 @@ export default function OrdersPage() {
       </p>
 
       {!mine.length ? (
-        <div className="mt-10 border border-[#2A2A2A] bg-[#141414] px-6 py-16 text-center">
+        <div className="mt-10 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-6 py-16 text-center">
           <p className="text-lg font-semibold">No orders yet</p>
           <p className="mt-2 text-sm text-[#A0A0A0]">Place a stub order from checkout to see it here.</p>
         </div>
@@ -55,8 +55,8 @@ export default function OrdersPage() {
             const active =
               order.status === "shipped" ? "Shipped" : order.status === "preparing" ? "Preparing" : "Reserved";
             return (
-              <article key={order.id} className="border border-[#2A2A2A] bg-[#141414] p-4">
-                <p className="font-mono text-lg font-bold text-[#B6FF00]">{order.id}</p>
+              <article key={order.id} className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
+                <p className="font-mono text-lg font-bold text-[var(--accent)]">{order.id}</p>
                 <p className="mt-1 text-xs text-[#A0A0A0]">{formatDate(order.createdAt)}</p>
                 <p className="mt-3 text-sm">
                   {order.name}
@@ -69,7 +69,7 @@ export default function OrdersPage() {
             );
           })}
         </div>
-        <div className="mt-8 hidden overflow-x-auto border border-[#B6FF00]/35 md:block">
+        <div className="mt-8 hidden overflow-hidden rounded-xl border border-[var(--border)] md:block">
           <table className="w-full min-w-[860px] text-left text-sm">
             <thead className="bg-[#161616] text-[11px] uppercase tracking-wider text-[#A0A0A0]">
               <tr>
@@ -88,7 +88,7 @@ export default function OrdersPage() {
                   <tr key={order.id} className="border-t border-[#2A2A2A] align-top">
                     <td className="px-3 py-4 whitespace-nowrap">{formatDate(order.createdAt)}</td>
                     <td className="px-3 py-4">
-                      <p className="font-mono font-bold text-[#B6FF00]">{order.id}</p>
+                      <p className="font-mono font-bold text-[var(--accent)]">{order.id}</p>
                       <p className="text-xs text-[#A0A0A0]">{order.items.length} line(s)</p>
                     </td>
                     <td className="px-3 py-4 text-xs leading-5">
@@ -105,7 +105,7 @@ export default function OrdersPage() {
                           <li key={step} className="flex items-center gap-2 text-[11px]">
                             <span
                               className={`h-2 w-2 rounded-full ${
-                                step === active ? "bg-[#B6FF00]" : "border border-[#4A4A4A]"
+                                step === active ? "bg-[var(--accent)]" : "border border-[#4A4A4A]"
                               }`}
                             />
                             <span className={step === active ? "text-white" : "text-[#6B6B6B]"}>

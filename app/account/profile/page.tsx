@@ -31,7 +31,7 @@ export default function ProfilePage() {
       <h1 className="mt-6 font-[family-name:var(--font-oswald)] text-4xl uppercase">
         Profile
       </h1>
-      <dl className="mt-8 border border-[#2A2A2A] bg-[#141414]">
+      <dl className="mt-8 overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)]">
         <div className="grid grid-cols-[140px_1fr] border-b border-[#2A2A2A] px-4 py-3 text-sm">
           <dt className="uppercase tracking-wider text-[#A0A0A0]">Name</dt>
           <dd>{user.name}</dd>

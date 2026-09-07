@@ -1,24 +1,30 @@
 import type { Product } from "@/lib/types";
 import { CATEGORIES, SUBCATEGORY_LABELS } from "@/lib/catalog";
+import { withProductImages } from "@/lib/media";
 import raw from "@/data/products.json";
 
-export const products = raw as Product[];
+/** Bundled JSON fallback for client components and offline. */
+export const products = (raw as Product[]).map(withProductImages);
 
-export function getProduct(code: string) {
-  return products.find((p) => p.code === code);
+export function getProduct(code: string, catalog: Product[] = products) {
+  return catalog.find((p) => p.code === code);
 }
 
-export function productsByCategory(slug: string) {
-  return products.filter((p) => p.category === slug);
+export function productsByCategory(slug: string, catalog: Product[] = products) {
+  return catalog.filter((p) => p.category === slug);
 }
 
-export function productsBySubcategory(slug: string, sub: string) {
-  return products.filter((p) => p.category === slug && p.subcategory === sub);
+export function productsBySubcategory(
+  slug: string,
+  sub: string,
+  catalog: Product[] = products,
+) {
+  return catalog.filter((p) => p.category === slug && p.subcategory === sub);
 }
 
-export function subcategoriesFor(slug: string) {
+export function subcategoriesFor(slug: string, catalog: Product[] = products) {
   const seen = new Map<string, number>();
-  for (const p of productsByCategory(slug)) {
+  for (const p of productsByCategory(slug, catalog)) {
     seen.set(p.subcategory, (seen.get(p.subcategory) ?? 0) + 1);
   }
   return [...seen.entries()].map(([sub, count]) => ({
@@ -28,9 +34,13 @@ export function subcategoriesFor(slug: string) {
   }));
 }
 
-export function searchProducts(query: string, category?: string) {
+export function searchProducts(
+  query: string,
+  category?: string,
+  catalog: Product[] = products,
+) {
   const q = query.trim().toLowerCase();
-  let list = products;
+  let list = catalog;
   if (category && category !== "all") {
     list = list.filter((p) => p.category === category);
   }
@@ -63,6 +73,10 @@ export function inStockSizes(product: Product) {
   return product.sizes.filter((s) => s.stock > 0);
 }
 
-export const categoryCounts = Object.fromEntries(
-  CATEGORIES.map((c) => [c.slug, productsByCategory(c.slug).length]),
-) as Record<string, number>;
+export function categoryCountsFrom(catalog: Product[]) {
+  return Object.fromEntries(
+    CATEGORIES.map((c) => [c.slug, productsByCategory(c.slug, catalog).length]),
+  ) as Record<string, number>;
+}
+
+export const categoryCounts = categoryCountsFrom(products);

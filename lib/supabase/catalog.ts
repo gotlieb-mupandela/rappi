@@ -1,0 +1,123 @@
+import { cache } from "react";
+import type { Product } from "@/lib/types";
+import bundled from "@/data/products.json";
+import { createClient } from "@/lib/supabase/server";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
+
+function mapRow(
+  row: {
+    id: string;
+    code: string;
+    item: string;
+    title: string;
+    name: string;
+    display_name: string;
+    category_slug: string;
+    subcategory: string;
+    gender: Product["gender"];
+    price: number;
+    unit_price: number;
+    sheet_category: string | null;
+    stock_qty: number;
+    badge: Product["badge"];
+    image_url: string;
+    images: string[] | null;
+  },
+  sizes: { size: string; stock: number }[],
+): Product {
+  return {
+    id: row.id,
+    code: row.code,
+    item: row.item,
+    title: row.title,
+    name: row.name,
+    displayName: row.display_name,
+    category: row.category_slug,
+    subcategory: row.subcategory,
+    gender: row.gender,
+    price: Number(row.price),
+    unitPrice: Number(row.unit_price),
+    currency: "NAD",
+    sheetCategory: row.sheet_category,
+    totalQty: row.stock_qty,
+    stockQty: row.stock_qty,
+    badge: row.badge ?? null,
+    sizeOptions: sizes.map((s) => s.size),
+    sizes,
+    imageUrl: row.image_url,
+    images: row.images ?? [],
+  };
+}
+
+export const getCatalog = cache(async (): Promise<Product[]> => {
+  if (!isSupabaseConfigured()) {
+    return bundled as Product[];
+  }
+
+  try {
+    const supabase = await createClient();
+    const { data: rows, error } = await supabase
+      .from("products")
+      .select(
+        "id, code, item, title, name, display_name, category_slug, subcategory, gender, price, unit_price, sheet_category, stock_qty, badge, image_url, images",
+      )
+      .order("code");
+    if (error || !rows?.length) return bundled as Product[];
+
+    const { data: sizeRows } = await supabase
+      .from("product_sizes")
+      .select("product_id, size, stock");
+    const byProduct = new Map<string, { size: string; stock: number }[]>();
+    for (const s of sizeRows ?? []) {
+      const list = byProduct.get(s.product_id) ?? [];
+      list.push({ size: s.size, stock: s.stock });
+      byProduct.set(s.product_id, list);
+    }
+
+    return rows.map((row) =>
+      mapRow(row as Parameters<typeof mapRow>[0], byProduct.get(row.id) ?? []),
+    );
+  } catch {
+    return bundled as Product[];
+  }
+});
+
+export async function getSiteSettings() {
+  if (!isSupabaseConfigured()) return null;
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("site_settings")
+      .select("*")
+      .eq("id", 1)
+      .maybeSingle();
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+export async function getShippingMethods() {
+  if (!isSupabaseConfigured()) {
+    return [
+      { id: "standard", name: "Standard (5–8 days)", cost: 12, sort_order: 1 },
+      { id: "express", name: "Express (2–3 days)", cost: 28, sort_order: 2 },
+      { id: "pickup", name: "Hub pickup", cost: 0, sort_order: 3 },
+    ];
+  }
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("shipping_methods")
+      .select("*")
+      .order("sort_order");
+    if (data?.length) return data;
+  } catch {
+    /* fall through */
+  }
+  return [
+    { id: "standard", name: "Standard (5–8 days)", cost: 12, sort_order: 1 },
+    { id: "express", name: "Express (2–3 days)", cost: 28, sort_order: 2 },
+    { id: "pickup", name: "Hub pickup", cost: 0, sort_order: 3 },
+  ];
+}

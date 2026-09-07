@@ -7,7 +7,11 @@ import { DEMO_EMAIL, DEMO_PASSWORD } from "@/lib/catalog";
 
 type AuthState = {
   user: User | null;
-  login: (email: string, password: string) => { ok: boolean; message: string };
+  login: (
+    email: string,
+    password: string,
+    override?: User,
+  ) => { ok: boolean; message: string };
   logout: () => void;
 };
 
@@ -15,7 +19,11 @@ export const useAuth = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
-      login: (email, password) => {
+      login: (email, password, override) => {
+        if (override) {
+          set({ user: override });
+          return { ok: true, message: "Signed in." };
+        }
         if (
           email.trim().toLowerCase() === DEMO_EMAIL &&
           password === DEMO_PASSWORD

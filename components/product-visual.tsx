@@ -53,7 +53,7 @@ export function ProductVisual({
   return (
     <div
       className={cn(
-        "relative flex aspect-[3/4] w-full items-center justify-center overflow-hidden bg-[#161616]",
+        "relative flex aspect-[3/4] w-full items-center justify-center overflow-hidden bg-[#161616] rounded-[inherit]",
         className,
       )}
       style={{

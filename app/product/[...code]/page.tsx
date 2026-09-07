@@ -3,12 +3,9 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ProductDetail } from "@/components/product-detail";
 import { ProductCard } from "@/components/product-card";
 import { categoryBySlug } from "@/lib/catalog";
-import { getProduct, products, productsByCategory } from "@/lib/products";
+import { getProduct, productsByCategory } from "@/lib/products";
+import { getCatalog } from "@/lib/supabase/catalog";
 import { decodeProductCode } from "@/lib/utils";
-
-export function generateStaticParams() {
-  return products.map((p) => ({ code: p.code.split("/") }));
-}
 
 export default async function ProductPage({
   params,
@@ -17,15 +14,16 @@ export default async function ProductPage({
 }) {
   const { code } = await params;
   const sku = decodeProductCode(code);
-  const product = getProduct(sku);
+  const catalog = await getCatalog();
+  const product = getProduct(sku, catalog);
   if (!product) notFound();
   const cat = categoryBySlug(product.category);
-  const related = productsByCategory(product.category)
+  const related = productsByCategory(product.category, catalog)
     .filter((p) => p.code !== product.code)
     .slice(0, 4);
 
   return (
-    <div className="mx-auto max-w-[1440px] px-4 py-8 lg:px-6">
+    <div className="page-shell py-8">
       <Breadcrumbs
         items={[
           { href: "/", label: "Home" },

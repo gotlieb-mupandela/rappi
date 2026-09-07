@@ -51,7 +51,7 @@ export type Order = {
   }>;
   subtotal: number;
   total: number;
-  status: "reserved" | "preparing" | "shipped";
+  status: "reserved" | "preparing" | "shipped" | "cancelled";
 };
 
 export type User = {

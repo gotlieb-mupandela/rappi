@@ -4,6 +4,7 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { CatalogFilters } from "@/components/catalog-filters";
 import { CATEGORIES, categoryBySlug } from "@/lib/catalog";
 import { productsByCategory } from "@/lib/products";
+import { getCatalog } from "@/lib/supabase/catalog";
 
 export function generateStaticParams() {
   return CATEGORIES.map((c) => ({ slug: c.slug }));
@@ -17,10 +18,11 @@ export default async function ShopListingPage({
   const { slug } = await params;
   const cat = categoryBySlug(slug);
   if (!cat) notFound();
-  const items = productsByCategory(slug);
+  const catalog = await getCatalog();
+  const items = productsByCategory(slug, catalog);
 
   return (
-    <div className="mx-auto max-w-[1440px] px-3 py-6 sm:px-4 sm:py-8 lg:px-6">
+    <div className="page-shell py-6 sm:py-8">
       <Breadcrumbs
         items={[
           { href: "/", label: "Home" },

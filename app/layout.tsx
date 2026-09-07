@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Inter, Oswald } from "next/font/google";
-import { Suspense } from "react";
 import { Providers } from "@/components/providers";
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
+import { StorefrontChrome } from "@/components/storefront-chrome";
 import { TAGLINE } from "@/lib/catalog";
 import "./globals.css";
 import "./tokens.css";
@@ -51,11 +49,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="flex min-h-full flex-col bg-bg text-ink">
         <Providers>
-          <Suspense fallback={null}>
-            <SiteHeader />
-          </Suspense>
-          <main className="flex-1">{children}</main>
-          <SiteFooter />
+          <StorefrontChrome>{children}</StorefrontChrome>
         </Providers>
       </body>
     </html>

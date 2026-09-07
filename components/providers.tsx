@@ -21,11 +21,14 @@ export function Providers({ children }: { children: ReactNode }) {
       <Toaster
         theme="dark"
         position="bottom-right"
+        offset={24}
         toastOptions={{
           style: {
-            background: "#1A1A1A",
-            border: "1px solid #2A2A2A",
+            background: "#141414",
+            border: "1px solid rgba(255,255,255,0.1)",
             color: "#fff",
+            borderRadius: "14px",
+            boxShadow: "0 18px 50px rgba(0,0,0,0.45)",
           },
         }}
       />

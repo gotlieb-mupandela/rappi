@@ -25,6 +25,10 @@
 *.pem
 /agent-tools/
 
+# generated catalog shots (uploaded to Supabase Storage)
+/public/products/
+/data/catalog-bases/
+
 # debug
 npm-debug.log*
 yarn-debug.log*
@@ -33,6 +37,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel

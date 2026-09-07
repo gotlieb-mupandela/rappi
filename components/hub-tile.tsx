@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CATEGORIES } from "@/lib/catalog";
-import { ProductVisual } from "@/components/product-visual";
+import { ProductImage } from "@/components/product-image";
 import { categoryCounts } from "@/lib/products";
 import type { Product } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -45,7 +45,7 @@ export function HubTile({
     <Link href={to} className="group block">
       <div
         className={cn(
-          "relative overflow-hidden bg-[#161616] transition-all duration-200 group-hover:shadow-[0_0_28px_rgba(182,255,0,0.16)]",
+          "media-frame relative overflow-hidden rounded-xl border border-[var(--border)] transition-[border-color,box-shadow,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-0.5 group-hover:border-[var(--border-strong)] group-hover:shadow-[var(--shadow-lift)] motion-reduce:group-hover:translate-y-0",
           shape === "square" || compact ? "aspect-square" : "aspect-[3/4]",
         )}
         style={
@@ -57,34 +57,33 @@ export function HubTile({
         }
       >
         {product ? (
-          product.imageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={product.imageUrl}
-              alt=""
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <ProductVisual product={product} className="aspect-auto h-full w-full" />
-          )
+          <ProductImage
+            product={product}
+            src={product.imageUrl}
+            alt=""
+            className="h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+            fallbackClassName="aspect-auto h-full w-full"
+          />
         ) : (
           <div className="absolute inset-0 opacity-40 mix-blend-overlay [background-image:repeating-linear-gradient(90deg,transparent,transparent_18px,rgba(255,255,255,0.04)_19px)]" />
         )}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent" />
         {banner ? (
-          <div className="absolute inset-x-0 bottom-0 bg-[#C4122F] py-1.5 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-white">
+          <div className="absolute inset-x-3 top-3 rounded-full bg-[var(--danger)] py-1 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-white">
             {banner}
           </div>
-        ) : n > 0 ? (
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#B6FF00]">
+        ) : null}
+        <div className="absolute inset-x-0 bottom-0 p-3">
+          {n > 0 ? (
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
               {n} SKU{n === 1 ? "" : "s"}
             </p>
-          </div>
-        ) : null}
+          ) : null}
+          <p className="mt-0.5 font-[family-name:var(--font-oswald)] text-sm uppercase tracking-wide text-white sm:text-base">
+            {name}
+          </p>
+        </div>
       </div>
-      <p className="mt-2 text-center text-[12px] font-semibold uppercase tracking-[0.16em] text-white group-hover:text-[#B6FF00]">
-        {name}
-      </p>
     </Link>
   );
 }

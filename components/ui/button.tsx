@@ -4,22 +4,22 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold tracking-wide uppercase transition-colors disabled:pointer-events-none disabled:opacity-40 outline-none focus-visible:ring-2 focus-visible:ring-[#B6FF00]/60",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-semibold tracking-[0.08em] uppercase transition-[color,background-color,border-color,box-shadow,transform,opacity] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] disabled:pointer-events-none disabled:opacity-40 outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/70 active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100",
   {
     variants: {
       variant: {
         default:
-          "bg-[#B6FF00] text-[#0B0B0B] hover:bg-[#C8FF00] shadow-[0_0_18px_rgba(182,255,0,0.25)]",
+          "bg-[var(--accent)] text-[var(--on-accent)] hover:bg-[var(--accent-bright)] shadow-[inset_0_1px_0_rgba(255,255,255,0.28)]",
         outline:
-          "border border-[#2A2A2A] bg-transparent text-white hover:border-[#B6FF00] hover:text-[#B6FF00]",
-        ghost: "text-white hover:bg-[#1A1A1A] hover:text-[#B6FF00]",
+          "border border-[var(--border-strong)] bg-transparent text-white hover:border-[var(--accent)] hover:text-[var(--accent)]",
+        ghost: "text-white hover:bg-white/5 hover:text-[var(--accent)]",
         dark: "bg-white text-[#0B0B0B] hover:bg-[#E8E8E8]",
-        danger: "border border-[#3A3A3A] text-[#A0A0A0] hover:text-white hover:border-white",
+        danger: "border border-[var(--border-strong)] text-[var(--muted)] hover:text-white hover:border-white",
       },
       size: {
         default: "h-10 px-5",
         sm: "h-8 px-3 text-xs",
-        lg: "h-12 px-7 text-base",
+        lg: "h-12 px-7 text-[13px]",
         icon: "h-10 w-10",
       },
     },

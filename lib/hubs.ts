@@ -4,7 +4,10 @@ import { products as bundled, productsByCategory } from "@/lib/products";
 
 export function isKidsShoe(product: Product) {
   if (product.gender === "kids") return true;
+  if (product.subcategory === "kids-shoes" || product.subcategory === "tees-kids") return true;
   if (/^J[A-Z]/i.test(product.code)) return true;
+  const blob = `${product.displayName} ${product.name} ${product.item}`.toLowerCase();
+  if (/\b(junior| jr\b|kids|child|baby)\b/.test(blob)) return true;
   const nums = product.sizeOptions
     .map((s) => Number.parseFloat(s))
     .filter((n) => Number.isFinite(n));
@@ -13,18 +16,26 @@ export function isKidsShoe(product: Product) {
 
 export function shoeHubGroups(catalog: Product[] = bundled) {
   const shoes = productsByCategory("shoes", catalog);
-  const training = shoes.filter((p) => p.subcategory === "training-shoes");
-  const kids = shoes.filter((p) => isKidsShoe(p) && p.subcategory !== "training-shoes");
+  const running = shoes.filter(
+    (p) => p.subcategory === "running-shoes" || p.subcategory === "training-shoes",
+  );
+  const kids = shoes.filter((p) => isKidsShoe(p) && p.subcategory !== "running-shoes");
+  const sandals = shoes.filter((p) => p.subcategory === "sandals" || p.subcategory === "barefoot");
   const adult = shoes.filter(
-    (p) => p.subcategory !== "training-shoes" && !isKidsShoe(p),
+    (p) =>
+      !isKidsShoe(p) &&
+      p.subcategory !== "running-shoes" &&
+      p.subcategory !== "training-shoes" &&
+      p.subcategory !== "sandals" &&
+      p.subcategory !== "barefoot",
   );
   const offers = shoes.filter((p) => p.badge === "offer" || p.badge === "new");
   return [
     {
       key: "adult",
-      name: "Adult",
+      name: "Sneakers",
       count: adult.length,
-      href: "/shop/shoes?audience=adult",
+      href: "/shop/shoes?sub=sneakers",
       sample: firstImagedProduct(adult),
     },
     {
@@ -35,11 +46,18 @@ export function shoeHubGroups(catalog: Product[] = bundled) {
       sample: firstImagedProduct(kids),
     },
     {
-      key: "training",
-      name: "Training",
-      count: training.length,
-      href: "/shop/shoes?sub=training-shoes",
-      sample: firstImagedProduct(training),
+      key: "running",
+      name: "Running",
+      count: running.length,
+      href: "/shop/shoes?sub=running-shoes",
+      sample: firstImagedProduct(running),
+    },
+    {
+      key: "sandals",
+      name: "Sandals & barefoot",
+      count: sandals.length,
+      href: "/shop/shoes?sub=sandals",
+      sample: firstImagedProduct(sandals),
     },
     {
       key: "offers",
@@ -54,11 +72,27 @@ export function shoeHubGroups(catalog: Product[] = bundled) {
 
 export function kidsHubGroups(catalog: Product[] = bundled) {
   const kidsApparel = catalog.filter(
-    (p) => p.gender === "kids" || p.subcategory === "tees-kids" || p.subcategory === "jackets-kids",
+    (p) =>
+      p.gender === "kids" ||
+      p.subcategory === "tees-kids" ||
+      p.subcategory === "jackets-kids" ||
+      p.subcategory === "kids-shoes" ||
+      /\b(junior| jr\b|kids|child|baby)\b/.test(
+        `${p.displayName} ${p.name} ${p.item}`.toLowerCase(),
+      ),
   );
-  const tees = kidsApparel.filter((p) => p.subcategory === "tees-kids" || p.item === "KIDS");
-  const shorts = kidsApparel.filter((p) => p.item === "SHORTS KIDS");
-  const jackets = kidsApparel.filter((p) => p.subcategory === "jackets-kids");
+  const tees = kidsApparel.filter(
+    (p) =>
+      p.subcategory === "tees-kids" ||
+      p.item === "KIDS" ||
+      (p.subcategory === "tees" && /\b(junior| jr\b|kids)\b/.test(p.displayName.toLowerCase())),
+  );
+  const shorts = kidsApparel.filter(
+    (p) => p.item === "SHORTS KIDS" || p.subcategory === "shorts",
+  );
+  const jackets = kidsApparel.filter(
+    (p) => p.subcategory === "jackets-kids" || p.subcategory === "jackets",
+  );
   const kidsShoes = productsByCategory("shoes", catalog).filter(isKidsShoe);
   return [
     {
@@ -79,7 +113,7 @@ export function kidsHubGroups(catalog: Product[] = bundled) {
       key: "jackets",
       name: "Kids jackets",
       count: jackets.length,
-      href: "/shop/sportswear?sub=jackets-kids",
+      href: "/shop/sportswear?sub=jackets",
       sample: firstImagedProduct(jackets),
     },
     {
@@ -94,7 +128,7 @@ export function kidsHubGroups(catalog: Product[] = bundled) {
 
 export function collectionTiles(catalog: Product[] = bundled) {
   const footwear = catalog.filter(
-    (p) => p.category === "shoes" || p.item.toUpperCase().includes("SHOE"),
+    (p) => p.category === "shoes" || p.subcategory === "boots",
   );
   const apparel = catalog.filter((p) =>
     ["sportswear", "running-fitness", "football", "basketball", "netball"].includes(

@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { CATEGORIES, categoryBySlug } from "@/lib/catalog";
 import { firstImagedProduct } from "@/lib/classify";
 import { shoeHubGroups } from "@/lib/hubs";
-import { productsByCategory, subcategoriesFor } from "@/lib/products";
+import { buildTaxonomy } from "@/lib/listing";
+import { productsByCategory } from "@/lib/products";
 import { getCatalog } from "@/lib/supabase/catalog";
 
 export function generateStaticParams() {
@@ -23,7 +24,8 @@ export default async function CategoryHubPage({
   if (!cat) notFound();
   const catalog = await getCatalog();
   const items = productsByCategory(slug, catalog);
-  const subs = subcategoriesFor(slug, catalog);
+  const taxonomy = buildTaxonomy(catalog);
+  const subs = (taxonomy[slug] ?? []).filter((s) => s.slug !== "general" || s.count > 0);
   const shoeGroups = slug === "shoes" ? shoeHubGroups(catalog) : [];
 
   return (
@@ -40,12 +42,33 @@ export default async function CategoryHubPage({
             {cat.blurb} {items.length} SKUs in opening stock.
           </p>
         </div>
-        <Button asChild variant="outline" className="w-full sm:w-auto">
-          <Link href={`/shop/${slug}`}>View all products</Link>
-        </Button>
+        {items.length > 0 ? (
+          <Button asChild variant="outline" className="w-full sm:w-auto">
+            <Link href={`/shop/${slug}`}>View all products</Link>
+          </Button>
+        ) : null}
       </div>
 
-      {slug === "shoes" && shoeGroups.length > 0 ? (
+      {items.length === 0 ? (
+        <div className="mt-10 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-6 py-16 text-center">
+          <p className="text-lg font-semibold text-white">Nothing in {cat.name} yet</p>
+          <p className="mt-2 text-sm text-[var(--muted)]">
+            This hub has no matching stock in the current catalog. Browse sportswear, shoes, or
+            balls &amp; bags instead.
+          </p>
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <Button asChild>
+              <Link href="/category/sportswear">Sportswear</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/category/shoes">Shoes</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/category/balls-bags">Balls &amp; Bags</Link>
+            </Button>
+          </div>
+        </div>
+      ) : slug === "shoes" && shoeGroups.length > 0 ? (
         <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">
           {shoeGroups.map((g) => (
             <HubTile
@@ -62,18 +85,20 @@ export default async function CategoryHubPage({
         </div>
       ) : (
         <div className="mt-10 grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-          {subs.map((s) => (
-            <HubTile
-              key={s.slug}
-              slug={slug}
-              name={s.name}
-              count={s.count}
-              href={`/shop/${slug}?sub=${encodeURIComponent(s.slug)}`}
-              product={firstImagedProduct(
-                items.filter((p) => p.subcategory === s.slug),
-              )}
-            />
-          ))}
+          {subs
+            .filter((s) => s.count > 0)
+            .map((s) => (
+              <HubTile
+                key={s.slug}
+                slug={slug}
+                name={s.name}
+                count={s.count}
+                href={`/shop/${slug}?sub=${encodeURIComponent(s.slug)}`}
+                product={firstImagedProduct(
+                  items.filter((p) => p.subcategory === s.slug),
+                )}
+              />
+            ))}
         </div>
       )}
     </div>

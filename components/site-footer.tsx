@@ -2,7 +2,11 @@ import Link from "next/link";
 import { BrandLogo } from "@/components/brand-logo";
 import { CATEGORIES, TAGLINE } from "@/lib/catalog";
 
-export function SiteFooter() {
+export function SiteFooter({
+  categoryCounts,
+}: {
+  categoryCounts?: Record<string, number>;
+}) {
   return (
     <footer className="mt-auto border-t border-[var(--border)] bg-[#070707]">
       <div className="page-shell grid gap-10 py-12 md:grid-cols-3">
@@ -20,7 +24,8 @@ export function SiteFooter() {
             Shop
           </p>
           <ul className="mt-4 grid grid-cols-2 gap-y-2 text-sm">
-            {CATEGORIES.map((c) => (
+            {CATEGORIES.filter((c) => !categoryCounts || (categoryCounts[c.slug] ?? 0) > 0).map(
+              (c) => (
               <li key={c.slug}>
                 <Link
                   href={`/category/${c.slug}`}
@@ -29,7 +34,8 @@ export function SiteFooter() {
                   {c.name}
                 </Link>
               </li>
-            ))}
+              ),
+            )}
           </ul>
         </div>
         <div>

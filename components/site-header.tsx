@@ -5,19 +5,27 @@ import { usePathname, useRouter } from "next/navigation";
 import { FormEvent, Suspense, useEffect, useRef, useState } from "react";
 import { Menu, Search, ShoppingBag, User, X, ChevronDown } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
-import { CATEGORIES, NAV_MORE, NAV_PRIMARY } from "@/lib/catalog";
+import { CATEGORIES, NAV_PRIMARY } from "@/lib/catalog";
 import { useAuth } from "@/lib/stores/auth";
 import { cartCount, useCart } from "@/lib/stores/cart";
 import { CategorySubNav } from "@/components/category-sub-nav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import type { StorefrontTaxonomy } from "@/lib/listing-types";
 import { cn } from "@/lib/utils";
 
-export function SiteHeader() {
+export function SiteHeader({
+  taxonomy,
+  categoryCounts,
+}: {
+  taxonomy: StorefrontTaxonomy;
+  categoryCounts: Record<string, number>;
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [ready, setReady] = useState(false);
@@ -42,6 +50,7 @@ export function SiteHeader() {
 
   useEffect(() => {
     setOpen(false);
+    setSearchOpen(false);
     setAccountOpen(false);
     setMoreOpen(false);
   }, [pathname]);
@@ -78,7 +87,16 @@ export function SiteHeader() {
     const query = q.trim();
     router.push(query ? `/search?q=${encodeURIComponent(query)}` : "/search");
     setOpen(false);
+    setSearchOpen(false);
   }
+
+  const visibleCategories = CATEGORIES.filter((c) => (categoryCounts[c.slug] ?? 0) > 0);
+  const primaryNav = NAV_PRIMARY.map((slug) => visibleCategories.find((c) => c.slug === slug)).filter(
+    (c): c is (typeof CATEGORIES)[number] => Boolean(c),
+  );
+  const moreNav = visibleCategories.filter(
+    (c) => !NAV_PRIMARY.includes(c.slug as (typeof NAV_PRIMARY)[number]),
+  );
 
   const activeSlug = CATEGORIES.find(
     (c) => pathname === `/category/${c.slug}` || pathname.startsWith(`/shop/${c.slug}`),
@@ -125,13 +143,18 @@ export function SiteHeader() {
         </form>
 
         <div className="ml-auto flex items-center gap-0.5 sm:gap-1">
-          <Link
-            href="/search"
+          <button
+            type="button"
             className="flex h-11 w-11 items-center justify-center rounded-full text-white transition-colors hover:bg-white/5 hover:text-[var(--accent)] md:hidden"
-            aria-label="Search"
+            aria-label={searchOpen ? "Close search" : "Search"}
+            aria-expanded={searchOpen}
+            onClick={() => {
+              setOpen(false);
+              setSearchOpen((v) => !v);
+            }}
           >
-            <Search className="h-5 w-5" />
-          </Link>
+            {searchOpen ? <X className="h-5 w-5" /> : <Search className="h-5 w-5" />}
+          </button>
           <Link
             href="/cart"
             className="relative flex h-11 w-11 items-center justify-center rounded-full text-white transition-colors hover:bg-white/5 hover:text-[var(--accent)]"
@@ -213,29 +236,47 @@ export function SiteHeader() {
         </div>
       </div>
 
+      {searchOpen ? (
+        <div className="border-t border-[var(--border)] bg-[#080808] px-4 py-3 md:hidden">
+          <form onSubmit={onSearch}>
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-2)]" />
+              <Input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search by name, code, or category"
+                className="h-11 pl-10"
+                aria-label="Search catalog"
+                autoFocus
+              />
+            </div>
+            <Button type="submit" className="mt-3 w-full">
+              Search
+            </Button>
+          </form>
+        </div>
+      ) : null}
+
       <nav className="hidden border-t border-[var(--border)] lg:block">
         <ul className="page-shell flex items-center justify-center gap-x-5 py-2.5 xl:gap-x-7">
-          {NAV_PRIMARY.map((slug) => {
-            const c = CATEGORIES.find((item) => item.slug === slug);
-            if (!c) return null;
-            return (
-              <li key={c.slug}>
-                <Link
-                  href={`/category/${c.slug}`}
-                  data-active={activeSlug === c.slug || undefined}
-                  className="nav-link text-[11px] font-semibold uppercase tracking-[0.14em]"
-                >
-                  {c.nav ?? c.name}
-                </Link>
-              </li>
-            );
-          })}
+          {primaryNav.map((c) => (
+            <li key={c.slug}>
+              <Link
+                href={`/category/${c.slug}`}
+                data-active={activeSlug === c.slug || undefined}
+                className="nav-link text-[11px] font-semibold uppercase tracking-[0.14em]"
+              >
+                {c.nav ?? c.name}
+              </Link>
+            </li>
+          ))}
+          {moreNav.length > 0 ? (
           <li className="relative" ref={moreRef}>
             <button
               type="button"
               aria-expanded={moreOpen}
               aria-haspopup="menu"
-              data-active={NAV_MORE.some((c) => c.slug === activeSlug) || undefined}
+              data-active={moreNav.some((c) => c.slug === activeSlug) || undefined}
               className="nav-link cursor-pointer border-0 bg-transparent text-[11px] font-semibold uppercase tracking-[0.14em]"
               onClick={() => setMoreOpen((v) => !v)}
             >
@@ -247,7 +288,7 @@ export function SiteHeader() {
                 role="menu"
                 className="absolute left-1/2 top-full z-20 mt-2 min-w-44 -translate-x-1/2 overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)] py-1 shadow-[var(--shadow-soft)]"
               >
-                {NAV_MORE.map((c) => (
+                {moreNav.map((c) => (
                   <Link
                     key={c.slug}
                     href={`/category/${c.slug}`}
@@ -263,6 +304,7 @@ export function SiteHeader() {
               </div>
             ) : null}
           </li>
+          ) : null}
           <li>
             <Link
               href="/promotions"
@@ -275,7 +317,7 @@ export function SiteHeader() {
         </ul>
       </nav>
       <Suspense fallback={null}>
-        <CategorySubNav />
+        <CategorySubNav taxonomy={taxonomy} />
       </Suspense>
 
       {open ? (
@@ -289,7 +331,7 @@ export function SiteHeader() {
             />
           </form>
           <ul className="grid grid-cols-2 gap-1">
-            {CATEGORIES.map((c) => (
+            {visibleCategories.map((c) => (
               <li key={c.slug}>
                 <Link
                   href={`/category/${c.slug}`}

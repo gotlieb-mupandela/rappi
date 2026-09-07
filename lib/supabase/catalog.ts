@@ -112,8 +112,8 @@ export async function getSiteSettings() {
 export async function getShippingMethods() {
   if (!isSupabaseConfigured()) {
     return [
-      { id: "standard", name: "Standard (5–8 days)", cost: 12, sort_order: 1 },
-      { id: "express", name: "Express (2–3 days)", cost: 28, sort_order: 2 },
+      { id: "standard", name: "Standard (5–8 days)", cost: 100, sort_order: 1 },
+      { id: "express", name: "Express (2–3 days)", cost: 150, sort_order: 2 },
       { id: "pickup", name: "Hub pickup", cost: 0, sort_order: 3 },
     ];
   }
@@ -128,8 +128,8 @@ export async function getShippingMethods() {
     /* fall through */
   }
   return [
-    { id: "standard", name: "Standard (5–8 days)", cost: 12, sort_order: 1 },
-    { id: "express", name: "Express (2–3 days)", cost: 28, sort_order: 2 },
+    { id: "standard", name: "Standard (5–8 days)", cost: 100, sort_order: 1 },
+    { id: "express", name: "Express (2–3 days)", cost: 150, sort_order: 2 },
     { id: "pickup", name: "Hub pickup", cost: 0, sort_order: 3 },
   ];
 }

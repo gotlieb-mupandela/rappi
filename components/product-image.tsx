@@ -11,12 +11,14 @@ export function ProductImage({
   alt,
   className,
   fallbackClassName,
+  priority = false,
 }: {
   product: Product;
   src?: string | null;
   alt?: string;
   className?: string;
   fallbackClassName?: string;
+  priority?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
 
@@ -36,7 +38,9 @@ export function ProductImage({
       src={src}
       alt={alt ?? product.code}
       className={cn("img-in", className)}
-      loading="lazy"
+      loading={priority ? "eager" : "lazy"}
+      decoding="async"
+      fetchPriority={priority ? "high" : "auto"}
       onError={() => setFailed(true)}
     />
   );

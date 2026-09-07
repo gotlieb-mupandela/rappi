@@ -6,6 +6,11 @@ function isRemoteUrl(url: string | undefined | null) {
   return Boolean(url && /^https?:\/\//i.test(url));
 }
 
+/** Joma `_large.jpg` thumbs are ~30KB; the same path without `_large` is full-res. */
+export function upgradeProductImageUrl(url: string) {
+  return url.replace(/_large(?=\.(jpe?g|png|webp)(\?|$))/i, "");
+}
+
 export function productPublicUrls(id: string) {
   const images = [1, 2, 3, 4, 5].map(
     (n) => `/products/${id}/${String(n).padStart(2, "0")}.webp`,
@@ -31,10 +36,14 @@ export function withProductImages<
     : remoteImages[0];
 
   if (remotePrimary) {
+    const imageUrl = upgradeProductImageUrl(remotePrimary);
+    const images = (remoteImages.length ? remoteImages : [remotePrimary]).map(
+      upgradeProductImageUrl,
+    );
     return {
       ...product,
-      imageUrl: remotePrimary,
-      images: remoteImages.length ? remoteImages : [remotePrimary],
+      imageUrl,
+      images: [...new Set(images)],
     };
   }
 

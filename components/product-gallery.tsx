@@ -31,8 +31,9 @@ export function ProductGallery({ product }: { product: Product }) {
           product={product}
           src={current}
           alt={`${product.code} photo ${active + 1}`}
-          className="aspect-[3/4] w-full max-h-[760px] object-cover object-center"
+          className="aspect-[3/4] w-full max-h-[760px] object-contain object-center"
           fallbackClassName="aspect-[3/4] max-h-[640px]"
+          priority
         />
       </div>
       {shots.length > 1 ? (

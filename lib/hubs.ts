@@ -1,5 +1,10 @@
-import { firstImagedProduct, isStorefrontFootwear, sampleFromList } from "@/lib/classify";
-import { AUDIENCES, type AudienceSlug } from "@/lib/catalog";
+import {
+  firstImagedProduct,
+  isStorefrontFootwear,
+  sampleForCategory,
+  sampleFromList,
+} from "@/lib/classify";
+import { AUDIENCES, CAMPAIGN_COLLECTIONS, categoryBySlug, type AudienceSlug } from "@/lib/catalog";
 import type { Product } from "@/lib/types";
 import { products as bundled, productsByCategory } from "@/lib/products";
 
@@ -239,32 +244,15 @@ export function audienceTiles(
 }
 
 export function collectionTiles(catalog: Product[] = bundled) {
-  const footwear = footwearOnly(
-    catalog.filter((p) => p.category === "shoes" || p.subcategory === "boots"),
-  );
-  const apparel = catalog.filter((p) =>
-    ["sportswear", "running-fitness", "football", "basketball", "netball"].includes(
-      p.category,
-    ),
-  );
-  return [
-    {
-      key: "footwear",
-      name: "Footwear",
-      href: "/shop/shoes",
-      count: footwear.length,
-      sample:
-        sampleFromList(footwear.filter((p) => p.badge === "new"), "shoes") ??
-        sampleFromList(footwear, "shoes"),
-    },
-    {
-      key: "apparel",
-      name: "Apparel & accessories",
-      href: "/category/sportswear",
-      count: apparel.length,
-      sample:
-        firstImagedProduct(apparel.filter((p) => p.badge === "new")) ??
-        firstImagedProduct(apparel),
-    },
-  ];
+  return CAMPAIGN_COLLECTIONS.map((slug) => {
+    const cat = categoryBySlug(slug);
+    const items = productsByCategory(slug, catalog);
+    return {
+      key: slug,
+      name: cat?.name ?? slug,
+      href: `/category/${slug}`,
+      count: items.length,
+      sample: sampleForCategory(catalog, slug) ?? firstImagedProduct(items),
+    };
+  }).filter((g) => g.count > 0);
 }

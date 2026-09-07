@@ -132,15 +132,16 @@ export default async function HomePage() {
           href="/promotions"
           linkLabel="View all"
         />
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 md:gap-5">
           {collections.map((c) => (
             <HubTile
               key={c.key}
-              slug={c.key === "footwear" ? "shoes" : "sportswear"}
+              slug={c.key}
               name={c.name}
               count={c.count}
               href={c.href}
               product={c.sample}
+              shape="square"
             />
           ))}
         </div>

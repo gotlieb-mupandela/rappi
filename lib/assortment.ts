@@ -1,3 +1,4 @@
+import { formatPrice } from "@/lib/format";
 import type { Product } from "@/lib/types";
 
 /**
@@ -23,7 +24,26 @@ export type AssortmentInfo = {
   packSize: number | null;
   label: string;
   pairHint: string | null;
+  /** Keep the Joma size run (e.g. bib S01–S04) instead of collapsing to PACK. */
+  preserveSizes?: boolean;
 };
+
+export const BIB_PACK_PRICE_NAD = 900;
+
+const BIB_CODE = /^101686\./i;
+const TRAINING_BIB_RE = /\b(training bibs?|petos(?:\s+de\s+entrenamiento|\s+entrenamiento)?)\b/i;
+const NOT_BIB_PACK_RE = /\b(gps bib|crono bib|myskin)\b/i;
+
+export function isTrainingBibPack(product: Product) {
+  if (BIB_CODE.test(product.code)) return true;
+  const text = blob(product);
+  if (!TRAINING_BIB_RE.test(text) || NOT_BIB_PACK_RE.test(text)) return false;
+  return (product.sizeOptions ?? []).some((s) => /^S0\d$/i.test(s));
+}
+
+export function isFixedBibPack(product: Product) {
+  return BIB_CODE.test(product.code);
+}
 
 function blob(product: Product) {
   return [product.displayName, product.name, product.title, product.item, product.sheetCategory]
@@ -52,18 +72,24 @@ function namedPackSize(product: Product): number | null {
 
 function pairHint(price: number, size: number | null) {
   if (!price || price <= 0) return null;
-  const fmt = (n: number) =>
-    `N$${new Intl.NumberFormat("en-NA", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(n)}`;
   if (size && size > 1) {
-    return `About ${fmt(price / size)} / pair`;
+    return `About ${formatPrice(price / size)} / pair`;
   }
-  return `About ${fmt(price / 8)} / pair (8) · ${fmt(price / 12)} / pair (12)`;
+  return `About ${formatPrice(price / 8)} / pair (8) · ${formatPrice(price / 12)} / pair (12)`;
 }
 
 export function getAssortment(product: Product): AssortmentInfo | null {
+  if (isTrainingBibPack(product)) {
+    const price = product.price || product.unitPrice || BIB_PACK_PRICE_NAD;
+    return {
+      isAssortment: true,
+      packSize: 10,
+      label: "Pack of 10",
+      pairHint: `${formatPrice(price / 10)} each`,
+      preserveSizes: true,
+    };
+  }
+
   const named = namedPackSize(product);
   if (named && named > 1) {
     const footwear = isFootwearSku(product);
@@ -74,10 +100,7 @@ export function getAssortment(product: Product): AssortmentInfo | null {
       label: `Pack · ${named} ${unit}`,
       pairHint: footwear
         ? pairHint(product.price || product.unitPrice, named)
-        : `About N$${new Intl.NumberFormat("en-NA", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          }).format((product.price || product.unitPrice) / named)} each`,
+        : `About ${formatPrice((product.price || product.unitPrice) / named)} each`,
     };
   }
 

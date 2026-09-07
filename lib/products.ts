@@ -57,6 +57,7 @@ export function searchProducts(
       p.item.toLowerCase().includes(q) ||
       p.name.toLowerCase().includes(q) ||
       p.title.toLowerCase().includes(q) ||
+      (p.description ?? "").toLowerCase().includes(q) ||
       catName.includes(q) ||
       sub.includes(q) ||
       p.category.includes(q)

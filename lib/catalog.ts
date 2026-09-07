@@ -62,6 +62,37 @@ export const CATEGORIES: CategoryDef[] = [
     blurb: "Running layers, gym kit, and training accessories.",
   },
   {
+    slug: "brama",
+    name: "Brama",
+    blurb: "Brama skins, tights, and base layers.",
+  },
+  {
+    slug: "padel",
+    name: "Padel",
+    blurb: "Padel apparel, court shoes, and rackets.",
+  },
+  {
+    slug: "hiking",
+    name: "Hiking",
+    blurb: "Outdoor trousers, jackets, and trail footwear.",
+  },
+  {
+    slug: "resort",
+    name: "Resort",
+    blurb: "Resort polos, travel layers, and easy weekend kit.",
+  },
+  {
+    slug: "lifestyle",
+    name: "Lifestyle",
+    blurb: "Lifestyle sneakers and everyday court-to-street pairs.",
+  },
+  {
+    slug: "teampro-2026",
+    name: "Teampro 2026",
+    nav: "Teampro",
+    blurb: "2026 team and Mundial collection shirts.",
+  },
+  {
     slug: "shoes",
     name: "Shoes",
     featured: true,
@@ -120,8 +151,17 @@ export const SUBCATEGORY_LABELS: Record<string, string> = {
   bags: "Bags",
   "ball-bags": "Ball Bags",
   rackets: "Rackets",
+  skins: "Skins",
   general: "More",
 };
+
+export const CAMPAIGN_COLLECTIONS = [
+  "padel",
+  "hiking",
+  "resort",
+  "lifestyle",
+  "teampro-2026",
+] as const;
 
 /** Clothing & accessories first; empty hubs (e.g. netball) are filtered at render. */
 export const NAV_PRIMARY = [

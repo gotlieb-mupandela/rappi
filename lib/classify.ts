@@ -1,3 +1,7 @@
+import { BIB_PACK_PRICE_NAD, isFixedBibPack, isTrainingBibPack } from "@/lib/assortment";
+import { productDescription } from "@/lib/copy";
+import { roundNad } from "@/lib/format";
+import { withProductImages } from "@/lib/media";
 import { withCatalogSizes } from "@/lib/sizes";
 import type { Product } from "@/lib/types";
 
@@ -125,6 +129,24 @@ export function classifyStorefrontCategory(product: Product): string {
   if (word(blob, "rugby", "skrum", "scrum") || family === "rugby" || family === "skrum" || isRugbyHookShort(name)) {
     return "rugby";
   }
+  if (word(blob, "brama") || family === "brama" || family === "brama line") return "brama";
+  if (
+    family.includes("mundial 2026") ||
+    family === "montreal 2026" ||
+    /\b(mundial 2026|montreal 2026|world cup 2026|teampro)\b/.test(blob)
+  ) {
+    return "teampro-2026";
+  }
+  if (word(blob, "resort") || family === "resort") return "resort";
+  if (family === "lifestyle") return "lifestyle";
+  if (
+    family === "outdoor" ||
+    family.startsWith("outdoor") ||
+    word(blob, "hiking", "trek", "trekking")
+  ) {
+    return "hiking";
+  }
+  if (word(blob, "padel") || family.includes("padel")) return "padel";
   if (isCombatBoxingShort(name)) return "boxing";
 
   if (isSwimPiece(name, family)) return "swimming";
@@ -365,6 +387,12 @@ export function classifyStorefrontSubcategory(
   const family = itemFamily(product.item || "");
   const name = `${product.displayName} ${product.name} ${product.item}`.toLowerCase();
 
+  if (category === "brama") {
+    if (/\b(legging|tight)\b/.test(name)) return "tights";
+    if (/\bshorts?\b/.test(name) && !/\b(shirt|jersey)\b/.test(name)) return "shorts";
+    return "skins";
+  }
+
   if (category === "rugby") {
     if (/\b(helmet|protection|protec|scrum cap)\b/.test(name)) return "protection";
     if (BALL_RE.test(name)) return "balls";
@@ -398,17 +426,46 @@ export function withStorefrontCategory<T extends Product>(product: T): T {
   return withStorefrontMerchandising(product);
 }
 
+function applyRetailPrice<T extends Product>(product: T): T {
+  if (isFixedBibPack(product)) {
+    if (product.price === BIB_PACK_PRICE_NAD && product.unitPrice === BIB_PACK_PRICE_NAD) {
+      return product;
+    }
+    return { ...product, price: BIB_PACK_PRICE_NAD, unitPrice: BIB_PACK_PRICE_NAD };
+  }
+  const rounded = roundNad(Number(product.unitPrice) || Number(product.price));
+  if (rounded === product.price && rounded === product.unitPrice) return product;
+  return { ...product, price: rounded, unitPrice: rounded };
+}
+
+function applyBibTitle<T extends Product>(product: T): T {
+  if (!isTrainingBibPack(product)) return product;
+  const display = product.displayName.replace(/\s*·\s*pack of 10/i, "").trim();
+  const labeled = `${display} · Pack of 10`;
+  return {
+    ...product,
+    displayName: labeled,
+    title: /pack of 10/i.test(product.title) ? product.title : labeled,
+  };
+}
+
 export function withStorefrontMerchandising<T extends Product>(product: T): T {
   const category = classifyStorefrontCategory(product);
   const subcategory = classifyStorefrontSubcategory(
     category === product.category ? product : { ...product, category },
     category,
   );
-  const next =
+  let next =
     category === product.category && subcategory === product.subcategory
       ? product
       : { ...product, category, subcategory };
-  return withCatalogSizes(next);
+  next = applyRetailPrice(next);
+  next = applyBibTitle(next);
+  next = withCatalogSizes(next);
+  next = withProductImages(next);
+  const description = productDescription(next);
+  if (next.description === description) return next;
+  return { ...next, description };
 }
 
 export function withStorefrontCategories<T extends Product>(catalog: T[]): T[] {

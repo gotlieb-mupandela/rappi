@@ -73,8 +73,9 @@ export function ProductDetail({ product }: { product: Product }) {
           <p className="mt-2 text-sm text-[var(--muted)]">{stockLabel(product)}</p>
           {assortment?.isAssortment ? (
             <p className="mt-1 text-[12px] text-[var(--muted-2)]">
-              Sold as a wholesale assortment pack, not a single pair. The N$ price is the pack
-              price. Mixed sizes ship as packed by the supplier — we do not invent a single-pair size.
+              {assortment.preserveSizes
+                ? "Sold as a pack of 10. The N$ price is for the full pack. Choose a size — S01–S04 follow the Joma grid (3XS, XS, M, XL)."
+                : "Sold as a wholesale assortment pack, not a single pair. The N$ price is the pack price. Mixed sizes ship as packed by the supplier — we do not invent a single-pair size."}
             </p>
           ) : null}
         </div>
@@ -118,11 +119,22 @@ export function ProductDetail({ product }: { product: Product }) {
           </div>
         ) : (
           <p className="mt-8 text-sm text-[var(--muted)]">
-            {assortment?.isAssortment
-              ? "Order unit: assortment pack."
-              : "Order unit: SKU. A per-size run is attached when the Joma B2B export lists one."}
+            {assortment?.packSize === 10
+              ? "Order unit: pack of 10."
+              : assortment?.isAssortment
+                ? "Order unit: assortment pack."
+                : "Order unit: SKU. A per-size run is attached when the Joma B2B export lists one."}
           </p>
         )}
+
+        {product.description ? (
+          <div className="mt-8 max-w-xl">
+            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--muted)]">
+              Details
+            </p>
+            <p className="mt-3 text-sm leading-7 text-[var(--muted)]">{product.description}</p>
+          </div>
+        ) : null}
 
         <div className="mt-8 hidden items-center gap-3 md:flex">
           <QtyStepper

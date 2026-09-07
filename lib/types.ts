@@ -24,6 +24,7 @@ export type Product = {
   sizes: SizeStock[];
   imageUrl: string;
   images: string[];
+  description?: string;
 };
 
 export type CartLine = {

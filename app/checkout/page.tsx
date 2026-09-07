@@ -20,8 +20,8 @@ import type { Order } from "@/lib/types";
 type ShippingRow = { id: string; name: string; cost: number };
 
 const FALLBACK_SHIPPING: ShippingRow[] = [
-  { id: "standard", name: "Standard (5–8 days)", cost: 12 },
-  { id: "express", name: "Express (2–3 days)", cost: 28 },
+  { id: "standard", name: "Standard (5–8 days)", cost: 100 },
+  { id: "express", name: "Express (2–3 days)", cost: 150 },
   { id: "pickup", name: "Hub pickup", cost: 0 },
 ];
 

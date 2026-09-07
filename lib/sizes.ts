@@ -112,7 +112,7 @@ export function withCatalogSizes<T extends Product>(product: T): T {
   }
 
   const assortment = getAssortment(product);
-  if (assortment?.isAssortment) {
+  if (assortment?.isAssortment && !assortment.preserveSizes) {
     return {
       ...product,
       sizeOptions: ["PACK"],
@@ -162,7 +162,14 @@ export function sizeDisplayLabel(size: string) {
   if (size === "PACK") return "Assortment pack";
   if (size === "SKU") return "SKU";
   if (size === "ONE") return "One size";
-  return size;
+  const bib: Record<string, string> = {
+    S01: "3XS",
+    S02: "XS",
+    S03: "M",
+    S04: "XL",
+  };
+  const mapped = bib[size.toUpperCase()];
+  return mapped ? `${size} · ${mapped}` : size;
 }
 
 export function stockLabel(product: Product) {

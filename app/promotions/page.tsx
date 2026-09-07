@@ -45,18 +45,19 @@ export default async function PromotionsPage({
         crumbs={[{ href: "/", label: "Home" }, { label: "New collections" }]}
         eyebrow="Drop"
         title="New collections"
-        description="Opening-season footwear and apparel. New and offer pieces from the current drop."
+        description="Padel, Hiking, Resort, Lifestyle, and Teampro 2026 — plus new and offer pieces from the current drop."
       />
       <div className="page-shell py-10 lg:py-14">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 md:gap-5">
           {collections.map((c) => (
             <HubTile
               key={c.key}
-              slug={c.key === "footwear" ? "shoes" : "sportswear"}
+              slug={c.key}
               name={c.name}
               count={c.count}
               href={c.href}
               product={c.sample}
+              shape="square"
             />
           ))}
         </div>

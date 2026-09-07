@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAssortment } from "@/lib/assortment";
 import { buildListing, LISTING_PAGE_SIZE } from "@/lib/listing";
+import { isSoldOut } from "@/lib/sizes";
 import { getCatalog } from "@/lib/supabase/catalog";
 
 export async function GET(request: Request) {
@@ -36,6 +37,7 @@ export async function GET(request: Request) {
       subcategory: p.subcategory,
       price: p.price,
       imageUrl: p.imageUrl,
+      available: !isSoldOut(p),
       assortment: getAssortment(p)?.label ?? null,
     })),
   });

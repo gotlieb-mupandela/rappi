@@ -9,8 +9,8 @@ import { AssortmentBadge, AssortmentHint } from "@/components/assortment-label";
 import { Badge } from "@/components/ui/badge";
 import { ProductImage } from "@/components/product-image";
 import { formatPrice } from "@/lib/format";
-import { inStockSizes, totalStock } from "@/lib/products";
-import { stockLabel } from "@/lib/sizes";
+import { totalStock } from "@/lib/products";
+import { buyableSizes, isSoldOut, stockLabel } from "@/lib/sizes";
 import { useCart } from "@/lib/stores/cart";
 import { productPath } from "@/lib/utils";
 
@@ -23,13 +23,14 @@ export function ProductCard({
 }) {
   const add = useCart((s) => s.add);
   const stock = totalStock(product);
-  const first = inStockSizes(product)[0];
+  const first = buyableSizes(product)[0];
+  const soldOut = isSoldOut(product);
   const title = product.displayName || product.item;
 
   function quickAdd(e: MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
-    if (!first) {
+    if (!first || soldOut) {
       toast.error("This piece is sold out.");
       return;
     }

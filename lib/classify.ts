@@ -519,6 +519,26 @@ function sampleScore(product: Product, slug?: string) {
     if (/\b(tights?|leggings?|skin|fleece|base)\b/.test(n)) score += 8;
     if (/\bshorts?\b/.test(n) && !/\b(tights?|leggings?)\b/.test(n)) score -= 4;
   }
+  if (slug === "padel") {
+    if (isBagName(n)) score -= 12;
+    if (/\b(shirt|polo|short|shoe|sneaker|racket)\b/.test(n)) score += 8;
+  }
+  if (slug === "hiking") {
+    if (/\b(explorer|outdoor|jacket|trouser|trek)\b/.test(n)) score += 6;
+    if (/\b(trail running)\b/.test(n)) score -= 4;
+  }
+  if (slug === "lifestyle") {
+    if (!isStorefrontFootwear(product) || isApparelOnly(n)) score -= 20;
+    if (/\b(sneaker|shoe)\b/.test(n) || /^lifestyle/.test(itemFamily(product.item || ""))) {
+      score += 10;
+    }
+  }
+  if (slug === "resort") {
+    if (/\bresort\b/.test(n) && /\b(polo|shirt|sweat|jacket)\b/.test(n)) score += 8;
+  }
+  if (slug === "teampro-2026") {
+    if (/\b(montreal|mundial|2026)\b/.test(n) && /\b(shirt|polo|tee)\b/.test(n)) score += 8;
+  }
   return score;
 }
 

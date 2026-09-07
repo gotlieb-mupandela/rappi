@@ -25,7 +25,7 @@ export function CategorySubNav({ taxonomy }: { taxonomy: StorefrontTaxonomy }) {
   const onShop = pathname.startsWith(`/shop/${slug}`);
 
   return (
-    <nav className="border-t border-[var(--border)] bg-[#0d0d0d]/90">
+    <nav className="border-t border-[var(--border)] bg-[var(--header-bg-scrolled)]">
       <ul className="scroll-touch page-shell flex items-center gap-x-5 overflow-x-auto py-1 [mask-image:linear-gradient(90deg,transparent,black_1.25rem,black_calc(100%-1.25rem),transparent)] lg:justify-center lg:[mask-image:none] xl:gap-x-6">
         <li className="shrink-0">
           <Link

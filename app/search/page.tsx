@@ -82,7 +82,7 @@ function EmptySearch() {
           type="search"
           autoFocus
           placeholder="Search by name, code, or category"
-          className="h-12 w-full rounded-full border border-[var(--border)] bg-[var(--bg-elevated)] px-5 text-sm text-white placeholder:text-[var(--muted-2)] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20"
+          className="h-12 w-full rounded-full border border-[var(--border)] bg-[var(--bg-elevated)] px-5 text-sm text-ink placeholder:text-[var(--muted-2)] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20"
         />
         <div className="mt-4 flex justify-center">
           <Button type="submit" size="lg">
@@ -100,7 +100,7 @@ function EmptySearch() {
           <li key={c.slug}>
             <Link
               href={`/shop/${c.slug}`}
-              className="inline-flex h-10 items-center rounded-full border border-[var(--border-strong)] px-4 text-[11px] font-semibold uppercase tracking-wider text-white hover:border-[var(--accent)] hover:text-[var(--accent)]"
+              className="inline-flex h-10 items-center rounded-full border border-[var(--border-strong)] px-4 text-[11px] font-semibold uppercase tracking-wider text-ink hover:border-[var(--accent)] hover:text-[var(--accent)]"
             >
               {c.name}
             </Link>

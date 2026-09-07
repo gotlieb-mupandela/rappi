@@ -12,6 +12,7 @@ import {
   Users,
 } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -36,11 +37,11 @@ export function AdminSidebar() {
   }
 
   return (
-    <aside className="flex w-full shrink-0 flex-col border-b border-[var(--border)] bg-[#070707] lg:w-60 lg:border-b-0 lg:border-r">
+    <aside className="flex w-full shrink-0 flex-col border-b border-[var(--border)] bg-[var(--footer-bg)] lg:w-60 lg:border-b-0 lg:border-r">
       <div className="flex items-center gap-2 border-b border-[var(--border)] px-4 py-3">
         <BrandLogo variant="mark" className="h-10 w-10" />
         <div>
-          <p className="font-[family-name:var(--font-oswald)] text-sm uppercase tracking-wide text-white">
+          <p className="font-[family-name:var(--font-oswald)] text-sm uppercase tracking-wide text-ink">
             RAPPI Admin
           </p>
           <p className="text-[10px] uppercase tracking-[0.16em] text-[var(--muted-2)]">
@@ -62,7 +63,7 @@ export function AdminSidebar() {
                 "inline-flex min-h-10 shrink-0 items-center gap-2 rounded-lg px-3 text-sm transition-colors",
                 active
                   ? "bg-[var(--accent-muted)] text-[var(--accent)]"
-                  : "text-[var(--muted)] hover:bg-white/5 hover:text-white",
+                  : "text-[var(--muted)] hover:bg-[var(--hover)] hover:text-ink",
               )}
             >
               <Icon className="h-4 w-4" />
@@ -72,16 +73,20 @@ export function AdminSidebar() {
         })}
       </nav>
       <div className="mt-auto border-t border-[var(--border)] p-3">
+        <div className="mb-2 flex items-center justify-between rounded-lg px-1">
+          <span className="text-[11px] uppercase tracking-wider text-[var(--muted)]">Appearance</span>
+          <ThemeToggle className="h-9 w-9" />
+        </div>
         <Link
           href="/"
-          className="mb-2 block rounded-lg px-3 py-2 text-xs uppercase tracking-wider text-[var(--muted)] hover:text-white"
+          className="mb-2 block rounded-lg px-3 py-2 text-xs uppercase tracking-wider text-[var(--muted)] hover:text-ink"
         >
           View storefront
         </Link>
         <button
           type="button"
           onClick={logout}
-          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--muted)] hover:bg-white/5 hover:text-white"
+          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--muted)] hover:bg-[var(--hover)] hover:text-ink"
         >
           <LogOut className="h-4 w-4" />
           Sign out

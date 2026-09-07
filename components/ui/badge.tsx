@@ -9,9 +9,9 @@ const badgeVariants = cva(
       variant: {
         new: "bg-[var(--accent)] text-[var(--on-accent)]",
         offer: "bg-[#FF2D6A] text-white",
-        muted: "bg-white/[0.08] text-[var(--muted)]",
+        muted: "bg-[var(--hover-strong)] text-[var(--muted)]",
         stock: "bg-[var(--accent-muted)] text-[var(--accent)] border border-[var(--border-accent)]",
-        low: "bg-[#2A1A00] text-[#FFB020] border border-[#FFB020]/40",
+        low: "bg-[var(--warn)]/15 text-[var(--warn)] border border-[var(--warn)]/40",
       },
     },
     defaultVariants: { variant: "muted" },

@@ -18,7 +18,7 @@ export default function OrdersPage() {
     return (
       <div className="mx-auto max-w-[640px] px-4 py-16 text-center">
         <h1 className="font-[family-name:var(--font-oswald)] text-4xl uppercase">Orders</h1>
-        <p className="mt-3 text-sm text-[#A0A0A0]">Sign in to see orders tied to your account.</p>
+        <p className="mt-3 text-sm text-[var(--muted)]">Sign in to see orders tied to your account.</p>
         <Button asChild className="mt-6">
           <Link href="/login">Sign in</Link>
         </Button>
@@ -38,7 +38,7 @@ export default function OrdersPage() {
       <h1 className="mt-6 font-[family-name:var(--font-oswald)] text-4xl uppercase">
         Orders
       </h1>
-      <p className="mt-2 max-w-2xl text-sm text-[#A0A0A0]">
+      <p className="mt-2 max-w-2xl text-sm text-[var(--muted)]">
         Order history to view or track orders already placed. Checkout is a stub — status
         starts at Reserved.
       </p>
@@ -46,7 +46,7 @@ export default function OrdersPage() {
       {!mine.length ? (
         <div className="mt-10 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-6 py-16 text-center">
           <p className="text-lg font-semibold">No orders yet</p>
-          <p className="mt-2 text-sm text-[#A0A0A0]">Place a stub order from checkout to see it here.</p>
+          <p className="mt-2 text-sm text-[var(--muted)]">Place a stub order from checkout to see it here.</p>
         </div>
       ) : (
         <>
@@ -57,21 +57,21 @@ export default function OrdersPage() {
             return (
               <article key={order.id} className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
                 <p className="font-mono text-lg font-bold text-[var(--accent)]">{order.id}</p>
-                <p className="mt-1 text-xs text-[#A0A0A0]">{formatDate(order.createdAt)}</p>
+                <p className="mt-1 text-xs text-[var(--muted)]">{formatDate(order.createdAt)}</p>
                 <p className="mt-3 text-sm">
                   {order.name}
                   <br />
                   {order.city}, {order.country}
                 </p>
                 <p className="mt-3 text-lg font-semibold">{formatPrice(order.total)}</p>
-                <p className="mt-1 text-xs uppercase tracking-wider text-[#B6FF00]">{active}</p>
+                <p className="mt-1 text-xs uppercase tracking-wider text-[var(--accent)]">{active}</p>
               </article>
             );
           })}
         </div>
         <div className="mt-8 hidden overflow-hidden rounded-xl border border-[var(--border)] md:block">
           <table className="w-full min-w-[860px] text-left text-sm">
-            <thead className="bg-[#161616] text-[11px] uppercase tracking-wider text-[#A0A0A0]">
+            <thead className="bg-[var(--surface-2)] text-[11px] uppercase tracking-wider text-[var(--muted)]">
               <tr>
                 <th className="px-3 py-3">Date</th>
                 <th className="px-3 py-3">Order</th>
@@ -85,11 +85,11 @@ export default function OrdersPage() {
                 const active =
                   order.status === "shipped" ? "Shipped" : order.status === "preparing" ? "Preparing" : "Reserved";
                 return (
-                  <tr key={order.id} className="border-t border-[#2A2A2A] align-top">
+                  <tr key={order.id} className="border-t border-[var(--border)] align-top">
                     <td className="px-3 py-4 whitespace-nowrap">{formatDate(order.createdAt)}</td>
                     <td className="px-3 py-4">
                       <p className="font-mono font-bold text-[var(--accent)]">{order.id}</p>
-                      <p className="text-xs text-[#A0A0A0]">{order.items.length} line(s)</p>
+                      <p className="text-xs text-[var(--muted)]">{order.items.length} line(s)</p>
                     </td>
                     <td className="px-3 py-4 text-xs leading-5">
                       {order.name}
@@ -105,10 +105,10 @@ export default function OrdersPage() {
                           <li key={step} className="flex items-center gap-2 text-[11px]">
                             <span
                               className={`h-2 w-2 rounded-full ${
-                                step === active ? "bg-[var(--accent)]" : "border border-[#4A4A4A]"
+                                step === active ? "bg-[var(--accent)]" : "border border-[var(--border-strong)]"
                               }`}
                             />
-                            <span className={step === active ? "text-white" : "text-[#6B6B6B]"}>
+                            <span className={step === active ? "text-ink" : "text-[var(--muted-2)]"}>
                               {step}
                             </span>
                           </li>

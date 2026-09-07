@@ -124,7 +124,7 @@ export function CatalogFilters({
                   "inline-flex h-9 min-w-9 items-center justify-center rounded-full border px-3 text-[11px] font-medium uppercase tracking-wide transition-colors",
                   size === "all"
                     ? "border-[var(--accent)] text-[var(--accent)]"
-                    : "border-[var(--border-strong)] text-[var(--muted)] hover:border-white hover:text-white",
+                    : "border-[var(--border-strong)] text-[var(--muted)] hover:border-[var(--text)] hover:text-ink",
                 )}
               >
                 All
@@ -138,7 +138,7 @@ export function CatalogFilters({
                     "inline-flex h-9 min-w-9 items-center justify-center rounded-full border px-3 text-[11px] font-medium uppercase tracking-wide transition-colors",
                     size === s
                       ? "border-[var(--accent)] text-[var(--accent)]"
-                      : "border-[var(--border-strong)] text-[var(--muted)] hover:border-white hover:text-white",
+                      : "border-[var(--border-strong)] text-[var(--muted)] hover:border-[var(--text)] hover:text-ink",
                   )}
                 >
                   {s}
@@ -199,7 +199,7 @@ export function CatalogFilters({
               onClick={() => setLayout("grid")}
               className={cn(
                 "rounded-full p-2 transition-colors",
-                layout === "grid" ? "bg-white/[0.08] text-[var(--accent)]" : "text-[var(--muted-2)] hover:text-white",
+                layout === "grid" ? "bg-[var(--hover-strong)] text-[var(--accent)]" : "text-[var(--muted-2)] hover:text-ink",
               )}
             >
               <LayoutGrid className="h-4 w-4" />
@@ -210,7 +210,7 @@ export function CatalogFilters({
               onClick={() => setLayout("list")}
               className={cn(
                 "rounded-full p-2 transition-colors",
-                layout === "list" ? "bg-white/[0.08] text-[var(--accent)]" : "text-[var(--muted-2)] hover:text-white",
+                layout === "list" ? "bg-[var(--hover-strong)] text-[var(--accent)]" : "text-[var(--muted-2)] hover:text-ink",
               )}
             >
               <List className="h-4 w-4" />
@@ -219,7 +219,7 @@ export function CatalogFilters({
         </div>
         {listing.total === 0 ? (
           <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-6 py-16 text-center">
-            <p className="text-lg font-semibold text-white">
+            <p className="text-lg font-semibold text-ink">
               {emptyTitle ?? "No products found"}
             </p>
             <p className="mt-2 text-sm text-[var(--muted)]">
@@ -269,7 +269,7 @@ function FilterLink({
         "block w-full rounded-md py-1.5 pl-2 text-left text-[12px] uppercase tracking-[0.12em] transition-colors",
         active
           ? "border-l-2 border-[var(--accent)] pl-[6px] font-semibold text-[var(--accent)]"
-          : "text-[var(--text-secondary)] hover:text-white",
+          : "text-[var(--text-secondary)] hover:text-ink",
       )}
     >
       {children}

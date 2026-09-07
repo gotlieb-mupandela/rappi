@@ -17,7 +17,7 @@ export function ProductGrid({
   if (products.length === 0) {
     return (
       <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-6 py-16 text-center">
-        <p className="text-lg font-semibold text-white">No products found</p>
+        <p className="text-lg font-semibold text-ink">No products found</p>
         <p className="mt-2 text-sm text-[var(--muted)]">
           Try another code, category, or clear filters.
         </p>
@@ -95,7 +95,7 @@ export function ProductGrid({
       {entries.map(([sub, list]) => (
         <section key={sub} id={sub}>
           <div className="mb-6">
-            <h2 className="text-sm font-bold uppercase tracking-[0.16em] text-white">
+            <h2 className="text-sm font-bold uppercase tracking-[0.16em] text-ink">
               {SUBCATEGORY_LABELS[sub] ?? sub} [{list.length}]
             </h2>
           </div>

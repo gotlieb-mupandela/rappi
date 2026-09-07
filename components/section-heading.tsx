@@ -22,7 +22,7 @@ export function SectionHeading({
             {eyebrow}
           </p>
         ) : null}
-        <h2 className="font-[family-name:var(--font-oswald)] text-2xl uppercase tracking-wide text-white sm:text-3xl">
+        <h2 className="font-[family-name:var(--font-oswald)] text-2xl uppercase tracking-wide text-ink sm:text-3xl">
           {title}
         </h2>
       </div>

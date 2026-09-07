@@ -35,7 +35,7 @@ export default async function AdminCustomersPage() {
 
       <div className="mt-8 overflow-hidden rounded-xl border border-[var(--border)]">
         <table className="w-full min-w-[700px] text-left text-sm">
-          <thead className="bg-white/[0.03] text-[11px] uppercase tracking-wider text-[var(--muted)]">
+          <thead className="bg-[var(--hover)] text-[11px] uppercase tracking-wider text-[var(--muted)]">
             <tr>
               <th className="px-4 py-3">Customer</th>
               <th className="px-4 py-3">Role</th>

@@ -68,7 +68,7 @@ export default function CartPage() {
       {!rows.length ? (
         <div className="mt-10 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-6 py-16 text-center">
           <p className="text-lg font-semibold">Your bag is empty</p>
-          <p className="mt-2 text-sm text-[#A0A0A0]">
+          <p className="mt-2 text-sm text-[var(--muted)]">
             Browse the catalog and add sizes from a product page.
           </p>
           <Button asChild className="mt-6">
@@ -94,12 +94,12 @@ export default function CartPage() {
                 <Link href={productPath(product.code)} className="font-mono text-lg font-bold hover:text-[var(--accent)]">
                   {product.code}
                 </Link>
-                <p className="text-xs uppercase tracking-wider text-[#A0A0A0]">
+                <p className="text-xs uppercase tracking-wider text-[var(--muted)]">
                   {product.name}
                 </p>
                 <div className="mt-3 overflow-x-auto">
                   <table className="text-xs">
-                    <thead className="uppercase tracking-wider text-[#6B6B6B]">
+                    <thead className="uppercase tracking-wider text-[var(--muted-2)]">
                       <tr>
                         <th className="pr-6 text-left font-medium">Size</th>
                         <th className="pr-6 text-left font-medium">Price</th>
@@ -133,15 +133,15 @@ export default function CartPage() {
                 <button
                   type="button"
                   onClick={() => remove(line.code, line.size)}
-                  className="text-xs uppercase tracking-wider text-[#A0A0A0] hover:text-white"
+                  className="text-xs uppercase tracking-wider text-[var(--muted)] hover:text-ink"
                 >
                   Remove
                 </button>
               </div>
             </div>
           ))}
-          <div className="sticky bottom-0 z-20 flex flex-col gap-3 rounded-xl border border-[var(--accent)]/35 bg-[#101010]/95 px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-xl sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-5">
-            <p className="text-sm uppercase tracking-wider text-[#A0A0A0]">
+          <div className="sticky bottom-0 z-20 flex flex-col gap-3 rounded-xl border border-[var(--accent)]/35 bg-[var(--header-bg-scrolled)] px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-xl sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-5">
+            <p className="text-sm uppercase tracking-wider text-[var(--muted)]">
               {count} unit{count === 1 ? "" : "s"}
             </p>
             <p className="text-xl font-semibold">

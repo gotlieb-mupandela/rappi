@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Inter, Oswald } from "next/font/google";
+import Script from "next/script";
 import { BrandAtmosphere } from "@/components/brand-atmosphere";
 import { Providers } from "@/components/providers";
 import { StorefrontChrome } from "@/components/storefront-chrome";
+import { ThemeProvider } from "@/components/theme-provider";
 import { TAGLINE } from "@/lib/catalog";
 import { buildTaxonomy, categoryCountsFromTaxonomy } from "@/lib/listing";
 import { getCatalog } from "@/lib/supabase/catalog";
+import { THEME_BOOTSTRAP } from "@/lib/theme";
 import "./globals.css";
 import "./tokens.css";
 
@@ -54,16 +57,23 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
+      data-theme="dark"
+      suppressHydrationWarning
       className={`${inter.variable} ${geistMono.variable} ${oswald.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-bg text-ink">
+        <Script id="rappi-theme" strategy="beforeInteractive">
+          {THEME_BOOTSTRAP}
+        </Script>
         <BrandAtmosphere />
         <div className="relative z-10 flex min-h-full flex-1 flex-col">
-          <Providers>
-            <StorefrontChrome taxonomy={taxonomy} categoryCounts={categoryCounts}>
-              {children}
-            </StorefrontChrome>
-          </Providers>
+          <ThemeProvider>
+            <Providers>
+              <StorefrontChrome taxonomy={taxonomy} categoryCounts={categoryCounts}>
+                {children}
+              </StorefrontChrome>
+            </Providers>
+          </ThemeProvider>
         </div>
       </body>
     </html>

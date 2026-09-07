@@ -32,16 +32,16 @@ export default function ProfilePage() {
         Profile
       </h1>
       <dl className="mt-8 overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)]">
-        <div className="grid grid-cols-[140px_1fr] border-b border-[#2A2A2A] px-4 py-3 text-sm">
-          <dt className="uppercase tracking-wider text-[#A0A0A0]">Name</dt>
+        <div className="grid grid-cols-[140px_1fr] border-b border-[var(--border)] px-4 py-3 text-sm">
+          <dt className="uppercase tracking-wider text-[var(--muted)]">Name</dt>
           <dd>{user.name}</dd>
         </div>
-        <div className="grid grid-cols-[140px_1fr] border-b border-[#2A2A2A] px-4 py-3 text-sm">
-          <dt className="uppercase tracking-wider text-[#A0A0A0]">Email</dt>
+        <div className="grid grid-cols-[140px_1fr] border-b border-[var(--border)] px-4 py-3 text-sm">
+          <dt className="uppercase tracking-wider text-[var(--muted)]">Email</dt>
           <dd>{user.email}</dd>
         </div>
         <div className="grid grid-cols-[140px_1fr] px-4 py-3 text-sm">
-          <dt className="uppercase tracking-wider text-[#A0A0A0]">Role</dt>
+          <dt className="uppercase tracking-wider text-[var(--muted)]">Role</dt>
           <dd>Demo shop customer</dd>
         </div>
       </dl>

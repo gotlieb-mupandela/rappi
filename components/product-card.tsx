@@ -51,7 +51,7 @@ export function ProductCard({
           />
         </Link>
         <Link href={productPath(product.code)} className="min-w-0">
-          <p className="truncate text-sm font-medium tracking-wide text-white">{title}</p>
+          <p className="truncate text-sm font-medium tracking-wide text-ink">{title}</p>
           <p className="mt-0.5 truncate font-mono text-[10px] tracking-[0.16em] text-[var(--muted-2)]">
             {product.code}
           </p>
@@ -70,7 +70,7 @@ export function ProductCard({
           <button
             type="button"
             onClick={quickAdd}
-            className="flex h-10 w-10 items-center justify-center rounded-full text-[var(--accent)] transition-colors hover:bg-white/5"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-[var(--accent)] transition-colors hover:bg-[var(--hover)]"
             aria-label={`Add ${title} to bag`}
           >
             <ShoppingBag className="h-4 w-4" />
@@ -105,13 +105,13 @@ export function ProductCard({
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
         </div>
         <div className="mt-3.5 space-y-1 text-left">
-          <p className="text-[13px] font-medium leading-snug tracking-wide text-white">
+          <p className="text-[13px] font-medium leading-snug tracking-wide text-ink">
             {title}
           </p>
           <p className="font-mono text-[10px] tracking-[0.16em] text-[var(--muted-2)]">
             {product.code}
           </p>
-          <p className="price pt-1 text-sm font-semibold text-white">
+          <p className="price pt-1 text-sm font-semibold text-ink">
             {formatPrice(product.unitPrice)}
           </p>
           <AssortmentHint product={product} />

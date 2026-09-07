@@ -80,7 +80,7 @@ export default async function AdminProductsPage({
 
       <div className="mt-6 overflow-hidden rounded-xl border border-[var(--border)]">
         <table className="w-full min-w-[720px] text-left text-sm">
-          <thead className="bg-white/[0.03] text-[11px] uppercase tracking-wider text-[var(--muted)]">
+          <thead className="bg-[var(--hover)] text-[11px] uppercase tracking-wider text-[var(--muted)]">
             <tr>
               <th className="px-4 py-3">Product</th>
               <th className="px-4 py-3">Category</th>
@@ -91,7 +91,7 @@ export default async function AdminProductsPage({
           </thead>
           <tbody>
             {(products ?? []).map((p) => (
-              <tr key={p.id} className="border-t border-[var(--border)] hover:bg-white/[0.02]">
+              <tr key={p.id} className="border-t border-[var(--border)] hover:bg-[var(--hover)]">
                 <td className="px-4 py-3">
                   <Link
                     href={`/admin/products/${p.id}`}
@@ -117,7 +117,7 @@ export default async function AdminProductsPage({
                   <span
                     className={
                       p.stock_qty > 0 && p.stock_qty < 5
-                        ? "text-[#FFB020]"
+                        ? "text-[var(--warn)]"
                         : p.stock_qty === 0
                           ? "text-[var(--danger)]"
                           : ""

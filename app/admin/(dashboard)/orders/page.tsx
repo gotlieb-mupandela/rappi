@@ -62,7 +62,7 @@ export default async function AdminOrdersPage({
 
       <div className="mt-6 overflow-hidden rounded-xl border border-[var(--border)]">
         <table className="w-full min-w-[800px] text-left text-sm">
-          <thead className="bg-white/[0.03] text-[11px] uppercase tracking-wider text-[var(--muted)]">
+          <thead className="bg-[var(--hover)] text-[11px] uppercase tracking-wider text-[var(--muted)]">
             <tr>
               <th className="px-4 py-3">Order</th>
               <th className="px-4 py-3">Ship to</th>

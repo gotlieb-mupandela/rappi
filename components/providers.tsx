@@ -2,12 +2,15 @@
 
 import { useEffect, type ReactNode } from "react";
 import { Toaster } from "sonner";
+import { useTheme } from "@/components/theme-provider";
 import { useAuth } from "@/lib/stores/auth";
 import { useCart } from "@/lib/stores/cart";
 import { useOrders } from "@/lib/stores/orders";
 import { useWishlist } from "@/lib/stores/wishlist";
 
 export function Providers({ children }: { children: ReactNode }) {
+  const { theme } = useTheme();
+
   useEffect(() => {
     useCart.persist.rehydrate();
     useAuth.persist.rehydrate();
@@ -19,16 +22,16 @@ export function Providers({ children }: { children: ReactNode }) {
     <>
       {children}
       <Toaster
-        theme="dark"
+        theme={theme}
         position="bottom-right"
         offset={24}
         toastOptions={{
           style: {
-            background: "#141414",
-            border: "1px solid rgba(255,255,255,0.1)",
-            color: "#fff",
+            background: "var(--toast-bg)",
+            border: "1px solid var(--toast-border)",
+            color: "var(--toast-fg)",
             borderRadius: "12px",
-            boxShadow: "0 24px 60px rgba(0,0,0,0.5)",
+            boxShadow: "var(--shadow-soft)",
           },
         }}
       />

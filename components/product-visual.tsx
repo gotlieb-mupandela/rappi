@@ -53,11 +53,11 @@ export function ProductVisual({
   return (
     <div
       className={cn(
-        "relative flex aspect-[3/4] w-full items-center justify-center overflow-hidden bg-[#161616] rounded-[inherit]",
+        "relative flex aspect-[3/4] w-full items-center justify-center overflow-hidden bg-[var(--visual-base)] rounded-[inherit]",
         className,
       )}
       style={{
-        backgroundImage: `radial-gradient(120% 80% at 50% 20%, ${accent}22, transparent 55%), linear-gradient(180deg, #1C1C1C, #121212)`,
+        backgroundImage: `radial-gradient(120% 80% at 50% 20%, ${accent}22, transparent 55%), linear-gradient(180deg, var(--visual-from), var(--visual-to))`,
       }}
     >
       <svg
@@ -121,7 +121,7 @@ export function ProductVisual({
           <rect x="28" y="50" width="104" height="60" rx="4" fill={accent} opacity="0.9" />
         )}
       </svg>
-      <span className="absolute bottom-2 right-2 font-mono text-[10px] tracking-widest text-white/35">
+      <span className="absolute bottom-2 right-2 font-mono text-[10px] tracking-widest text-ink/35">
         {initials}
       </span>
     </div>

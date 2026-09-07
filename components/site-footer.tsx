@@ -8,7 +8,7 @@ export function SiteFooter({
   categoryCounts?: Record<string, number>;
 }) {
   return (
-    <footer className="mt-auto border-t border-[var(--border)] bg-[#070707]">
+    <footer className="mt-auto border-t border-[var(--border)] bg-[var(--footer-bg)]">
       <div className="page-shell grid gap-10 py-12 md:grid-cols-3">
         <div>
           <BrandLogo className="h-24 w-auto" />
@@ -29,7 +29,7 @@ export function SiteFooter({
               <li key={c.slug}>
                 <Link
                   href={`/category/${c.slug}`}
-                  className="text-white/90 transition-colors hover:text-[var(--accent)]"
+                  className="text-ink/90 transition-colors hover:text-[var(--accent)]"
                 >
                   {c.name}
                 </Link>

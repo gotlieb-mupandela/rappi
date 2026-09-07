@@ -60,7 +60,7 @@ export function HubTile({
           product
             ? undefined
             : {
-                backgroundImage: `linear-gradient(160deg, ${accent}26 0%, #121212 58%, #0E0E0E 100%)`,
+                backgroundImage: `linear-gradient(160deg, ${accent}26 0%, var(--tile-mid) 58%, var(--tile-end) 100%)`,
               }
         }
       >

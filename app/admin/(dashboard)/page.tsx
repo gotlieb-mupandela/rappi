@@ -59,7 +59,7 @@ export default async function AdminDashboardPage() {
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
               {c.label}
             </p>
-            <p className="mt-2 font-[family-name:var(--font-oswald)] text-3xl text-white">
+            <p className="mt-2 font-[family-name:var(--font-oswald)] text-3xl text-ink">
               {c.value}
             </p>
           </Link>
@@ -80,7 +80,7 @@ export default async function AdminDashboardPage() {
         </div>
         <div className="overflow-hidden rounded-xl border border-[var(--border)]">
           <table className="w-full text-left text-sm">
-            <thead className="bg-white/[0.03] text-[11px] uppercase tracking-wider text-[var(--muted)]">
+            <thead className="bg-[var(--hover)] text-[11px] uppercase tracking-wider text-[var(--muted)]">
               <tr>
                 <th className="px-4 py-3">Order</th>
                 <th className="px-4 py-3">Customer</th>

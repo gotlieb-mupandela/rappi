@@ -17,7 +17,7 @@ export default function AccountPage() {
     return (
       <div className="mx-auto max-w-[640px] px-4 py-16 text-center">
         <h1 className="font-[family-name:var(--font-oswald)] text-4xl uppercase">Account</h1>
-        <p className="mt-3 text-sm text-[#A0A0A0]">
+        <p className="mt-3 text-sm text-[var(--muted)]">
           Sign in with the demo shop account to view orders and profile.
         </p>
         <Button asChild className="mt-6">
@@ -33,7 +33,7 @@ export default function AccountPage() {
       <h1 className="mt-6 font-[family-name:var(--font-oswald)] text-4xl uppercase">
         My account
       </h1>
-      <p className="mt-2 text-sm text-[#A0A0A0]">Signed in as {user.email}</p>
+      <p className="mt-2 text-sm text-[var(--muted)]">Signed in as {user.email}</p>
       <div className="mt-8 grid gap-4 md:grid-cols-3">
         <Link href="/account/orders" className="surface-card p-6">
           <p className="text-xs uppercase tracking-wider text-[var(--accent)]">Orders</p>
@@ -53,9 +53,9 @@ export default function AccountPage() {
           }}
           className="surface-card p-6 text-left"
         >
-          <p className="text-xs uppercase tracking-wider text-[#A0A0A0]">Session</p>
+          <p className="text-xs uppercase tracking-wider text-[var(--muted)]">Session</p>
           <p className="mt-2 text-2xl font-semibold">Logout</p>
-          <p className="mt-1 text-sm text-[#A0A0A0]">End this browser session.</p>
+          <p className="mt-1 text-sm text-[var(--muted)]">End this browser session.</p>
         </button>
       </div>
     </div>

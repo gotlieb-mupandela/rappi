@@ -21,7 +21,7 @@ export function Breadcrumbs({ items }: { items: Crumb[] }) {
               {item.label}
             </Link>
           ) : (
-            <span className="text-white">{item.label}</span>
+            <span className="text-ink">{item.label}</span>
           )}
           {i < items.length - 1 ? <span className="text-[var(--border-strong)]">/</span> : null}
         </span>

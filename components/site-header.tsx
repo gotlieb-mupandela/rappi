@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { FormEvent, Suspense, useEffect, useRef, useState } from "react";
 import { Menu, Search, ShoppingBag, User, X, ChevronDown } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { CATEGORIES, NAV_PRIMARY } from "@/lib/catalog";
 import { useAuth } from "@/lib/stores/auth";
 import { cartCount, useCart } from "@/lib/stores/cart";
@@ -107,14 +108,14 @@ export function SiteHeader({
       className={cn(
         "sticky top-0 z-50 border-b pt-[env(safe-area-inset-top)] backdrop-blur-xl backdrop-saturate-150 transition-[background-color,box-shadow,border-color] duration-300",
         scrolled
-          ? "border-[var(--border)] bg-[#080808]/92 shadow-[0_16px_40px_rgba(0,0,0,0.45)]"
-          : "border-[var(--border)] bg-[#080808]/72",
+          ? "border-[var(--border)] bg-[var(--header-bg-scrolled)] shadow-[var(--shadow-soft)]"
+          : "border-[var(--border)] bg-[var(--header-bg)]",
       )}
     >
       <div className="page-shell flex h-[4.75rem] items-center gap-2 sm:h-[5.5rem] sm:gap-4">
         <button
           type="button"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white transition-colors hover:bg-white/5 lg:hidden"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink transition-colors hover:bg-[var(--hover)] lg:hidden"
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
@@ -143,9 +144,10 @@ export function SiteHeader({
         </form>
 
         <div className="ml-auto flex items-center gap-0.5 sm:gap-1">
+          <ThemeToggle />
           <button
             type="button"
-            className="flex h-11 w-11 items-center justify-center rounded-full text-white transition-colors hover:bg-white/5 hover:text-[var(--accent)] md:hidden"
+            className="flex h-11 w-11 items-center justify-center rounded-full text-ink transition-colors hover:bg-[var(--hover)] hover:text-[var(--accent)] md:hidden"
             aria-label={searchOpen ? "Close search" : "Search"}
             aria-expanded={searchOpen}
             onClick={() => {
@@ -157,7 +159,7 @@ export function SiteHeader({
           </button>
           <Link
             href="/cart"
-            className="relative flex h-11 w-11 items-center justify-center rounded-full text-white transition-colors hover:bg-white/5 hover:text-[var(--accent)]"
+            className="relative flex h-11 w-11 items-center justify-center rounded-full text-ink transition-colors hover:bg-[var(--hover)] hover:text-[var(--accent)]"
             aria-label="Cart"
           >
             <ShoppingBag className="h-5 w-5" />
@@ -171,7 +173,7 @@ export function SiteHeader({
             <div className="relative" ref={accountRef}>
               <button
                 type="button"
-                className="flex h-11 items-center gap-2 rounded-full px-2 text-white transition-colors hover:bg-white/5 hover:text-[var(--accent)]"
+                className="flex h-11 items-center gap-2 rounded-full px-2 text-ink transition-colors hover:bg-[var(--hover)] hover:text-[var(--accent)]"
                 aria-expanded={accountOpen}
                 aria-haspopup="menu"
                 onClick={() => setAccountOpen((v) => !v)}
@@ -189,21 +191,21 @@ export function SiteHeader({
                   <Link
                     href="/account"
                     role="menuitem"
-                    className="block px-3 py-2.5 text-xs uppercase tracking-wider hover:bg-white/5 hover:text-[var(--accent)]"
+                    className="block px-3 py-2.5 text-xs uppercase tracking-wider hover:bg-[var(--hover)] hover:text-[var(--accent)]"
                   >
                     Account
                   </Link>
                   <Link
                     href="/account/orders"
                     role="menuitem"
-                    className="block px-3 py-2.5 text-xs uppercase tracking-wider hover:bg-white/5 hover:text-[var(--accent)]"
+                    className="block px-3 py-2.5 text-xs uppercase tracking-wider hover:bg-[var(--hover)] hover:text-[var(--accent)]"
                   >
                     Orders
                   </Link>
                   <Link
                     href="/account/profile"
                     role="menuitem"
-                    className="block px-3 py-2.5 text-xs uppercase tracking-wider hover:bg-white/5 hover:text-[var(--accent)]"
+                    className="block px-3 py-2.5 text-xs uppercase tracking-wider hover:bg-[var(--hover)] hover:text-[var(--accent)]"
                   >
                     Profile
                   </Link>
@@ -215,7 +217,7 @@ export function SiteHeader({
                       setAccountOpen(false);
                       router.push("/");
                     }}
-                    className="block w-full px-3 py-2.5 text-left text-xs uppercase tracking-wider hover:bg-white/5 hover:text-[var(--accent)]"
+                    className="block w-full px-3 py-2.5 text-left text-xs uppercase tracking-wider hover:bg-[var(--hover)] hover:text-[var(--accent)]"
                   >
                     Logout
                   </button>
@@ -225,7 +227,7 @@ export function SiteHeader({
           ) : (
             <Link
               href="/login"
-              className="flex h-11 items-center gap-2 rounded-full px-2 text-white transition-colors hover:bg-white/5 hover:text-[var(--accent)]"
+              className="flex h-11 items-center gap-2 rounded-full px-2 text-ink transition-colors hover:bg-[var(--hover)] hover:text-[var(--accent)]"
             >
               <User className="h-5 w-5" />
               <span className="hidden text-[11px] font-semibold uppercase tracking-wider sm:inline">
@@ -237,7 +239,7 @@ export function SiteHeader({
       </div>
 
       {searchOpen ? (
-        <div className="border-t border-[var(--border)] bg-[#080808] px-4 py-3 md:hidden">
+        <div className="border-t border-[var(--border)] bg-[var(--chrome)] px-4 py-3 md:hidden">
           <form onSubmit={onSearch}>
             <div className="relative">
               <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-2)]" />
@@ -294,7 +296,7 @@ export function SiteHeader({
                     href={`/category/${c.slug}`}
                     role="menuitem"
                     className={cn(
-                      "block px-3 py-2.5 text-xs uppercase tracking-wider hover:bg-white/5 hover:text-[var(--accent)]",
+                      "block px-3 py-2.5 text-xs uppercase tracking-wider hover:bg-[var(--hover)] hover:text-[var(--accent)]",
                       activeSlug === c.slug && "text-[var(--accent)]",
                     )}
                   >
@@ -321,7 +323,7 @@ export function SiteHeader({
       </Suspense>
 
       {open ? (
-        <div className="max-h-[calc(100dvh-var(--header-h)-env(safe-area-inset-top))] overflow-y-auto border-t border-[var(--border)] bg-[#080808] px-4 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] lg:hidden">
+        <div className="max-h-[calc(100dvh-var(--header-h)-env(safe-area-inset-top))] overflow-y-auto border-t border-[var(--border)] bg-[var(--chrome)] px-4 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] lg:hidden">
           <form onSubmit={onSearch} className="mb-5">
             <Input
               value={q}
@@ -336,7 +338,7 @@ export function SiteHeader({
                 <Link
                   href={`/category/${c.slug}`}
                   className={cn(
-                    "flex min-h-11 items-center rounded-lg px-2 text-xs font-semibold uppercase tracking-wider text-white hover:bg-white/5 hover:text-[var(--accent)]",
+                    "flex min-h-11 items-center rounded-lg px-2 text-xs font-semibold uppercase tracking-wider text-ink hover:bg-[var(--hover)] hover:text-[var(--accent)]",
                     activeSlug === c.slug && "text-[var(--accent)]",
                   )}
                 >

@@ -19,7 +19,7 @@ function ConfirmationInner() {
         <h1 className="font-[family-name:var(--font-oswald)] text-4xl uppercase">
           Order not found
         </h1>
-        <p className="mt-3 text-sm text-[#A0A0A0]">
+        <p className="mt-3 text-sm text-[var(--muted)]">
           This confirmation is stored in this browser only.
         </p>
         <Button asChild className="mt-6">
@@ -38,13 +38,13 @@ function ConfirmationInner() {
           { label: "Confirmation" },
         ]}
       />
-      <p className="mt-6 text-xs uppercase tracking-[0.2em] text-[#B6FF00]">
+      <p className="mt-6 text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
         Order placed
       </p>
       <h1 className="mt-2 font-[family-name:var(--font-oswald)] text-4xl uppercase">
         {order.id}
       </h1>
-      <p className="mt-2 text-sm text-[#A0A0A0]">{formatDate(order.createdAt)}</p>
+      <p className="mt-2 text-sm text-[var(--muted)]">{formatDate(order.createdAt)}</p>
 
       <div className="mt-8 grid gap-4 md:grid-cols-2">
         <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
@@ -58,7 +58,7 @@ function ConfirmationInner() {
             <br />
             {order.email}
           </p>
-          <p className="mt-3 text-sm text-[#A0A0A0]">{order.shippingMethod}</p>
+          <p className="mt-3 text-sm text-[var(--muted)]">{order.shippingMethod}</p>
         </section>
         <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
           <h2 className="text-sm font-bold uppercase tracking-wider">Totals</h2>
@@ -79,7 +79,7 @@ function ConfirmationInner() {
 
       <section className="mt-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
         <h2 className="text-sm font-bold uppercase tracking-wider">Items</h2>
-        <ul className="mt-3 divide-y divide-[#2A2A2A] text-sm">
+        <ul className="mt-3 divide-y divide-[var(--border)] text-sm">
           {order.items.map((item) => (
             <li key={`${item.code}-${item.size}`} className="flex flex-col gap-1 py-2 sm:flex-row sm:justify-between">
               <span className="break-words">

@@ -53,21 +53,21 @@ export function ProductDetail({ product }: { product: Product }) {
       <div className="lg:sticky lg:top-28 lg:pt-2">
         <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--accent)]">
           {cat?.name}
-          <span className="text-white/25"> / </span>
+          <span className="text-ink/25"> / </span>
           {SUBCATEGORY_LABELS[product.subcategory] ?? product.subcategory}
         </p>
-        <h1 className="mt-4 font-[family-name:var(--font-oswald)] text-3xl uppercase leading-[0.95] tracking-wide text-white sm:text-4xl">
+        <h1 className="mt-4 font-[family-name:var(--font-oswald)] text-3xl uppercase leading-[0.95] tracking-wide text-ink sm:text-4xl">
           {title}
         </h1>
         <p className="mt-3 font-mono text-[11px] tracking-[0.18em] text-[var(--muted-2)]">
           {product.code}
         </p>
         <div className="mt-6">
-          <p className="price text-2xl font-semibold tracking-tight text-white sm:text-[1.75rem]">
+          <p className="price text-2xl font-semibold tracking-tight text-ink sm:text-[1.75rem]">
             {formatPrice(product.price)}
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            <AssortmentBadge product={product} className="bg-white text-[#111]" />
+            <AssortmentBadge product={product} className="bg-[var(--text)] text-[var(--bg)]" />
             <AssortmentHint product={product} />
           </div>
           <p className="mt-2 text-sm text-[var(--muted)]">{stockLabel(product)}</p>
@@ -98,7 +98,7 @@ export function ProductDetail({ product }: { product: Product }) {
                     "min-h-11 min-w-11 rounded-full border px-4 text-sm font-medium uppercase tracking-wide transition-[border-color,background-color,color] duration-200",
                     size === row.size
                       ? "border-[var(--accent)] bg-[var(--accent)] text-[var(--on-accent)]"
-                      : "border-[var(--border-strong)] text-white hover:border-white",
+                      : "border-[var(--border-strong)] text-ink hover:border-[var(--text)]",
                     row.stock === 0 && "cursor-not-allowed opacity-35",
                   )}
                 >
@@ -144,7 +144,7 @@ export function ProductDetail({ product }: { product: Product }) {
         </p>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-[var(--border)] bg-[#080808]/92 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-xl md:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-[var(--border)] bg-[var(--header-bg-scrolled)] px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-xl md:hidden">
         <div className="mx-auto flex max-w-[1440px] items-center gap-3">
           <div className="min-w-0">
             <p className="price text-sm font-semibold">{formatPrice(product.price)}</p>

@@ -86,7 +86,6 @@ export default async function CategoryHubPage({
           ) : null
         }
       />
-
       <div className="page-shell py-10 lg:py-14">
         {shoeGroups.length > 0 ? (
           <section className="mb-12 lg:mb-16">
@@ -127,7 +126,7 @@ export default async function CategoryHubPage({
           </section>
         ) : (
           <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-6 py-16 text-center">
-            <p className="font-[family-name:var(--font-oswald)] text-2xl uppercase text-white">
+            <p className="font-[family-name:var(--font-oswald)] text-2xl uppercase text-ink">
               No stock in this hub yet
             </p>
             <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-[var(--muted)]">
@@ -155,7 +154,7 @@ export default async function CategoryHubPage({
                 <li key={c.slug}>
                   <Link
                     href={`/category/${c.slug}`}
-                    className="inline-flex min-h-10 items-center rounded-full border border-[var(--border-strong)] px-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-white transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
+                    className="inline-flex min-h-10 items-center rounded-full border border-[var(--border-strong)] px-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
                   >
                     {c.name}
                   </Link>

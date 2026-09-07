@@ -41,7 +41,7 @@ export default async function HomePage() {
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[var(--accent)] sm:text-xs">
               {tagline}
             </p>
-            <h1 className="mt-4 max-w-3xl font-[family-name:var(--font-oswald)] text-[2.65rem] uppercase leading-[0.92] tracking-tight text-white sm:text-6xl md:text-7xl">
+            <h1 className="mt-4 max-w-3xl font-[family-name:var(--font-oswald)] text-[2.65rem] uppercase leading-[0.92] tracking-tight text-ink sm:text-6xl md:text-7xl">
               {heroTitle}
             </h1>
             <p className="mt-6 max-w-xl text-sm leading-7 text-[var(--muted)] sm:text-base">
@@ -66,7 +66,7 @@ export default async function HomePage() {
                   <dt className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--muted-2)]">
                     {label}
                   </dt>
-                  <dd className="mt-1 font-[family-name:var(--font-oswald)] text-lg uppercase tracking-wide text-white">
+                  <dd className="mt-1 font-[family-name:var(--font-oswald)] text-lg uppercase tracking-wide text-ink">
                     {value}
                   </dd>
                 </div>
@@ -76,7 +76,7 @@ export default async function HomePage() {
           <div className="relative -mx-4 h-[22rem] sm:-mx-0 sm:h-[30rem] lg:-mr-4 lg:h-[44rem]">
             <div
               aria-hidden
-              className="pointer-events-none absolute inset-x-[6%] bottom-[4%] top-[14%] rounded-[100%] bg-[radial-gradient(ellipse_at_center,rgba(94,255,56,0.2),transparent_70%)] blur-3xl"
+              className="pointer-events-none absolute inset-x-[6%] bottom-[4%] top-[14%] rounded-[100%] bg-[radial-gradient(ellipse_at_center,var(--hero-glow),transparent_70%)] blur-3xl"
             />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img

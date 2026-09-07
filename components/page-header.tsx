@@ -40,7 +40,7 @@ export function PageHeader({
           ) : null}
           <h1
             className={cn(
-              "font-[family-name:var(--font-oswald)] text-4xl uppercase leading-[0.92] tracking-tight text-white sm:text-5xl md:text-6xl",
+              "font-[family-name:var(--font-oswald)] text-4xl uppercase leading-[0.92] tracking-tight text-ink sm:text-5xl md:text-6xl",
               eyebrow || crumbs?.length ? "mt-3" : "",
             )}
           >

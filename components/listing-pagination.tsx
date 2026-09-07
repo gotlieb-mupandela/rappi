@@ -69,7 +69,7 @@ function PageLink({
     "inline-flex h-10 min-w-10 items-center justify-center rounded-full border px-3 text-xs font-semibold uppercase tracking-wider",
     active
       ? "border-[var(--accent)] text-[var(--accent)]"
-      : "border-[var(--border-strong)] text-[var(--muted)] hover:border-white hover:text-white",
+      : "border-[var(--border-strong)] text-[var(--muted)] hover:border-[var(--text)] hover:text-ink",
     !href && "pointer-events-none opacity-35",
   );
   if (!href) {

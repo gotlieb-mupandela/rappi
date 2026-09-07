@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState, useTransition, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { Product } from "@/lib/types";
 import { CATEGORIES, SUBCATEGORY_LABELS } from "@/lib/catalog";
@@ -36,12 +36,26 @@ export function CatalogFilters({
   const [draftQ, setDraftQ] = useState(q);
   const [layout, setLayout] = useState<"grid" | "list">("grid");
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [pending, startTransition] = useTransition();
 
   const sizeOptions = useMemo(() => {
     const set = new Set<string>();
-    products.forEach((p) => p.sizes.forEach((s) => set.add(s.size)));
-    return [...set];
-  }, [products]);
+    for (const p of products) {
+      if (cat !== "all" && p.category !== cat) continue;
+      if (sub !== "all" && p.subcategory !== sub) continue;
+      if (!matchesAudience(p, audience === "all" ? null : audience)) continue;
+      p.sizes.forEach((s) => set.add(s.size));
+    }
+    const order = ["XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "ONE"];
+    return [...set].sort((a, b) => {
+      const ia = order.indexOf(a.toUpperCase());
+      const ib = order.indexOf(b.toUpperCase());
+      if (ia !== -1 && ib !== -1) return ia - ib;
+      if (ia !== -1) return -1;
+      if (ib !== -1) return 1;
+      return a.localeCompare(b, undefined, { numeric: true });
+    });
+  }, [products, cat, sub, audience]);
 
   const subs = useMemo(() => {
     const map = new Map<string, number>();
@@ -72,11 +86,13 @@ export function CatalogFilters({
     if (!value || value === "all") next.delete(key);
     else next.set(key, value);
     const qs = next.toString();
-    router.push(qs ? `${basePath}?${qs}` : basePath);
+    startTransition(() => {
+      router.push(qs ? `${basePath}?${qs}` : basePath);
+    });
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10">
+    <div className="grid items-start gap-6 lg:grid-cols-[minmax(13.5rem,15rem)_minmax(0,1fr)] lg:gap-8 xl:gap-10">
       <div className="lg:hidden">
         <Button
           type="button"
@@ -89,7 +105,7 @@ export function CatalogFilters({
       </div>
       <aside
         className={cn(
-          "space-y-6 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5",
+          "space-y-7 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6",
           filtersOpen ? "block" : "hidden lg:block",
         )}
       >
@@ -130,15 +146,15 @@ export function CatalogFilters({
         </FilterBlock>
 
         <FilterBlock title="Size">
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => setParam("size", "all")}
               className={cn(
-                "rounded-full border px-2.5 py-1 text-[11px] uppercase transition-colors",
+                "inline-flex h-9 min-w-9 items-center justify-center rounded-full border px-3 text-[11px] font-medium uppercase tracking-wide transition-colors",
                 size === "all"
                   ? "border-[var(--accent)] text-[var(--accent)]"
-                  : "border-[var(--border-strong)] text-[var(--muted)] hover:border-white",
+                  : "border-[var(--border-strong)] text-[var(--muted)] hover:border-white hover:text-white",
               )}
             >
               All
@@ -149,10 +165,10 @@ export function CatalogFilters({
                 type="button"
                 onClick={() => setParam("size", s)}
                 className={cn(
-                "rounded-full border px-2.5 py-1 text-[11px] uppercase transition-colors",
-                size === s
-                  ? "border-[var(--accent)] text-[var(--accent)]"
-                  : "border-[var(--border-strong)] text-[var(--muted)] hover:border-white",
+                  "inline-flex h-9 min-w-9 items-center justify-center rounded-full border px-3 text-[11px] font-medium uppercase tracking-wide transition-colors",
+                  size === s
+                    ? "border-[var(--accent)] text-[var(--accent)]"
+                    : "border-[var(--border-strong)] text-[var(--muted)] hover:border-white hover:text-white",
                 )}
               >
                 {s}
@@ -161,12 +177,12 @@ export function CatalogFilters({
           </div>
         </FilterBlock>
 
-        <FilterBlock title="Max price">
+        <FilterBlock title="Price">
           <Input
             type="number"
             min={0}
             step="0.01"
-            placeholder="N$"
+            placeholder="Up to N$"
             defaultValue={maxPrice}
             onBlur={(e) => setParam("max", e.target.value)}
           />
@@ -179,11 +195,11 @@ export function CatalogFilters({
           }}
           className="space-y-2"
         >
-          <Label>Filter text</Label>
+          <Label>Search</Label>
           <Input
             value={draftQ}
             onChange={(e) => setDraftQ(e.target.value)}
-            placeholder="Code or title"
+            placeholder="Code or name"
           />
         </form>
 
@@ -191,16 +207,16 @@ export function CatalogFilters({
           variant="outline"
           size="sm"
           className="w-full"
-          onClick={() => router.push(basePath)}
+          onClick={() => startTransition(() => router.push(basePath))}
         >
           Clear filters
         </Button>
       </aside>
 
-      <div>
-        <div className="mb-4 flex items-center justify-between gap-3">
+      <div className={cn("min-w-0 transition-opacity duration-300", pending && "opacity-50")}>
+        <div className="mb-5 flex items-center justify-between gap-3">
           <p className="text-xs uppercase tracking-[0.16em] text-[var(--muted)]">
-            {filtered.length} article{filtered.length === 1 ? "" : "s"} found
+            {filtered.length} piece{filtered.length === 1 ? "" : "s"}
           </p>
           <div className="flex items-center gap-1">
             <button
@@ -236,10 +252,10 @@ export function CatalogFilters({
 function FilterBlock({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div>
-      <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#A0A0A0]">
+      <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
         {title}
       </p>
-      <div className="space-y-1">{children}</div>
+      <div className="space-y-1.5">{children}</div>
     </div>
   );
 }
@@ -258,8 +274,10 @@ function FilterLink({
       type="button"
       onClick={onClick}
       className={cn(
-        "block w-full text-left text-[12px] uppercase tracking-wider",
-        active ? "text-[var(--accent)]" : "text-[#C8C8C8] hover:text-white",
+        "block w-full rounded-md py-1.5 pl-2 text-left text-[12px] uppercase tracking-[0.12em] transition-colors",
+        active
+          ? "border-l-2 border-[var(--accent)] pl-[6px] font-semibold text-[var(--accent)]"
+          : "text-[var(--text-secondary)] hover:text-white",
       )}
     >
       {children}

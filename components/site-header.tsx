@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { FormEvent, Suspense, useEffect, useRef, useState } from "react";
-import { Menu, Search, ShoppingBag, User, X } from "lucide-react";
-import { CATEGORIES } from "@/lib/catalog";
+import { Menu, Search, ShoppingBag, User, X, ChevronDown } from "lucide-react";
+import { BrandLogo } from "@/components/brand-logo";
+import { CATEGORIES, NAV_MORE, NAV_PRIMARY } from "@/lib/catalog";
 import { useAuth } from "@/lib/stores/auth";
 import { cartCount, useCart } from "@/lib/stores/cart";
 import { CategorySubNav } from "@/components/category-sub-nav";
@@ -19,8 +19,11 @@ export function SiteHeader() {
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [ready, setReady] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const accountRef = useRef<HTMLDivElement>(null);
+  const moreRef = useRef<HTMLLIElement>(null);
   const lines = useCart((s) => s.lines);
   const user = useAuth((s) => s.user);
   const logout = useAuth((s) => s.logout);
@@ -31,8 +34,16 @@ export function SiteHeader() {
   }, []);
 
   useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
     setOpen(false);
     setAccountOpen(false);
+    setMoreOpen(false);
   }, [pathname]);
 
   useEffect(() => {
@@ -44,12 +55,15 @@ export function SiteHeader() {
 
   useEffect(() => {
     function onPointer(e: Event) {
-      if (!accountRef.current?.contains(e.target as Node)) {
-        setAccountOpen(false);
-      }
+      const target = e.target as Node;
+      if (!accountRef.current?.contains(target)) setAccountOpen(false);
+      if (!moreRef.current?.contains(target)) setMoreOpen(false);
     }
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setAccountOpen(false);
+      if (e.key === "Escape") {
+        setAccountOpen(false);
+        setMoreOpen(false);
+      }
     }
     document.addEventListener("mousedown", onPointer);
     document.addEventListener("keydown", onKey);
@@ -71,8 +85,15 @@ export function SiteHeader() {
   )?.slug;
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[#080808]/80 pt-[env(safe-area-inset-top)] backdrop-blur-xl backdrop-saturate-150">
-      <div className="page-shell flex h-14 items-center gap-2 sm:h-[4.25rem] sm:gap-4">
+    <header
+      className={cn(
+        "sticky top-0 z-50 border-b pt-[env(safe-area-inset-top)] backdrop-blur-xl backdrop-saturate-150 transition-[background-color,box-shadow,border-color] duration-300",
+        scrolled
+          ? "border-[var(--border)] bg-[#080808]/92 shadow-[0_16px_40px_rgba(0,0,0,0.45)]"
+          : "border-[var(--border)] bg-[#080808]/72",
+      )}
+    >
+      <div className="page-shell flex h-[4.75rem] items-center gap-2 sm:h-[5.5rem] sm:gap-4">
         <button
           type="button"
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white transition-colors hover:bg-white/5 lg:hidden"
@@ -83,24 +104,20 @@ export function SiteHeader() {
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
 
-        <Link href="/" className="flex min-w-0 shrink items-center">
-          <Image
-            src="/brand/rappi-logo.png"
-            alt="RAPPI SPORTS HUB"
-            width={210}
-            height={56}
-            className="h-8 w-auto max-w-[148px] object-contain sm:h-10 sm:max-w-none"
+        <Link href="/" className="flex shrink-0 items-center" aria-label="RAPPI SPORTS HUB home">
+          <BrandLogo
+            className="h-[4.25rem] w-auto max-w-none sm:h-[4.75rem]"
             priority
           />
         </Link>
 
-        <form onSubmit={onSearch} className="mx-4 hidden max-w-md flex-1 md:flex lg:max-w-lg">
+        <form onSubmit={onSearch} className="mx-3 hidden w-full max-w-[18rem] flex-1 md:flex lg:max-w-[20rem]">
           <div className="relative w-full">
             <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-2)]" />
             <Input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search by code"
+              placeholder="Search the catalog"
               className="h-10 pl-10"
               aria-label="Search catalog"
             />
@@ -197,25 +214,60 @@ export function SiteHeader() {
       </div>
 
       <nav className="hidden border-t border-[var(--border)] lg:block">
-        <ul className="page-shell flex flex-wrap items-center justify-center gap-x-6 gap-y-2 py-3">
-          {CATEGORIES.map((c) => (
-            <li key={c.slug}>
-              <Link
-                href={`/category/${c.slug}`}
-                data-active={activeSlug === c.slug || undefined}
-                className={cn(
-                  "nav-link text-[11px] font-semibold uppercase tracking-[0.16em]",
-                )}
+        <ul className="page-shell flex items-center justify-center gap-x-5 py-2.5 xl:gap-x-7">
+          {NAV_PRIMARY.map((slug) => {
+            const c = CATEGORIES.find((item) => item.slug === slug);
+            if (!c) return null;
+            return (
+              <li key={c.slug}>
+                <Link
+                  href={`/category/${c.slug}`}
+                  data-active={activeSlug === c.slug || undefined}
+                  className="nav-link text-[11px] font-semibold uppercase tracking-[0.14em]"
+                >
+                  {c.nav ?? c.name}
+                </Link>
+              </li>
+            );
+          })}
+          <li className="relative" ref={moreRef}>
+            <button
+              type="button"
+              aria-expanded={moreOpen}
+              aria-haspopup="menu"
+              data-active={NAV_MORE.some((c) => c.slug === activeSlug) || undefined}
+              className="nav-link cursor-pointer border-0 bg-transparent text-[11px] font-semibold uppercase tracking-[0.14em]"
+              onClick={() => setMoreOpen((v) => !v)}
+            >
+              More
+              <ChevronDown className={cn("ml-1 h-3.5 w-3.5 transition-transform", moreOpen && "rotate-180")} />
+            </button>
+            {moreOpen ? (
+              <div
+                role="menu"
+                className="absolute left-1/2 top-full z-20 mt-2 min-w-44 -translate-x-1/2 overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)] py-1 shadow-[var(--shadow-soft)]"
               >
-                {c.name}
-              </Link>
-            </li>
-          ))}
+                {NAV_MORE.map((c) => (
+                  <Link
+                    key={c.slug}
+                    href={`/category/${c.slug}`}
+                    role="menuitem"
+                    className={cn(
+                      "block px-3 py-2.5 text-xs uppercase tracking-wider hover:bg-white/5 hover:text-[var(--accent)]",
+                      activeSlug === c.slug && "text-[var(--accent)]",
+                    )}
+                  >
+                    {c.name}
+                  </Link>
+                ))}
+              </div>
+            ) : null}
+          </li>
           <li>
             <Link
               href="/promotions"
               data-active={pathname === "/promotions" || undefined}
-              className="nav-link text-[11px] font-semibold uppercase tracking-[0.16em] !text-[var(--accent)]"
+              className="nav-link text-[11px] font-semibold uppercase tracking-[0.14em] !text-[var(--accent)]"
             >
               New collections
             </Link>
@@ -227,12 +279,12 @@ export function SiteHeader() {
       </Suspense>
 
       {open ? (
-        <div className="max-h-[calc(100dvh-3.5rem-env(safe-area-inset-top))] overflow-y-auto border-t border-[var(--border)] bg-[#080808] px-4 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] lg:hidden">
+        <div className="max-h-[calc(100dvh-var(--header-h)-env(safe-area-inset-top))] overflow-y-auto border-t border-[var(--border)] bg-[#080808] px-4 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] lg:hidden">
           <form onSubmit={onSearch} className="mb-5">
             <Input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search by code, title, category"
+              placeholder="Search by name, code, or category"
               className="h-11"
             />
           </form>

@@ -27,8 +27,8 @@ export function Providers({ children }: { children: ReactNode }) {
             background: "#141414",
             border: "1px solid rgba(255,255,255,0.1)",
             color: "#fff",
-            borderRadius: "14px",
-            boxShadow: "0 18px 50px rgba(0,0,0,0.45)",
+            borderRadius: "12px",
+            boxShadow: "0 24px 60px rgba(0,0,0,0.5)",
           },
         }}
       />

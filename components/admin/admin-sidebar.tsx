@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  Boxes,
   LayoutDashboard,
   LogOut,
   Package,
@@ -12,6 +11,7 @@ import {
   Truck,
   Users,
 } from "lucide-react";
+import { BrandLogo } from "@/components/brand-logo";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -37,8 +37,8 @@ export function AdminSidebar() {
 
   return (
     <aside className="flex w-full shrink-0 flex-col border-b border-[var(--border)] bg-[#070707] lg:w-60 lg:border-b-0 lg:border-r">
-      <div className="flex items-center gap-2 border-b border-[var(--border)] px-4 py-4">
-        <Boxes className="h-5 w-5 text-[var(--accent)]" />
+      <div className="flex items-center gap-2 border-b border-[var(--border)] px-4 py-3">
+        <BrandLogo variant="mark" className="h-10 w-10" />
         <div>
           <p className="font-[family-name:var(--font-oswald)] text-sm uppercase tracking-wide text-white">
             RAPPI Admin

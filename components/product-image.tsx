@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { Product } from "@/lib/types";
 import { ProductVisual } from "@/components/product-visual";
+import { cn } from "@/lib/utils";
 
 export function ProductImage({
   product,
@@ -34,7 +35,7 @@ export function ProductImage({
     <img
       src={src}
       alt={alt ?? product.code}
-      className={className}
+      className={cn("img-in", className)}
       loading="lazy"
       onError={() => setFailed(true)}
     />

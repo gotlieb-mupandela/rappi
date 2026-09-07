@@ -41,21 +41,23 @@ export default function CartPage() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <Breadcrumbs items={[{ href: "/", label: "Home" }, { label: "Cart" }]} />
-          <h1 className="mt-4 font-[family-name:var(--font-oswald)] text-3xl uppercase sm:text-4xl">
-            Cart [{count}]
+          <h1 className="mt-4 font-[family-name:var(--font-oswald)] text-3xl uppercase sm:text-5xl">
+            Bag
           </h1>
-          <p className="mt-1 text-sm text-[#A0A0A0]">Prices in Namibian dollars (N$).</p>
+          <p className="mt-1 text-sm text-[var(--muted)]">
+            {count ? `${count} piece${count === 1 ? "" : "s"}` : "Your bag is empty"}
+          </p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button
             variant="outline"
             onClick={() => {
               clear();
-              toast.message("Cart emptied.");
+              toast.message("Bag emptied.");
             }}
             disabled={!rows.length}
           >
-            Empty cart
+            Empty bag
           </Button>
           <Button asChild disabled={!rows.length}>
             <Link href="/checkout">Checkout</Link>
@@ -65,7 +67,7 @@ export default function CartPage() {
 
       {!rows.length ? (
         <div className="mt-10 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-6 py-16 text-center">
-          <p className="text-lg font-semibold">Your cart is empty</p>
+          <p className="text-lg font-semibold">Your bag is empty</p>
           <p className="mt-2 text-sm text-[#A0A0A0]">
             Browse the catalog and add sizes from a product page.
           </p>

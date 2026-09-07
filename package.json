@@ -9,7 +9,7 @@
     "lint": "eslint",
     "catalog": "python3 scripts/write-source.py",
     "check:catalog": "python3 scripts/check-catalog.py",
-    "images": "python scripts/generate-catalog-images.py",
+    "images": "python scripts/expand-product-images.py",
     "images:upload": "node scripts/upload-product-images.mjs"
   },
   "dependencies": {

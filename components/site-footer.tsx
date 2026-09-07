@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandLogo } from "@/components/brand-logo";
 import { CATEGORIES, TAGLINE } from "@/lib/catalog";
 
 export function SiteFooter() {
@@ -6,15 +7,12 @@ export function SiteFooter() {
     <footer className="mt-auto border-t border-[var(--border)] bg-[#070707]">
       <div className="page-shell grid gap-10 py-12 md:grid-cols-3">
         <div>
-          <p className="font-[family-name:var(--font-oswald)] text-lg tracking-[0.14em] text-white">
-            RAPPI SPORTS HUB
-          </p>
-          <p className="mt-2 text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
+          <BrandLogo className="h-24 w-auto" />
+          <p className="mt-3 text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
             {TAGLINE}
           </p>
           <p className="mt-4 max-w-sm text-sm leading-6 text-[var(--muted)]">
-            Consumer sportswear and equipment storefront. Opening shop stock, sold at unit
-            retail prices in Namibian dollars (N$). No wholesale tariffs.
+            Consumer sportswear and equipment. Live opening stock, sold at retail in Namibian dollars.
           </p>
         </div>
         <div>

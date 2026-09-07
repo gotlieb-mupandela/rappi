@@ -22,7 +22,7 @@ export default async function ShopListingPage({
   const items = productsByCategory(slug, catalog);
 
   return (
-    <div className="page-shell py-6 sm:py-8">
+    <div className="page-shell py-8 sm:py-10">
       <Breadcrumbs
         items={[
           { href: "/", label: "Home" },
@@ -30,10 +30,13 @@ export default async function ShopListingPage({
           { label: "Products" },
         ]}
       />
-      <h1 className="mt-6 font-[family-name:var(--font-oswald)] text-3xl uppercase tracking-wide sm:text-4xl">
-        {cat.name} [{items.length}]
+      <h1 className="mt-7 font-[family-name:var(--font-oswald)] text-3xl uppercase tracking-wide sm:text-5xl">
+        {cat.name}
       </h1>
-      <div className="mt-8">
+      <p className="mt-2 text-sm text-[var(--muted)]">
+        {items.length} piece{items.length === 1 ? "" : "s"}
+      </p>
+      <div className="mt-8 sm:mt-10">
         <Suspense>
           <CatalogFilters
             products={items}

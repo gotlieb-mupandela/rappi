@@ -3,9 +3,9 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import type { Product } from "@/lib/types";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProductGallery } from "@/components/product-gallery";
+import { QtyStepper } from "@/components/qty-stepper";
 import { formatPrice } from "@/lib/format";
 import { isLowStock, totalStock } from "@/lib/products";
 import { useCart } from "@/lib/stores/cart";
@@ -20,38 +20,38 @@ export function ProductDetail({ product }: { product: Product }) {
   const selected = product.sizes.find((s) => s.size === size);
   const stock = selected?.stock ?? 0;
   const cat = CATEGORIES.find((c) => c.slug === product.category);
-
+  const title = product.displayName || product.item;
   const matrix = useMemo(() => product.sizes, [product.sizes]);
 
-  function addToCart() {
+  function addToBag() {
     const result = add(product.code, size, qty);
     if (result.ok) toast.success(result.message);
     else toast.error(result.message);
   }
 
   return (
-    <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-start">
+    <div className="grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-start lg:gap-16">
       <ProductGallery product={product} />
-      <div className="lg:sticky lg:top-28">
-        <p className="text-[11px] uppercase tracking-[0.18em] text-[var(--accent)]">
-          {cat?.name} / {SUBCATEGORY_LABELS[product.subcategory] ?? product.subcategory}
+      <div className="lg:sticky lg:top-28 lg:pt-2">
+        <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--accent)]">
+          {cat?.name}
+          <span className="text-white/25"> / </span>
+          {SUBCATEGORY_LABELS[product.subcategory] ?? product.subcategory}
         </p>
-        <h1 className="mt-2 break-all font-mono text-2xl font-bold tracking-tight text-white sm:text-3xl">
-          {product.code}
+        <h1 className="mt-4 font-[family-name:var(--font-oswald)] text-3xl uppercase leading-[0.95] tracking-wide text-white sm:text-4xl">
+          {title}
         </h1>
-        <p className="mt-1 text-sm uppercase tracking-[0.14em] text-[var(--muted)]">
-          {product.name}
+        <p className="mt-3 font-mono text-[11px] tracking-[0.18em] text-[var(--muted-2)]">
+          {product.code}
         </p>
-        <p className="price mt-5 text-2xl font-semibold text-white sm:text-3xl">
+        <p className="price mt-6 text-2xl font-semibold tracking-tight text-white sm:text-[1.75rem]">
           {formatPrice(product.price)}
-          <span className="ml-2 text-sm font-normal text-[var(--muted)]">unit price</span>
-        </p>
-        <p className="mt-2 text-sm text-[var(--muted)]">
-          {totalStock(product)} in stock across sizes.
         </p>
 
-        <div className="mt-8 md:hidden">
-          <p className="mb-2 text-[11px] uppercase tracking-wider text-[var(--muted)]">Size</p>
+        <div className="mt-8">
+          <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--muted)]">
+            Size
+          </p>
           <div className="flex flex-wrap gap-2">
             {matrix.map((row) => (
               <button
@@ -63,11 +63,11 @@ export function ProductDetail({ product }: { product: Product }) {
                   setQty(1);
                 }}
                 className={cn(
-                  "min-h-11 min-w-11 rounded-full border px-3 text-sm font-semibold uppercase transition-colors",
+                  "min-h-11 min-w-11 rounded-full border px-4 text-sm font-medium uppercase tracking-wide transition-[border-color,background-color,color] duration-200",
                   size === row.size
-                    ? "border-[var(--accent)] bg-[var(--accent-muted)] text-[var(--accent)]"
+                    ? "border-[var(--accent)] bg-[var(--accent)] text-[var(--on-accent)]"
                     : "border-[var(--border-strong)] text-white hover:border-white",
-                  row.stock === 0 && "opacity-40",
+                  row.stock === 0 && "cursor-not-allowed opacity-35",
                 )}
               >
                 {row.size}
@@ -75,89 +75,33 @@ export function ProductDetail({ product }: { product: Product }) {
             ))}
           </div>
           {selected ? (
-            <p className="mt-2 text-sm text-[var(--muted)]">
-              {selected.stock} in size {size}
-              {isLowStock(selected.stock) ? " · low stock" : ""}
+            <p className="mt-3 text-sm text-[var(--muted)]">
+              {stock === 0
+                ? "Sold out in this size"
+                : isLowStock(stock)
+                  ? `Limited — ${stock} left`
+                  : `${totalStock(product)} across all sizes`}
             </p>
           ) : null}
         </div>
 
-        <div className="mt-8 hidden overflow-hidden rounded-xl border border-[var(--border)] md:block">
-          <table className="w-full min-w-[420px] text-left text-xs">
-            <thead className="bg-white/[0.03] uppercase tracking-wider text-[var(--muted)]">
-              <tr>
-                <th className="px-3 py-2.5 font-medium">Size</th>
-                <th className="px-3 py-2.5 font-medium">Price</th>
-                <th className="px-3 py-2.5 font-medium">Stock</th>
-                <th className="px-3 py-2.5 font-medium">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {matrix.map((row) => (
-                <tr
-                  key={row.size}
-                  onClick={() => {
-                    if (row.stock > 0) {
-                      setSize(row.size);
-                      setQty(1);
-                    }
-                  }}
-                  className={cn(
-                    "cursor-pointer border-t border-[var(--border)] transition-colors",
-                    size === row.size ? "bg-[var(--accent-muted)]" : "hover:bg-white/[0.03]",
-                    row.stock === 0 && "cursor-not-allowed opacity-40",
-                  )}
-                >
-                  <td className="px-3 py-2.5 font-semibold text-white">{row.size}</td>
-                  <td className="price px-3 py-2.5">{formatPrice(product.price)}</td>
-                  <td className="px-3 py-2.5">{row.stock}</td>
-                  <td className="px-3 py-2.5">
-                    {row.stock === 0 ? (
-                      <Badge variant="muted">Out</Badge>
-                    ) : isLowStock(row.stock) ? (
-                      <Badge variant="low">Low stock</Badge>
-                    ) : (
-                      <Badge variant="stock">In stock</Badge>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {isLowStock(stock) ? (
-          <p className="mt-3 text-sm text-[#FFB020]">
-            Low stock — only {stock} left in size {size}.
-          </p>
-        ) : null}
-
-        <div className="mt-6 hidden flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end md:flex">
-          <label className="space-y-1">
-            <span className="block text-[11px] uppercase tracking-wider text-[var(--muted)]">
-              Qty
-            </span>
-            <input
-              type="number"
-              min={1}
-              max={Math.max(stock, 1)}
-              value={qty}
-              onChange={(e) => setQty(Number(e.target.value))}
-              className="h-12 w-full rounded-full border border-[var(--border)] bg-[var(--bg-elevated)] px-4 text-white sm:w-20"
-            />
-          </label>
+        <div className="mt-8 hidden items-center gap-3 md:flex">
+          <QtyStepper
+            value={qty}
+            max={Math.max(stock, 1)}
+            onChange={setQty}
+          />
           <Button
             size="lg"
-            onClick={addToCart}
+            onClick={addToBag}
             disabled={stock === 0}
-            className="w-full sm:min-w-48 sm:w-auto"
+            className="min-w-48 flex-1"
           >
-            Add to cart
+            Add to bag
           </Button>
         </div>
-        <p className="mt-6 hidden text-sm leading-6 text-[var(--muted)] md:block">
-          Opening-shop SKU {product.code}. Retail unit price in Namibian dollars (N$). Guest checkout is
-          available — no dealer tariff, net, or wholesale pricing.
+        <p className="mt-8 hidden max-w-md text-sm leading-7 text-[var(--muted)] md:block">
+          Priced in Namibian dollars. Guest checkout is available — no account required.
         </p>
       </div>
 
@@ -169,22 +113,19 @@ export function ProductDetail({ product }: { product: Product }) {
               Size {size}
             </p>
           </div>
-          <input
-            type="number"
-            min={1}
-            max={Math.max(stock, 1)}
+          <QtyStepper
             value={qty}
-            onChange={(e) => setQty(Number(e.target.value))}
-            className="h-11 w-16 shrink-0 rounded-full border border-[var(--border)] bg-[var(--bg-elevated)] px-3 text-center text-white"
-            aria-label="Quantity"
+            max={Math.max(stock, 1)}
+            onChange={setQty}
+            className="h-11 shrink-0 [&_button]:h-11 [&_button]:w-10"
           />
           <Button
             size="lg"
-            onClick={addToCart}
+            onClick={addToBag}
             disabled={stock === 0}
             className="min-w-0 flex-1"
           >
-            Add to cart
+            Add to bag
           </Button>
         </div>
       </div>

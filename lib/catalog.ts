@@ -1,6 +1,7 @@
 export type CategoryDef = {
   slug: string;
   name: string;
+  nav?: string;
   featured?: boolean;
   blurb: string;
 };
@@ -56,6 +57,7 @@ export const CATEGORIES: CategoryDef[] = [
   {
     slug: "running-fitness",
     name: "Running & Fitness",
+    nav: "Running",
     featured: true,
     blurb: "Running tops, shorts, mats, and training towels.",
   },
@@ -111,10 +113,24 @@ export const SUBCATEGORY_LABELS: Record<string, string> = {
   general: "All",
 };
 
+export const NAV_PRIMARY = [
+  "sportswear",
+  "football",
+  "basketball",
+  "netball",
+  "swimming",
+  "running-fitness",
+  "shoes",
+] as const;
+
+export const NAV_MORE = CATEGORIES.filter(
+  (c) => !NAV_PRIMARY.includes(c.slug as (typeof NAV_PRIMARY)[number]),
+);
+
 export function categoryBySlug(slug: string) {
   return CATEGORIES.find((c) => c.slug === slug);
 }
 
 export const DEMO_EMAIL = "shop@rappi.com";
 export const DEMO_PASSWORD = "rappi123";
-export const TAGLINE = "EQUIP | PERFORM | INSPIRE";
+export const TAGLINE = "GEAR UP. SHOW UP. LEVEL UP.";

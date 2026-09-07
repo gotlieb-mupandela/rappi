@@ -24,13 +24,13 @@ export function CategorySubNav() {
 
   return (
     <nav className="border-t border-[var(--border)] bg-[#0d0d0d]/90">
-      <ul className="scroll-touch page-shell flex gap-x-6 overflow-x-auto py-1 lg:justify-center">
+      <ul className="scroll-touch page-shell flex items-center gap-x-5 overflow-x-auto py-1 [mask-image:linear-gradient(90deg,transparent,black_1.25rem,black_calc(100%-1.25rem),transparent)] lg:justify-center lg:[mask-image:none] xl:gap-x-6">
         <li className="shrink-0">
           <Link
             href={`/shop/${slug}`}
             data-active={onShop && !active ? "true" : undefined}
             className={cn(
-              "nav-link inline-flex min-h-11 items-center whitespace-nowrap text-[12px] font-medium uppercase tracking-[0.12em]",
+              "nav-link text-[11px] font-medium uppercase tracking-[0.12em]",
             )}
           >
             All
@@ -41,7 +41,7 @@ export function CategorySubNav() {
             <Link
               href={`/shop/${slug}?sub=${encodeURIComponent(s.slug)}`}
               data-active={active === s.slug ? "true" : undefined}
-              className="nav-link inline-flex min-h-11 items-center whitespace-nowrap text-[12px] font-medium uppercase tracking-[0.12em]"
+              className="nav-link text-[11px] font-medium uppercase tracking-[0.12em]"
             >
               {s.name}
             </Link>

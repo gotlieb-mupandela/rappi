@@ -33,12 +33,12 @@ export default async function HomePage() {
   const heroTitle = settings?.hero_title ?? "RAPPI SPORTS HUB";
   const heroBody =
     settings?.hero_body ??
-    `Opening shop stock. ${catalog.length} SKUs across sportswear, football, court sports, and kit. Retail unit prices in Namibian dollars (N$). Browse as a guest or sign in to track orders.`;
+    `Selected kit across sportswear, football, court sports, and training. ${catalog.length} pieces, priced in Namibian dollars. Browse as a guest or sign in to follow orders.`;
 
   return (
     <div>
       <section className="border-b border-[var(--border)]">
-        <div className="page-shell grid items-center gap-10 py-10 sm:py-14 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:py-20">
+        <div className="page-shell grid items-center gap-12 py-14 sm:py-16 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:py-24">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[var(--accent)] sm:text-xs">
               {tagline}
@@ -54,15 +54,15 @@ export default async function HomePage() {
                 <Link href="/category/sportswear">Shop sportswear</Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="w-full sm:w-auto">
-                <Link href="/search">Search by code</Link>
+                <Link href="/search">Browse the catalog</Link>
               </Button>
             </div>
             <dl className="mt-10 grid grid-cols-2 gap-4 border-t border-[var(--border)] pt-6 sm:grid-cols-4">
               {[
-                [String(catalog.length), "SKUs"],
-                ["N$", "Retail pricing"],
+                [String(catalog.length), "Pieces"],
+                ["NAD", "Pricing"],
                 ["Guest", "Checkout"],
-                ["Opening", "Stock"],
+                ["Live", "Stock"],
               ].map(([value, label]) => (
                 <div key={label}>
                   <dt className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--muted-2)]">
@@ -80,7 +80,7 @@ export default async function HomePage() {
               <Link
                 key={p.code}
                 href={productPath(p.code)}
-                className="media-frame group relative overflow-hidden rounded-xl border border-[var(--border)]"
+                className="media-frame group relative overflow-hidden rounded-lg border border-[var(--border)]"
               >
                 <ProductImage
                   product={p}
@@ -194,9 +194,9 @@ export default async function HomePage() {
       <section className="page-shell pb-16 lg:pb-20">
         <SectionHeading
           eyebrow="06"
-          title="Opening stock"
+          title="Now in"
           href="/search"
-          linkLabel="View all SKUs"
+          linkLabel="View all"
         />
         <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
           {(spotlight.length ? spotlight : football.slice(0, 6)).map((p) => (

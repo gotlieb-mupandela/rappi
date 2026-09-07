@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Inter, Oswald } from "next/font/google";
+import { BrandAtmosphere } from "@/components/brand-atmosphere";
 import { Providers } from "@/components/providers";
 import { StorefrontChrome } from "@/components/storefront-chrome";
 import { TAGLINE } from "@/lib/catalog";
@@ -34,10 +35,12 @@ export const metadata: Metadata = {
     template: "%s · RAPPI SPORTS HUB",
   },
   description:
-    "RAPPI SPORTS HUB — consumer sports catalog. Equip. Perform. Inspire.",
-  icons: {
-    icon: "/brand/rappi-logo.png",
-    apple: "/brand/rappi-logo.png",
+    "RAPPI SPORTS HUB — consumer sports catalog. Gear up. Show up. Level up.",
+  applicationName: "RAPPI SPORTS HUB",
+  openGraph: {
+    title: "RAPPI SPORTS HUB",
+    description: TAGLINE,
+    siteName: "RAPPI SPORTS HUB",
   },
 };
 
@@ -48,9 +51,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${inter.variable} ${geistMono.variable} ${oswald.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-bg text-ink">
-        <Providers>
-          <StorefrontChrome>{children}</StorefrontChrome>
-        </Providers>
+        <BrandAtmosphere />
+        <div className="relative z-10 flex min-h-full flex-1 flex-col">
+          <Providers>
+            <StorefrontChrome>{children}</StorefrontChrome>
+          </Providers>
+        </div>
       </body>
     </html>
   );

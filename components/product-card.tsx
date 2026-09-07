@@ -8,7 +8,7 @@ import type { Product } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { ProductImage } from "@/components/product-image";
 import { formatPrice } from "@/lib/format";
-import { inStockSizes, isLowStock, totalStock } from "@/lib/products";
+import { inStockSizes, totalStock } from "@/lib/products";
 import { useCart } from "@/lib/stores/cart";
 import { productPath } from "@/lib/utils";
 
@@ -22,13 +22,13 @@ export function ProductCard({
   const add = useCart((s) => s.add);
   const stock = totalStock(product);
   const first = inStockSizes(product)[0];
-  const low = first ? isLowStock(first.stock) : false;
+  const title = product.displayName || product.item;
 
   function quickAdd(e: MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
     if (!first) {
-      toast.error("Out of stock.");
+      toast.error("This piece is sold out.");
       return;
     }
     const result = add(product.code, first.size, 1);
@@ -38,7 +38,7 @@ export function ProductCard({
 
   if (layout === "list") {
     return (
-      <article className="grid grid-cols-[80px_minmax(0,1fr)] items-center gap-4 border-b border-[var(--border)] py-3.5 sm:grid-cols-[96px_minmax(0,1fr)_auto] sm:gap-5">
+      <article className="grid grid-cols-[80px_minmax(0,1fr)] items-center gap-4 border-b border-[var(--border)] py-4 sm:grid-cols-[96px_minmax(0,1fr)_auto] sm:gap-5">
         <Link href={productPath(product.code)} className="media-frame block w-20 overflow-hidden rounded-lg sm:w-24">
           <ProductImage
             product={product}
@@ -48,9 +48,9 @@ export function ProductCard({
           />
         </Link>
         <Link href={productPath(product.code)} className="min-w-0">
-          <p className="truncate font-mono text-sm font-bold tracking-tight">{product.code}</p>
-          <p className="truncate text-[11px] uppercase tracking-wider text-[var(--muted)]">
-            {product.item}
+          <p className="truncate text-sm font-medium tracking-wide text-white">{title}</p>
+          <p className="mt-0.5 truncate font-mono text-[10px] tracking-[0.16em] text-[var(--muted-2)]">
+            {product.code}
           </p>
           <p className="price mt-1 text-sm font-semibold sm:hidden">
             {formatPrice(product.unitPrice)}
@@ -62,7 +62,7 @@ export function ProductCard({
             type="button"
             onClick={quickAdd}
             className="flex h-10 w-10 items-center justify-center rounded-full text-[var(--accent)] transition-colors hover:bg-white/5"
-            aria-label={`Add ${product.code}`}
+            aria-label={`Add ${title} to bag`}
           >
             <ShoppingBag className="h-4 w-4" />
           </button>
@@ -71,52 +71,47 @@ export function ProductCard({
     );
   }
 
-  const stockLabel = stock === 0 ? "Out of stock" : low ? "Low stock" : "In stock";
-  const stockClass =
-    stock === 0
-      ? "bg-[var(--danger)] text-white"
-      : low
-        ? "bg-[#B86A00] text-white"
-        : "bg-black/55 text-[var(--accent)]";
-
   return (
-    <article className="group relative">
+    <article className="group relative w-full max-w-sm">
       <Link href={productPath(product.code)} className="block">
-        <div className="media-frame relative overflow-hidden rounded-xl border border-[var(--border)] transition-[border-color,box-shadow,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-0.5 group-hover:border-[var(--border-strong)] group-hover:shadow-[var(--shadow-lift)] motion-reduce:group-hover:translate-y-0">
+        <div className="media-frame relative overflow-hidden rounded-lg border border-[var(--border)] transition-[border-color,box-shadow] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:border-[var(--border-strong)] group-hover:shadow-[var(--shadow-lift)]">
           {product.badge ? (
             <Badge
               variant={product.badge === "offer" ? "offer" : "new"}
-              className="absolute left-2.5 top-2.5 z-10"
+              className="absolute left-3 top-3 z-10"
             >
               {product.badge === "offer" ? "Offer" : "New"}
             </Badge>
           ) : null}
-          <span className={`absolute bottom-2.5 left-2.5 z-10 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] backdrop-blur-md ${stockClass}`}>
-            {stockLabel}
-          </span>
+          {stock === 0 ? (
+            <span className="absolute bottom-3 left-3 z-10 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/80">
+              Sold out
+            </span>
+          ) : null}
           <ProductImage
             product={product}
             src={product.imageUrl}
-            className="aspect-[3/4] w-full bg-[var(--bg-elevated)] object-cover object-center transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+            className="aspect-[3/4] w-full bg-[var(--bg-elevated)] object-cover object-center transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.035] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
           />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
         </div>
-        <div className="mt-3 space-y-1 text-left">
-          <p className="font-mono text-[11px] font-bold tracking-wide break-all text-white sm:text-[13px]">
+        <div className="mt-3.5 space-y-1 text-left">
+          <p className="text-[13px] font-medium leading-snug tracking-wide text-white">
+            {title}
+          </p>
+          <p className="font-mono text-[10px] tracking-[0.16em] text-[var(--muted-2)]">
             {product.code}
           </p>
-          <p className="line-clamp-2 min-h-[2.25rem] text-[11px] uppercase leading-snug tracking-wider text-[var(--muted)]">
-            {product.item}
-          </p>
-          <p className="price text-sm font-semibold text-white">
+          <p className="price pt-1 text-sm font-semibold text-white">
             {formatPrice(product.unitPrice)}
           </p>
         </div>
       </Link>
       <button
         type="button"
-        aria-label={`Add ${product.code} to cart`}
+        aria-label={`Add ${title} to bag`}
         onClick={quickAdd}
-        className="absolute right-2 top-2 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-black/45 text-white/90 backdrop-blur-md transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)] sm:right-2.5 sm:top-2.5"
+        className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-black/50 text-white/90 opacity-100 backdrop-blur-md transition-[opacity,border-color,color,transform] duration-300 hover:border-[var(--accent)] hover:text-[var(--accent)] sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"
       >
         <ShoppingBag className="h-4 w-4" />
       </button>

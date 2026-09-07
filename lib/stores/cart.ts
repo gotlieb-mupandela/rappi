@@ -39,7 +39,7 @@ export const useCart = create<CartState>()(
         } else {
           set({ lines: [...get().lines, { code, size, qty }] });
         }
-        return { ok: true, message: `Added ${qty} × ${product.code} (${size})` };
+        return { ok: true, message: `Added to bag · ${product.displayName || product.code} · ${size}` };
       },
       setQty: (code, size, qty) => {
         const product = getProduct(code);

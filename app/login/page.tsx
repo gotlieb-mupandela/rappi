@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { toast } from "sonner";
+import { BrandLogo } from "@/components/brand-logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -59,7 +60,8 @@ export default function LoginPage() {
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-[1440px] items-center justify-center px-4 py-16">
       <div className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-[var(--shadow-soft)] sm:p-8">
-        <p className="text-[11px] uppercase tracking-[0.22em] text-[var(--accent)]">{TAGLINE}</p>
+        <BrandLogo className="mx-auto mb-5 h-28 w-auto" />
+        <p className="text-center text-[11px] uppercase tracking-[0.22em] text-[var(--accent)]">{TAGLINE}</p>
         <h1 className="mt-2 font-[family-name:var(--font-oswald)] text-4xl uppercase">
           Sign in
         </h1>

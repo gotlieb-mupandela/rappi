@@ -2,6 +2,13 @@ const STORAGE_ROOT = process.env.NEXT_PUBLIC_SUPABASE_URL
   ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/product-images`
   : "";
 
+export function productPublicUrls(id: string) {
+  const images = [1, 2, 3, 4, 5].map(
+    (n) => `/products/${id}/${String(n).padStart(2, "0")}.webp`,
+  );
+  return { imageUrl: images[0], images };
+}
+
 export function productStorageUrls(id: string) {
   const root = `${STORAGE_ROOT}/${id}`;
   const images = [1, 2, 3, 4, 5].map(
@@ -13,6 +20,10 @@ export function productStorageUrls(id: string) {
 export function withProductImages<T extends { id: string; imageUrl: string; images: string[] }>(
   product: T,
 ): T {
-  if (!STORAGE_ROOT) return product;
+  const local = productPublicUrls(product.id);
+  if (process.env.NODE_ENV !== "production") {
+    return { ...product, ...local };
+  }
+  if (!STORAGE_ROOT) return { ...product, ...local };
   return { ...product, ...productStorageUrls(product.id) };
 }

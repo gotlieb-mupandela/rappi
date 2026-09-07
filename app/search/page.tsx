@@ -20,13 +20,13 @@ export default async function SearchPage({
       <Breadcrumbs
         items={[{ href: "/", label: "Home" }, { label: "Search results" }]}
       />
-      <h1 className="mt-6 font-[family-name:var(--font-oswald)] text-3xl uppercase tracking-wide sm:text-4xl">
-        Search results [{titleCount}]
+      <h1 className="mt-6 font-[family-name:var(--font-oswald)] text-3xl uppercase tracking-wide sm:text-5xl">
+        Search
       </h1>
-      <p className="mt-2 text-sm text-[#A0A0A0]">
+      <p className="mt-2 text-sm text-[var(--muted)]">
         {q
-          ? `Matches for “${q}”. Filter further by type, size, and price.`
-          : "Search by product code, title, or category. Filter by type, size, and price."}
+          ? `${titleCount} result${titleCount === 1 ? "" : "s"} for “${q}”`
+          : "Find a piece by code, name, or category."}
       </p>
       <div className="mt-8">
         <Suspense>

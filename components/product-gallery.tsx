@@ -26,27 +26,27 @@ export function ProductGallery({ product }: { product: Product }) {
 
   return (
     <div>
-      <div className="media-frame overflow-hidden rounded-xl border border-[var(--border)]">
+      <div className="media-frame overflow-hidden rounded-lg border border-[var(--border)]">
         <ProductImage
           product={product}
           src={current}
           alt={`${product.code} photo ${active + 1}`}
-          className="aspect-[3/4] w-full max-h-[720px] object-cover object-center"
+          className="aspect-[3/4] w-full max-h-[760px] object-cover object-center"
           fallbackClassName="aspect-[3/4] max-h-[640px]"
         />
       </div>
       {shots.length > 1 ? (
-        <div className="mt-3 grid grid-cols-5 gap-2">
+        <div className="mt-4 grid grid-cols-5 gap-2.5">
           {shots.map((src, i) => (
             <button
               key={src}
               type="button"
               onClick={() => setActive(i)}
               className={cn(
-                "media-frame overflow-hidden rounded-lg border transition-[border-color,opacity] duration-200",
+                "media-frame overflow-hidden rounded-md border transition-[border-color,opacity] duration-300",
                 i === active
                   ? "border-[var(--accent)] opacity-100"
-                  : "border-[var(--border)] opacity-70 hover:opacity-100",
+                  : "border-transparent opacity-55 hover:opacity-100",
               )}
               aria-label={`View photo ${i + 1}`}
               aria-current={i === active ? "true" : undefined}

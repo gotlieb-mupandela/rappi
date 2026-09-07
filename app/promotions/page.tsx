@@ -21,8 +21,7 @@ export default async function PromotionsPage() {
         New collections
       </h1>
       <p className="mt-2 max-w-xl text-sm text-[#A0A0A0]">
-        Opening-season footwear and apparel. Highlighted SKUs carry New or Offer
-        badges from the current stock list.
+        Opening-season footwear and apparel. New and offer pieces from the current drop.
       </p>
 
       <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">

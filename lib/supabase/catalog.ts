@@ -3,6 +3,7 @@ import type { Product } from "@/lib/types";
 import bundled from "@/data/products.json";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { withProductImages } from "@/lib/media";
 
 function mapRow(
   row: {
@@ -51,7 +52,7 @@ function mapRow(
 
 export const getCatalog = cache(async (): Promise<Product[]> => {
   if (!isSupabaseConfigured()) {
-    return bundled as Product[];
+    return (bundled as Product[]).map(withProductImages);
   }
 
   try {
@@ -62,7 +63,7 @@ export const getCatalog = cache(async (): Promise<Product[]> => {
         "id, code, item, title, name, display_name, category_slug, subcategory, gender, price, unit_price, sheet_category, stock_qty, badge, image_url, images",
       )
       .order("code");
-    if (error || !rows?.length) return bundled as Product[];
+    if (error || !rows?.length) return (bundled as Product[]).map(withProductImages);
 
     const { data: sizeRows } = await supabase
       .from("product_sizes")
@@ -75,10 +76,12 @@ export const getCatalog = cache(async (): Promise<Product[]> => {
     }
 
     return rows.map((row) =>
-      mapRow(row as Parameters<typeof mapRow>[0], byProduct.get(row.id) ?? []),
+      withProductImages(
+        mapRow(row as Parameters<typeof mapRow>[0], byProduct.get(row.id) ?? []),
+      ),
     );
   } catch {
-    return bundled as Product[];
+    return (bundled as Product[]).map(withProductImages);
   }
 });
 

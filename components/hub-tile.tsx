@@ -45,7 +45,7 @@ export function HubTile({
     <Link href={to} className="group block">
       <div
         className={cn(
-          "media-frame relative overflow-hidden rounded-xl border border-[var(--border)] transition-[border-color,box-shadow,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-0.5 group-hover:border-[var(--border-strong)] group-hover:shadow-[var(--shadow-lift)] motion-reduce:group-hover:translate-y-0",
+          "media-frame relative overflow-hidden rounded-lg border border-[var(--border)] transition-[border-color,box-shadow] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:border-[var(--border-strong)] group-hover:shadow-[var(--shadow-lift)]",
           shape === "square" || compact ? "aspect-square" : "aspect-[3/4]",
         )}
         style={
@@ -61,7 +61,7 @@ export function HubTile({
             product={product}
             src={product.imageUrl}
             alt=""
-            className="h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+            className="h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
             fallbackClassName="aspect-auto h-full w-full"
           />
         ) : (
@@ -75,8 +75,8 @@ export function HubTile({
         ) : null}
         <div className="absolute inset-x-0 bottom-0 p-3">
           {n > 0 ? (
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
-              {n} SKU{n === 1 ? "" : "s"}
+            <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[var(--accent)]">
+              {n} piece{n === 1 ? "" : "s"}
             </p>
           ) : null}
           <p className="mt-0.5 font-[family-name:var(--font-oswald)] text-sm uppercase tracking-wide text-white sm:text-base">

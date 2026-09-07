@@ -21,7 +21,7 @@ export function StorefrontChrome({ children }: { children: ReactNode }) {
       <Suspense fallback={null}>
         <SiteHeader />
       </Suspense>
-      <main id="main" className="flex-1">
+      <main id="main" key={pathname} className="page-enter flex-1">
         {children}
       </main>
       <SiteFooter />

@@ -3,7 +3,7 @@ import { ProductCard } from "@/components/product-card";
 import { SUBCATEGORY_LABELS } from "@/lib/catalog";
 
 const GRID =
-  "grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6";
+  "grid grid-cols-2 gap-x-5 gap-y-9 sm:grid-cols-3 lg:grid-cols-[repeat(auto-fit,minmax(15.75rem,1fr))]";
 
 export function ProductGrid({
   products,
@@ -56,7 +56,7 @@ export function ProductGrid({
   return (
     <div className="space-y-10">
       {entries.length > 1 ? (
-        <nav className="scroll-touch flex gap-x-5 overflow-x-auto border-b border-[var(--border)] pb-2">
+        <nav className="scroll-touch mb-2 flex gap-x-6 overflow-x-auto border-b border-[var(--border)] pb-3">
           {entries.map(([sub, list]) => (
             <a
               key={sub}
@@ -70,7 +70,7 @@ export function ProductGrid({
       ) : null}
       {entries.map(([sub, list]) => (
         <section key={sub} id={sub}>
-          <div className="mb-4 rounded-lg bg-white/[0.04] px-3 py-2">
+          <div className="mb-6">
             <h2 className="text-sm font-bold uppercase tracking-[0.16em] text-white">
               {SUBCATEGORY_LABELS[sub] ?? sub} [{list.length}]
             </h2>

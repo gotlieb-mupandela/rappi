@@ -1,19 +1,10 @@
 import Link from "next/link";
-import { Suspense } from "react";
 import { CatalogFilters } from "@/components/catalog-filters";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { AUDIENCES, CATEGORIES } from "@/lib/catalog";
 import { buildListing } from "@/lib/listing";
 import { getCatalog } from "@/lib/supabase/catalog";
-
-function ListingFallback() {
-  return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-6 py-16 text-center">
-      <p className="text-sm uppercase tracking-[0.16em] text-[var(--muted)]">Loading results…</p>
-    </div>
-  );
-}
 
 export default async function SearchPage({
   searchParams,
@@ -53,16 +44,15 @@ export default async function SearchPage({
         {!q ? (
           <EmptySearch />
         ) : (
-          <Suspense fallback={<ListingFallback />}>
-            <CatalogFilters
-              listing={listing}
-              basePath="/search"
-              grouped={false}
-              showCategoryFilter
-              emptyTitle="No matches"
-              emptyBody="Nothing in the catalog matched that code, name, or category."
-            />
-          </Suspense>
+          <CatalogFilters
+            listing={listing}
+            query={sp}
+            basePath="/search"
+            grouped={false}
+            showCategoryFilter
+            emptyTitle="No matches"
+            emptyBody="Nothing in the catalog matched that code, name, or category."
+          />
         )}
       </div>
     </div>

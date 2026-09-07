@@ -82,6 +82,40 @@ if (!/productImageAlt/.test(productImage) || /alt=\{\s*alt \?\? product\.code\s*
   fail("product image alt still falls back to SKU code");
 }
 
+const tee = catalog.find((p) => p.code === "104409.484");
+if (!tee) fail("missing 104409.484");
+else {
+  if (tee.subcategory !== "tees") fail(`104409.484 subcategory ${tee.subcategory}, expected tees`);
+  if (/\bshorts\b/i.test(tee.description)) fail("104409.484 description still says shorts");
+  if (!/\bt-shirts?\b/i.test(tee.description)) fail("104409.484 description missing t-shirt");
+}
+
+const jrBoot = catalog.find((p) => p.code === "TOJS2604TF");
+if (!jrBoot) fail("missing TOJS2604TF");
+else {
+  if (/Kids's/i.test(jrBoot.description) || /Kids’s/.test(jrBoot.description)) {
+    fail(`TOJS2604TF has Kids's: ${jrBoot.description}`);
+  }
+  if (!/Kids’ boots/i.test(jrBoot.description) && !/Kids' boots/i.test(jrBoot.description)) {
+    fail(`TOJS2604TF expected Kids’ boots: ${jrBoot.description}`);
+  }
+}
+
+const jrShoe = catalog.find((p) => p.code === "BF111JS2629");
+if (!jrShoe) fail("missing BF111JS2629");
+else {
+  if (/Kids's|kids kids/i.test(jrShoe.description) || /Kids’s/.test(jrShoe.description)) {
+    fail(`BF111JS2629 doubled kids: ${jrShoe.description}`);
+  }
+}
+
+const shopPage = readFileSync(new URL("../app/shop/[slug]/page.tsx", import.meta.url), "utf8");
+if (/Loading products/.test(shopPage) || /useSearchParams/.test(shopPage)) {
+  fail("shop listing still suspends behind Loading products / useSearchParams");
+}
+const filters = readFileSync(new URL("../components/catalog-filters.tsx", import.meta.url), "utf8");
+if (/useSearchParams/.test(filters)) fail("CatalogFilters still uses useSearchParams (blocks SSR grid)");
+
 const shoeSample = catalog.find((p) => p.code === "BF1448W2503");
 if (!shoeSample || shoeSample.category !== "shoes") fail("BF1448W2503 is not in shoes");
 if (/\b(vest|shirt|tee)\b/i.test(`${shoeSample.displayName} ${shoeSample.name}`)) {

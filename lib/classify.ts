@@ -118,11 +118,25 @@ function garmentName(product: Product) {
   return `${product.displayName} ${product.name}`.toLowerCase();
 }
 
+function withoutSleeveWords(name: string) {
+  return name.replace(/short[- ]sleeved?\b/gi, " ").replace(/\s+/g, " ").trim();
+}
+
 /** Trail / training shorts that are not compression tights or short-sleeve shirts. */
 function isNamedShortNotTight(name: string) {
-  if (/\b(tights?|leggings?)\b/.test(name)) return false;
-  if (/\b(shirt|jersey|tee|sleeve|sleeved)\b/.test(name)) return false;
-  return /\b(shorts|bermuda)\b/.test(name) || /\bshort\b/.test(name);
+  return isNamedShortsGarment(name) && !/\b(tights?|leggings?)\b/.test(name);
+}
+
+function isNamedShortsGarment(name: string) {
+  const cleaned = withoutSleeveWords(name);
+  if (/\b(tights?|leggings?)\b/.test(cleaned)) return false;
+  if (
+    /\b(shirt|jersey|tee|t-shirt|tshirt|top)\b/.test(cleaned) &&
+    !/\b(shorts|bermuda)\b/.test(cleaned)
+  ) {
+    return false;
+  }
+  return /\b(shorts|bermuda)\b/.test(cleaned) || /\bshort\b/.test(cleaned);
 }
 
 /**
@@ -353,8 +367,11 @@ const SUB_RULES: Array<{ slug: string; test: (name: string, family: string) => b
   },
   {
     slug: "shorts",
-    test: (name, family) =>
-      /\b(short|bermuda)\b/.test(name) || family === "shorts" || family.includes("short"),
+    test: (name, family) => {
+      if (isNamedShortsGarment(name)) return true;
+      const fam = withoutSleeveWords(family);
+      return fam === "shorts" || (fam.includes("short") && !/\b(shirt|tee|top)\b/.test(fam));
+    },
   },
   {
     slug: "pants",

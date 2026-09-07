@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Suspense } from "react";
 import { CatalogFilters } from "@/components/catalog-filters";
 import { PageHeader } from "@/components/page-header";
+import { ProductGrid } from "@/components/product-grid";
 import { Button } from "@/components/ui/button";
 import {
   AUDIENCES,
@@ -74,28 +74,23 @@ export default async function ShopListingPage({
         }
       />
       <div className="page-shell py-8 sm:py-10">
-        <Suspense
-          fallback={
-            <p className="text-sm uppercase tracking-[0.16em] text-[var(--muted)]">
-              Loading products…
-            </p>
+        <CatalogFilters
+          listing={listing}
+          query={sp}
+          categorySlug={audience ? undefined : hubSlug}
+          basePath={`/shop/${hubSlug}`}
+          grouped
+          showCategoryFilter={Boolean(audience)}
+          showAudienceFilter={!audience}
+          emptyTitle={
+            audience
+              ? `No ${audience.name.toLowerCase()} pieces in this filter`
+              : `No ${cat?.name.toLowerCase()} in this filter`
           }
+          emptyBody="Clear filters or try another type."
         >
-          <CatalogFilters
-            listing={listing}
-            categorySlug={audience ? undefined : hubSlug}
-            basePath={`/shop/${hubSlug}`}
-            grouped
-            showCategoryFilter={Boolean(audience)}
-            showAudienceFilter={!audience}
-            emptyTitle={
-              audience
-                ? `No ${audience.name.toLowerCase()} pieces in this filter`
-                : `No ${cat?.name.toLowerCase()} in this filter`
-            }
-            emptyBody="Clear filters or try another type."
-          />
-        </Suspense>
+          <ProductGrid products={listing.products} grouped />
+        </CatalogFilters>
       </div>
     </div>
   );

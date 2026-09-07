@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { CATEGORIES } from "@/lib/catalog";
-import { subcategoriesFor } from "@/lib/products";
+import type { StorefrontTaxonomy } from "@/lib/listing-types";
 import { cn } from "@/lib/utils";
 
-export function CategorySubNav() {
+export function CategorySubNav({ taxonomy }: { taxonomy: StorefrontTaxonomy }) {
   const pathname = usePathname();
   const params = useSearchParams();
   const slug = CATEGORIES.find(
@@ -16,7 +16,7 @@ export function CategorySubNav() {
 
   if (!slug) return null;
 
-  const subs = subcategoriesFor(slug);
+  const subs = (taxonomy[slug] ?? []).filter((s) => s.count > 0);
   if (subs.length < 2) return null;
 
   const active = params.get("sub");

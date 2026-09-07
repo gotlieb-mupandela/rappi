@@ -47,42 +47,45 @@ export const CATEGORIES: CategoryDef[] = [
   {
     slug: "boxing",
     name: "Boxing",
-    blurb: "Boxing shorts from opening stock.",
+    blurb: "Combat training shorts and related kit.",
   },
   {
     slug: "hockey",
     name: "Hockey",
-    blurb: "Hockey shorts from opening stock.",
+    blurb: "Hockey clothing from opening stock.",
   },
   {
     slug: "running-fitness",
     name: "Running & Fitness",
     nav: "Running",
     featured: true,
-    blurb: "Running tops, shorts, mats, and training towels.",
+    blurb: "Running layers, gym kit, and training accessories.",
   },
   {
     slug: "shoes",
     name: "Shoes",
     featured: true,
-    blurb: "Road, indoor, kids, and lifestyle trainers.",
+    blurb: "Sneakers, running, court, kids, sandals, and barefoot.",
   },
   {
     slug: "balls-bags",
     name: "Balls & Bags",
-    blurb: "Volleyballs, kit bags, and ball bags.",
+    blurb: "Match balls, kit bags, backpacks, and rackets.",
   },
 ];
 
 export const SUBCATEGORY_LABELS: Record<string, string> = {
   "tees-men": "T-Shirts Men",
   "tees-women": "T-Shirts Women",
-  "tees-kids": "Kids",
+  "tees-kids": "Kids tees",
+  tees: "T-Shirts",
+  polos: "Polos",
   shorts: "Shorts",
   tracksuits: "Tracksuits",
   leggings: "Leggings",
   tights: "Tights",
   sweatpants: "Sweatpants",
+  pants: "Pants",
   bras: "Sports Bras",
   hoodies: "Hoodies",
   jackets: "Jackets",
@@ -95,6 +98,12 @@ export const SUBCATEGORY_LABELS: Record<string, string> = {
   "gk-gloves": "Goalkeeper Gloves",
   sets: "Sets",
   shoes: "Shoes",
+  sneakers: "Sneakers",
+  sandals: "Sandals",
+  barefoot: "Barefoot",
+  "running-shoes": "Running shoes",
+  "court-shoes": "Court shoes",
+  "kids-shoes": "Kids shoes",
   jerseys: "Jerseys",
   dresses: "Dresses",
   skirts: "Skirts",
@@ -110,17 +119,19 @@ export const SUBCATEGORY_LABELS: Record<string, string> = {
   "equipment-bags": "Equipment Bags",
   bags: "Bags",
   "ball-bags": "Ball Bags",
-  general: "All",
+  rackets: "Rackets",
+  general: "More",
 };
 
+/** Clothing & accessories first; empty hubs (e.g. netball) are filtered at render. */
 export const NAV_PRIMARY = [
   "sportswear",
+  "shoes",
   "football",
   "basketball",
-  "netball",
-  "swimming",
   "running-fitness",
-  "shoes",
+  "balls-bags",
+  "swimming",
 ] as const;
 
 export const NAV_MORE = CATEGORIES.filter(

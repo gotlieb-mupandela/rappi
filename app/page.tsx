@@ -58,7 +58,7 @@ export default async function HomePage() {
                 <Link href="/category/sportswear">Shop sportswear</Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="w-full sm:w-auto">
-                <Link href="/search">Browse the catalog</Link>
+                <Link href="/shop/sportswear">Browse sportswear</Link>
               </Button>
             </div>
             <dl className="mt-10 grid grid-cols-2 gap-4 border-t border-[var(--border)] pt-6 sm:grid-cols-4">
@@ -194,7 +194,7 @@ export default async function HomePage() {
         <SectionHeading
           eyebrow="06"
           title="Now in"
-          href="/search"
+          href="/shop/sportswear"
           linkLabel="View all"
         />
         <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">

@@ -6,7 +6,10 @@ import type { Product } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { ProductGallery } from "@/components/product-gallery";
 import { QtyStepper } from "@/components/qty-stepper";
+import { AssortmentBadge, AssortmentHint } from "@/components/assortment-label";
+import { getAssortment } from "@/lib/assortment";
 import { formatPrice } from "@/lib/format";
+import { stockLabel } from "@/lib/sizes";
 import { isLowStock, totalStock } from "@/lib/products";
 import { useCart } from "@/lib/stores/cart";
 import { CATEGORIES, SUBCATEGORY_LABELS } from "@/lib/catalog";
@@ -22,6 +25,7 @@ export function ProductDetail({ product }: { product: Product }) {
   const cat = CATEGORIES.find((c) => c.slug === product.category);
   const title = product.displayName || product.item;
   const matrix = useMemo(() => product.sizes, [product.sizes]);
+  const assortment = getAssortment(product);
 
   function addToBag() {
     const result = add(product.code, size, qty);
@@ -44,9 +48,22 @@ export function ProductDetail({ product }: { product: Product }) {
         <p className="mt-3 font-mono text-[11px] tracking-[0.18em] text-[var(--muted-2)]">
           {product.code}
         </p>
-        <p className="price mt-6 text-2xl font-semibold tracking-tight text-white sm:text-[1.75rem]">
-          {formatPrice(product.price)}
-        </p>
+        <div className="mt-6">
+          <p className="price text-2xl font-semibold tracking-tight text-white sm:text-[1.75rem]">
+            {formatPrice(product.price)}
+          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <AssortmentBadge product={product} className="bg-white text-[#111]" />
+            <AssortmentHint product={product} />
+          </div>
+          <p className="mt-2 text-sm text-[var(--muted)]">{stockLabel(product)}</p>
+          {assortment?.isAssortment && assortment.packSize == null ? (
+            <p className="mt-1 text-[12px] text-[var(--muted-2)]">
+              Pack price for a mixed-size assortment. Size buttons show the typical run in the box —
+              not a confirmed per-size count.
+            </p>
+          ) : null}
+        </div>
 
         <div className="mt-8">
           <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--muted)]">

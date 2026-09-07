@@ -4,6 +4,8 @@ import { BrandAtmosphere } from "@/components/brand-atmosphere";
 import { Providers } from "@/components/providers";
 import { StorefrontChrome } from "@/components/storefront-chrome";
 import { TAGLINE } from "@/lib/catalog";
+import { buildTaxonomy, categoryCountsFromTaxonomy } from "@/lib/listing";
+import { getCatalog } from "@/lib/supabase/catalog";
 import "./globals.css";
 import "./tokens.css";
 
@@ -44,7 +46,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const catalog = await getCatalog();
+  const taxonomy = buildTaxonomy(catalog);
+  const categoryCounts = categoryCountsFromTaxonomy(taxonomy);
+
   return (
     <html
       lang="en"
@@ -54,7 +60,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <BrandAtmosphere />
         <div className="relative z-10 flex min-h-full flex-1 flex-col">
           <Providers>
-            <StorefrontChrome>{children}</StorefrontChrome>
+            <StorefrontChrome taxonomy={taxonomy} categoryCounts={categoryCounts}>
+              {children}
+            </StorefrontChrome>
           </Providers>
         </div>
       </body>

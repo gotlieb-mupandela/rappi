@@ -5,10 +5,12 @@ import { type MouseEvent } from "react";
 import { ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import type { Product } from "@/lib/types";
+import { AssortmentBadge, AssortmentHint } from "@/components/assortment-label";
 import { Badge } from "@/components/ui/badge";
 import { ProductImage } from "@/components/product-image";
 import { formatPrice } from "@/lib/format";
 import { inStockSizes, totalStock } from "@/lib/products";
+import { stockLabel } from "@/lib/sizes";
 import { useCart } from "@/lib/stores/cart";
 import { productPath } from "@/lib/utils";
 
@@ -55,9 +57,15 @@ export function ProductCard({
           <p className="price mt-1 text-sm font-semibold sm:hidden">
             {formatPrice(product.unitPrice)}
           </p>
+          <AssortmentHint product={product} className="sm:hidden" />
+          <p className="text-[11px] text-[var(--muted)] sm:hidden">{stockLabel(product)}</p>
         </Link>
         <div className="col-span-2 flex items-center justify-between sm:col-span-1 sm:justify-end sm:gap-4">
-          <p className="price hidden text-sm font-semibold sm:block">{formatPrice(product.unitPrice)}</p>
+          <div className="hidden sm:block">
+            <p className="price text-sm font-semibold">{formatPrice(product.unitPrice)}</p>
+            <AssortmentHint product={product} />
+            <p className="text-[11px] text-[var(--muted)]">{stockLabel(product)}</p>
+          </div>
           <button
             type="button"
             onClick={quickAdd}
@@ -75,14 +83,14 @@ export function ProductCard({
     <article className="group relative w-full max-w-sm">
       <Link href={productPath(product.code)} className="block">
         <div className="media-frame relative overflow-hidden rounded-lg border border-[var(--border)] transition-[border-color,box-shadow] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:border-[var(--border-strong)] group-hover:shadow-[var(--shadow-lift)]">
-          {product.badge ? (
-            <Badge
-              variant={product.badge === "offer" ? "offer" : "new"}
-              className="absolute left-3 top-3 z-10"
-            >
-              {product.badge === "offer" ? "Offer" : "New"}
-            </Badge>
-          ) : null}
+          <div className="absolute left-3 top-3 z-10 flex max-w-[calc(100%-3.5rem)] flex-col items-start gap-1">
+            {product.badge ? (
+              <Badge variant={product.badge === "offer" ? "offer" : "new"}>
+                {product.badge === "offer" ? "Offer" : "New"}
+              </Badge>
+            ) : null}
+            <AssortmentBadge product={product} />
+          </div>
           {stock === 0 ? (
             <span className="absolute bottom-3 left-3 z-10 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/80">
               Sold out
@@ -105,6 +113,8 @@ export function ProductCard({
           <p className="price pt-1 text-sm font-semibold text-white">
             {formatPrice(product.unitPrice)}
           </p>
+          <AssortmentHint product={product} />
+          <p className="text-[11px] text-[var(--muted)]">{stockLabel(product)}</p>
         </div>
       </Link>
       <button

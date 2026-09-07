@@ -44,8 +44,8 @@ sql.push("");
 sql.push("insert into public.shipping_methods (id, name, cost, sort_order) values");
 sql.push(
   [
-    "  ('standard', 'Standard (5–8 days)', 12, 1)",
-    "  ('express', 'Express (2–3 days)', 28, 2)",
+    "  ('standard', 'Standard (5–8 days)', 100, 1)",
+    "  ('express', 'Express (2–3 days)', 150, 2)",
     "  ('pickup', 'Hub pickup', 0, 3)",
   ].join(",\n") +
     "\non conflict (id) do update set name = excluded.name, cost = excluded.cost, sort_order = excluded.sort_order;",

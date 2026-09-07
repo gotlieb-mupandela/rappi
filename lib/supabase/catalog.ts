@@ -123,7 +123,15 @@ export async function getShippingMethods() {
       .from("shipping_methods")
       .select("*")
       .order("sort_order");
-    if (data?.length) return data;
+    if (data?.length) {
+      // Keep DB rows for labels/order, but lock costs to storefront rates.
+      const { SHIPPING_METHODS } = await import("@/lib/shipping");
+      const byId = new Map(SHIPPING_METHODS.map((m) => [m.id, m.cost]));
+      return data.map((row) => ({
+        ...row,
+        cost: byId.has(row.id) ? byId.get(row.id)! : Number(row.cost) || 0,
+      }));
+    }
   } catch {
     /* fall through */
   }

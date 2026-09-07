@@ -8,7 +8,7 @@ import type { Product } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { ProductImage } from "@/components/product-image";
 import { formatPrice } from "@/lib/format";
-import { inStockSizes, totalStock } from "@/lib/products";
+import { inStockSizes, isProductAvailable, isProductPriced, totalStock } from "@/lib/product-utils";
 import { useCart } from "@/lib/stores/cart";
 import { productPath } from "@/lib/utils";
 
@@ -21,17 +21,19 @@ export function ProductCard({
 }) {
   const add = useCart((s) => s.add);
   const stock = totalStock(product);
-  const first = inStockSizes(product)[0];
+  const available = isProductAvailable(product);
+  const priced = isProductPriced(product);
+  const first = available && priced ? inStockSizes(product)[0] : undefined;
   const title = product.displayName || product.item;
 
   function quickAdd(e: MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
     if (!first) {
-      toast.error("This piece is sold out.");
+      toast.error(priced ? "This piece is sold out." : "This piece is unavailable.");
       return;
     }
-    const result = add(product.code, first.size, 1);
+    const result = add(product, first.size, 1);
     if (result.ok) toast.success(result.message);
     else toast.error(result.message);
   }
@@ -53,11 +55,13 @@ export function ProductCard({
             {product.code}
           </p>
           <p className="price mt-1 text-sm font-semibold sm:hidden">
-            {formatPrice(product.unitPrice)}
+            {priced ? formatPrice(product.unitPrice) : "Unavailable"}
           </p>
         </Link>
         <div className="col-span-2 flex items-center justify-between sm:col-span-1 sm:justify-end sm:gap-4">
-          <p className="price hidden text-sm font-semibold sm:block">{formatPrice(product.unitPrice)}</p>
+          <p className="price hidden text-sm font-semibold sm:block">
+            {priced ? formatPrice(product.unitPrice) : "Unavailable"}
+          </p>
           <button
             type="button"
             onClick={quickAdd}
@@ -83,7 +87,11 @@ export function ProductCard({
               {product.badge === "offer" ? "Offer" : "New"}
             </Badge>
           ) : null}
-          {stock === 0 ? (
+          {!available || !priced ? (
+            <span className="absolute bottom-3 left-3 z-10 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/80">
+              {priced ? "Sold out" : "Unavailable"}
+            </span>
+          ) : stock === 0 ? (
             <span className="absolute bottom-3 left-3 z-10 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/80">
               Sold out
             </span>
@@ -103,7 +111,7 @@ export function ProductCard({
             {product.code}
           </p>
           <p className="price pt-1 text-sm font-semibold text-white">
-            {formatPrice(product.unitPrice)}
+            {priced ? formatPrice(product.unitPrice) : "Unavailable"}
           </p>
         </div>
       </Link>

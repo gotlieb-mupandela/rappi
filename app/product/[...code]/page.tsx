@@ -3,7 +3,7 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ProductDetail } from "@/components/product-detail";
 import { ProductCard } from "@/components/product-card";
 import { categoryBySlug } from "@/lib/catalog";
-import { getProduct, productsByCategory } from "@/lib/products";
+import { getProduct, productsByCategory } from "@/lib/product-utils";
 import { getCatalog } from "@/lib/supabase/catalog";
 import { decodeProductCode } from "@/lib/utils";
 

@@ -1,14 +1,14 @@
 "use client";
 
-import { useMemo, useState, useTransition, type ReactNode } from "react";
+import { useState, useTransition, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { Product } from "@/lib/types";
 import { CATEGORIES, SUBCATEGORY_LABELS } from "@/lib/catalog";
+import { CatalogPager } from "@/components/catalog-pager";
 import { ProductGrid } from "@/components/product-grid";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { matchesAudience } from "@/lib/hubs";
 import { LayoutGrid, List } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -18,12 +18,26 @@ export function CatalogFilters({
   basePath,
   grouped = true,
   showCategoryFilter = false,
+  totalCount,
+  sourceCount,
+  page = 1,
+  pages = 1,
+  subCounts,
+  sizeOptions,
+  categoryCounts,
 }: {
   products: Product[];
   categorySlug?: string;
   basePath: string;
   grouped?: boolean;
   showCategoryFilter?: boolean;
+  totalCount: number;
+  sourceCount?: number;
+  page?: number;
+  pages?: number;
+  subCounts: [string, number][];
+  sizeOptions: string[];
+  categoryCounts?: Record<string, number>;
 }) {
   const params = useSearchParams();
   const router = useRouter();
@@ -32,62 +46,31 @@ export function CatalogFilters({
   const maxPrice = params.get("max") ?? "";
   const q = params.get("q") ?? "";
   const cat = params.get("cat") ?? categorySlug ?? "all";
-  const audience = params.get("audience") ?? "all";
   const [draftQ, setDraftQ] = useState(q);
   const [layout, setLayout] = useState<"grid" | "list">("grid");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [pending, startTransition] = useTransition();
 
-  const sizeOptions = useMemo(() => {
-    const set = new Set<string>();
-    for (const p of products) {
-      if (cat !== "all" && p.category !== cat) continue;
-      if (sub !== "all" && p.subcategory !== sub) continue;
-      if (!matchesAudience(p, audience === "all" ? null : audience)) continue;
-      p.sizes.forEach((s) => set.add(s.size));
+  function hrefFor(nextPage: number, patch?: Record<string, string>) {
+    const next = new URLSearchParams(params.toString());
+    if (patch) {
+      for (const [key, value] of Object.entries(patch)) {
+        if (!value || value === "all") next.delete(key);
+        else next.set(key, value);
+      }
+      next.delete("page");
+    } else if (nextPage <= 1) {
+      next.delete("page");
+    } else {
+      next.set("page", String(nextPage));
     }
-    const order = ["XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "ONE"];
-    return [...set].sort((a, b) => {
-      const ia = order.indexOf(a.toUpperCase());
-      const ib = order.indexOf(b.toUpperCase());
-      if (ia !== -1 && ib !== -1) return ia - ib;
-      if (ia !== -1) return -1;
-      if (ib !== -1) return 1;
-      return a.localeCompare(b, undefined, { numeric: true });
-    });
-  }, [products, cat, sub, audience]);
-
-  const subs = useMemo(() => {
-    const map = new Map<string, number>();
-    products.forEach((p) => map.set(p.subcategory, (map.get(p.subcategory) ?? 0) + 1));
-    return [...map.entries()];
-  }, [products]);
-
-  const filtered = useMemo(() => {
-    return products.filter((p) => {
-      if (cat !== "all" && p.category !== cat) return false;
-      if (sub !== "all" && p.subcategory !== sub) return false;
-      if (!matchesAudience(p, audience === "all" ? null : audience)) return false;
-      if (size !== "all" && !p.sizes.some((s) => s.size === size && s.stock > 0)) {
-        return false;
-      }
-      if (maxPrice && p.price > Number(maxPrice)) return false;
-      if (q) {
-        const needle = q.toLowerCase();
-        const hay = `${p.code} ${p.item} ${p.name} ${p.title} ${p.category}`.toLowerCase();
-        if (!hay.includes(needle)) return false;
-      }
-      return true;
-    });
-  }, [products, cat, sub, size, maxPrice, q, audience]);
+    const qs = next.toString();
+    return qs ? `${basePath}?${qs}` : basePath;
+  }
 
   function setParam(key: string, value: string) {
-    const next = new URLSearchParams(params.toString());
-    if (!value || value === "all") next.delete(key);
-    else next.set(key, value);
-    const qs = next.toString();
     startTransition(() => {
-      router.push(qs ? `${basePath}?${qs}` : basePath);
+      router.push(hrefFor(1, { [key]: value }));
     });
   }
 
@@ -112,10 +95,10 @@ export function CatalogFilters({
         {showCategoryFilter ? (
           <FilterBlock title="Category">
             <FilterLink active={cat === "all"} onClick={() => setParam("cat", "all")}>
-              All ({products.length})
+              All ({sourceCount ?? totalCount})
             </FilterLink>
             {CATEGORIES.map((c) => {
-              const n = products.filter((p) => p.category === c.slug).length;
+              const n = categoryCounts?.[c.slug] ?? 0;
               if (!n) return null;
               return (
                 <FilterLink
@@ -132,9 +115,9 @@ export function CatalogFilters({
 
         <FilterBlock title="Type">
           <FilterLink active={sub === "all"} onClick={() => setParam("sub", "all")}>
-            All ({products.length})
+            All ({sourceCount ?? totalCount})
           </FilterLink>
-          {subs.map(([slug, n]) => (
+          {subCounts.map(([slug, n]) => (
             <FilterLink
               key={slug}
               active={sub === slug}
@@ -216,7 +199,8 @@ export function CatalogFilters({
       <div className={cn("min-w-0 transition-opacity duration-300", pending && "opacity-50")}>
         <div className="mb-5 flex items-center justify-between gap-3">
           <p className="text-xs uppercase tracking-[0.16em] text-[var(--muted)]">
-            {filtered.length} piece{filtered.length === 1 ? "" : "s"}
+            {totalCount} piece{totalCount === 1 ? "" : "s"}
+            {pages > 1 ? ` · page ${page} of ${pages}` : ""}
           </p>
           <div className="flex items-center gap-1">
             <button
@@ -243,7 +227,8 @@ export function CatalogFilters({
             </button>
           </div>
         </div>
-        <ProductGrid products={filtered} grouped={grouped} layout={layout} />
+        <ProductGrid products={products} grouped={grouped && pages <= 1} layout={layout} />
+        <CatalogPager page={page} pages={pages} hrefFor={(n) => hrefFor(n)} />
       </div>
     </div>
   );

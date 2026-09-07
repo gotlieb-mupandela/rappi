@@ -7,8 +7,7 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ProductImage } from "@/components/product-image";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/format";
-import { getProduct } from "@/lib/products";
-import { cartCount, useCart } from "@/lib/stores/cart";
+import { cartCount, lineProduct, useCart } from "@/lib/stores/cart";
 import { productPath } from "@/lib/utils";
 
 export default function CartPage() {
@@ -22,13 +21,13 @@ export default function CartPage() {
     () =>
       lines
         .map((line) => {
-          const product = getProduct(line.code);
+          const product = lineProduct(line);
           if (!product) return null;
           return { line, product, lineTotal: product.price * line.qty };
         })
         .filter(Boolean) as Array<{
         line: (typeof lines)[number];
-        product: NonNullable<ReturnType<typeof getProduct>>;
+        product: NonNullable<ReturnType<typeof lineProduct>>;
         lineTotal: number;
       }>,
     [lines],

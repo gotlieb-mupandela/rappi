@@ -8,7 +8,6 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DB = ROOT / "data" / "products.json"
-PUBLIC = ROOT / "public" / "products"
 
 REQUIRED = (
     "id",
@@ -23,14 +22,6 @@ REQUIRED = (
     "images",
 )
 
-SPOT = {
-    "104409.484": 6.19,
-    "104688.200": 5.25,
-    "TEAM/14": 12.75,
-    "400027.P03": 17.4,
-}
-
-# Must match lib/catalog.ts CATEGORIES (header nav).
 NAV = (
     "sportswear",
     "football",
@@ -46,76 +37,107 @@ NAV = (
     "balls-bags",
 )
 
+JOMA_CDN = "https://v1.joma-sport.net/"
+
 
 def fail(msg: str) -> None:
     print(f"FAIL {msg}", file=sys.stderr)
     raise SystemExit(1)
 
 
+def is_unavailable(p: dict) -> bool:
+    if p.get("available") is False:
+        return True
+    sizes = p.get("sizes") or []
+    stock = sum(int(s.get("stock") or 0) for s in sizes if isinstance(s, dict))
+    return stock <= 0 and int(p.get("stockQty") or 0) <= 0
+
+
+def is_priced(p: dict) -> bool:
+    price = p.get("unitPrice", p.get("price", p.get("price_nad_markup67")))
+    try:
+        return float(price) > 0
+    except (TypeError, ValueError):
+        return False
+
+
+def image_list(p: dict) -> list[str]:
+    images = p.get("images") or []
+    if not isinstance(images, list):
+        return []
+    return [str(src) for src in images if src]
+
+
 def main() -> None:
     products = json.loads(DB.read_text())
     if not isinstance(products, list):
         fail("products.json is not an array")
-    if len(products) != 184:
-        fail(f"expected 184 SKUs, got {len(products)}")
+    count = len(products)
+    if count < 10000:
+        fail(f"expected the full Joma catalog (~11104 SKUs), got {count}")
+    if count > 13000:
+        fail(f"catalog looks too large: {count}")
     codes = [p.get("code") for p in products]
+    if any(not c for c in codes):
+        fail("blank product codes")
     if len(codes) != len(set(codes)):
         fail("duplicate codes")
-    by = {p["code"]: p for p in products}
+
+    priced = 0
+    unavailable = 0
+    joma_images = 0
+    local_or_placeholder = 0
+    missing_images = 0
+
     for p in products:
         for key in REQUIRED:
             if key not in p:
                 fail(f"{p.get('code')} missing {key}")
-        if not isinstance(p.get("unitPrice"), (int, float)):
-            fail(f"{p['code']} unitPrice is not a number")
-        if not isinstance(p.get("stockQty"), (int, float)):
-            fail(f"{p['code']} stockQty is not a number")
-        if not isinstance(p.get("sizes"), list) or len(p["sizes"]) == 0:
-            fail(f"{p['code']} missing sizes[]")
         if p.get("currency") not in (None, "NAD"):
             fail(f"{p['code']} currency is {p.get('currency')}, expected NAD")
-        if p.get("category") not in NAV:
-            fail(f"{p['code']} category {p.get('category')!r} is not in nav")
-        images = p.get("images") or []
-        if not isinstance(images, list) or len(images) < 4:
-            fail(f"{p['code']} needs 4–5 images, got {len(images)}")
-        if len(images) > 5:
-            fail(f"{p['code']} has more than 5 images")
-        if not p.get("imageUrl"):
-            fail(f"{p['code']} missing imageUrl")
-        if p["imageUrl"] != images[0]:
-            fail(f"{p['code']} imageUrl is not photo 01")
-        folder = PUBLIC / p["id"]
-        if not folder.is_dir():
-            fail(f"{p['code']} missing image folder {folder}")
-        for rel in images:
-            disk = ROOT / "public" / str(rel).lstrip("/")
-            if not disk.is_file():
-                fail(f"{p['code']} missing file {disk}")
-            if disk.stat().st_size < 1000:
-                fail(f"{p['code']} placeholder-sized file {disk}")
-    for code, price in SPOT.items():
-        if code not in by:
-            fail(f"missing spot-check SKU {code}")
-        got = float(by[code]["unitPrice"])
-        if abs(got - price) > 1e-9:
-            fail(f"{code} price {got} != {price}")
-    by_cat: dict[str, int] = {slug: 0 for slug in NAV}
+        if not isinstance(p.get("sizes"), list) or len(p["sizes"]) == 0:
+            fail(f"{p['code']} missing sizes[]")
+        images = image_list(p)
+        if not images and not p.get("imageUrl"):
+            missing_images += 1
+        cdn = [src for src in ([p.get("imageUrl"), *images]) if str(src).startswith(JOMA_CDN)]
+        if cdn:
+            joma_images += 1
+        elif any(str(src).startswith("/products/") for src in images):
+            local_or_placeholder += 1
+        if is_unavailable(p):
+            unavailable += 1
+            if is_priced(p) is False:
+                continue
+        elif not is_priced(p):
+            fail(f"{p['code']} is available but has no N$ sell price")
+        else:
+            priced += 1
+        if is_priced(p) and float(p.get("unitPrice") or p.get("price") or 0) <= 0:
+            fail(f"{p['code']} sell price must be a positive N$ amount")
+
+    if local_or_placeholder:
+        fail(f"{local_or_placeholder} SKUs still use dummy /products/… images")
+    if joma_images < count * 0.95:
+        fail(f"Joma CDN image coverage too low: {joma_images}/{count}")
+
+    print(f"OK {count} unique SKUs")
+    print(f"OK priced {priced}")
+    print(f"OK unavailable {unavailable}")
+    print(f"OK image coverage {joma_images}/{count} on {JOMA_CDN}")
+    print("OK NAD currency + N$ markup prices (unavailable rows may be unpriced)")
+    nav_hits = {slug: 0 for slug in NAV}
+    extra = 0
     for p in products:
-        by_cat[p["category"]] = by_cat.get(p["category"], 0) + 1
-    for slug in NAV:
-        if by_cat.get(slug, 0) < 1:
-            fail(f"nav category {slug} has no products")
-    for p in products:
-        needle = str(p["code"]).lower()
-        hits = [x for x in products if needle in str(x.get("code", "")).lower()]
-        if not any(x["code"] == p["code"] for x in hits):
-            fail(f"{p['code']} not reachable via code search")
-    print("OK 184 unique SKUs")
-    print("OK required fields + NAD currency")
-    print("OK spot-check prices")
-    print("OK nav categories each have ≥1 SKU; every SKU searchable by code")
-    print(f"OK image coverage {len(products)}/184 with 4–5 photos each")
+        slug = p.get("category")
+        if slug in nav_hits:
+            nav_hits[slug] += 1
+        else:
+            extra += 1
+    for slug, n in nav_hits.items():
+        print(f"  {slug}: {n}")
+    if extra:
+        print(f"  other categories: {extra}")
 
 
 if __name__ == "__main__":

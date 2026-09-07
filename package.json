@@ -9,6 +9,7 @@
     "lint": "eslint",
     "catalog": "python3 scripts/write-source.py",
     "check:catalog": "python3 scripts/check-catalog.py",
+    "catalog:ingest": "python3 scripts/ingest-joma-catalog.py",
     "images": "python scripts/expand-product-images.py",
     "images:upload": "node scripts/upload-product-images.mjs"
   },
@@ -26,6 +27,7 @@
     "next": "16.3.4",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "server-only": "^0.0.1",
     "sonner": "^2.0.8",
     "tailwind-merge": "^3.6.0",
     "zustand": "^5.0.15"

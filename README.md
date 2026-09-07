@@ -2,7 +2,7 @@
 
 Consumer sports catalog for **RAPPI SPORTS HUB**. Tagline: **EQUIP | PERFORM | INSPIRE**.
 
-Dark storefront with neon lime CTAs. Opening-shop stock — **184 SKUs**. Unit prices are retail Namibian dollars (**N$**). Guest browse and cart are enabled. Checkout is a stub (no real payments).
+Dark storefront with neon lime CTAs. Offline fallback is the Joma B2B catalog (~**11,104 SKUs**) with real CDN photos. Unit prices are retail Namibian dollars (**N$**, `price_nad_markup67` = USD×18×1.67). Guest browse and cart are enabled. Checkout is a stub (no real payments).
 
 When `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are set, the storefront reads catalog, shipping, and site settings from Supabase (with `/data/products.json` as offline fallback). Orders go through the `place_order` RPC.
 
@@ -47,22 +47,22 @@ Schema source of truth: `supabase/migrations/` (shared with mobile).
 
 ## Catalog
 
-Source rows: `/data/products-source.json`  
-Normalized catalog: `/data/products.json` (offline fallback)
+Normalized catalog: `/data/products.json` (offline fallback, ~11,104 unique SKUs).  
+Hero / listing counts are derived from `catalog.length` — do not hard-code piece counts.
 
-Integrity checks (184 unique SKUs, NAD currency, spot-check prices, 4–5 photos each):
+Integrity checks (unique SKUs, NAD sell prices, Joma CDN images, unavailable rows allowed):
 
 ```bash
 npm run check:catalog
 ```
 
-Regenerate from the sheet JSON:
+Assemble a delivered `products.json.gz` payload:
 
 ```bash
-npm run catalog
+npm run catalog:ingest
 ```
 
-Product photos live at `public/products/{safeCode}/01…05.webp` and in Storage bucket `product-images`. Cards use photo 01; the PDP gallery uses the full set.
+Product photos come from `https://v1.joma-sport.net/…` (allowed in `next.config.ts`). Cards use `imageUrl`; the PDP gallery uses `images`. Unavailable SKUs stay in the catalog with `available: false` / stock 0 and are not given invented prices. Listings paginate at 48 products per page.
 
 Search by product **CODE**, title, or category from the header or `/search`.
 

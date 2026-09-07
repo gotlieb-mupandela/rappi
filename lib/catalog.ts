@@ -47,12 +47,12 @@ export const CATEGORIES: CategoryDef[] = [
   {
     slug: "boxing",
     name: "Boxing",
-    blurb: "Boxing shorts from opening stock.",
+    blurb: "Boxing shorts and fight kit.",
   },
   {
     slug: "hockey",
     name: "Hockey",
-    blurb: "Hockey shorts from opening stock.",
+    blurb: "Hockey shorts and match kit.",
   },
   {
     slug: "running-fitness",

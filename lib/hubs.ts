@@ -1,16 +1,9 @@
 import type { Product } from "@/lib/types";
-import { products as bundled, productsByCategory } from "@/lib/products";
+import { isKidsShoe, productsByCategory } from "@/lib/product-utils";
 
-export function isKidsShoe(product: Product) {
-  if (product.gender === "kids") return true;
-  if (/^J[A-Z]/i.test(product.code)) return true;
-  const nums = product.sizeOptions
-    .map((s) => Number.parseFloat(s))
-    .filter((n) => Number.isFinite(n));
-  return nums.length > 0 && Math.max(...nums) <= 35;
-}
+export { isKidsShoe, matchesAudience } from "@/lib/product-utils";
 
-export function shoeHubGroups(catalog: Product[] = bundled) {
+export function shoeHubGroups(catalog: Product[]) {
   const shoes = productsByCategory("shoes", catalog);
   const training = shoes.filter((p) => p.subcategory === "training-shoes");
   const kids = shoes.filter((p) => isKidsShoe(p) && p.subcategory !== "training-shoes");
@@ -51,7 +44,7 @@ export function shoeHubGroups(catalog: Product[] = bundled) {
   ].filter((g) => g.count > 0);
 }
 
-export function kidsHubGroups(catalog: Product[] = bundled) {
+export function kidsHubGroups(catalog: Product[]) {
   const kidsApparel = catalog.filter(
     (p) => p.gender === "kids" || p.subcategory === "tees-kids" || p.subcategory === "jackets-kids",
   );
@@ -91,7 +84,7 @@ export function kidsHubGroups(catalog: Product[] = bundled) {
   ].filter((g) => g.count > 0);
 }
 
-export function collectionTiles(catalog: Product[] = bundled) {
+export function collectionTiles(catalog: Product[]) {
   const footwear = catalog.filter(
     (p) => p.category === "shoes" || p.item.toUpperCase().includes("SHOE"),
   );
@@ -116,12 +109,4 @@ export function collectionTiles(catalog: Product[] = bundled) {
       sample: apparel.find((p) => p.badge === "new") ?? apparel[0],
     },
   ];
-}
-
-export function matchesAudience(product: Product, audience: string | null) {
-  if (!audience || audience === "all") return true;
-  const kids = isKidsShoe(product);
-  if (audience === "kids") return kids;
-  if (audience === "adult") return !kids;
-  return true;
 }

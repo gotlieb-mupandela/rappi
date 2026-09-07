@@ -96,6 +96,7 @@ export default async function HomePage() {
               slug={c.slug}
               name={c.name}
               compact
+              count={byCategory(c.slug).length}
               product={byCategory(c.slug)[0]}
             />
           ))}
@@ -175,6 +176,7 @@ export default async function HomePage() {
               key={c.slug}
               slug={c.slug}
               name={c.name}
+              count={byCategory(c.slug).length}
               product={byCategory(c.slug)[0]}
             />
           ))}

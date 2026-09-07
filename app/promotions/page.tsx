@@ -3,14 +3,21 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { CatalogFilters } from "@/components/catalog-filters";
 import { HubTile } from "@/components/hub-tile";
 import { collectionTiles } from "@/lib/hubs";
+import { listingModel, queryFromSearchParams } from "@/lib/listing";
 import { getCatalog } from "@/lib/supabase/catalog";
 
-export default async function PromotionsPage() {
+export default async function PromotionsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const catalog = await getCatalog();
   const highlighted = catalog.filter(
     (p) => p.badge === "offer" || p.badge === "new",
   );
   const collections = collectionTiles(catalog);
+  const sp = await searchParams;
+  const model = listingModel(highlighted, queryFromSearchParams(sp));
 
   return (
     <div className="page-shell py-8">
@@ -21,7 +28,7 @@ export default async function PromotionsPage() {
         New collections
       </h1>
       <p className="mt-2 max-w-xl text-sm text-[#A0A0A0]">
-        Opening-season footwear and apparel. New and offer pieces from the current drop.
+        Highlighted footwear and apparel. New and offer pieces from the current catalog.
       </p>
 
       <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -43,14 +50,20 @@ export default async function PromotionsPage() {
       <div className="mt-8">
         {highlighted.length === 0 ? (
           <p className="text-sm text-[#A0A0A0]">
-            No promotions on this opening stock list.
+            No promotions on this catalog list.
           </p>
         ) : (
           <Suspense>
             <CatalogFilters
-              products={highlighted}
+              products={model.products}
               basePath="/promotions"
               grouped
+              totalCount={model.totalCount}
+              sourceCount={model.sourceCount}
+              page={model.page}
+              pages={model.pages}
+              subCounts={model.subCounts}
+              sizeOptions={model.sizeOptions}
             />
           </Suspense>
         )}

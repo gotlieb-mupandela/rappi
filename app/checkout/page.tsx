@@ -10,10 +10,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatPrice } from "@/lib/format";
 import { placeOrder } from "@/lib/place-order";
-import { getProduct } from "@/lib/products";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { useAuth } from "@/lib/stores/auth";
-import { useCart } from "@/lib/stores/cart";
+import { lineProduct, useCart } from "@/lib/stores/cart";
 import { useOrders } from "@/lib/stores/orders";
 import type { Order } from "@/lib/types";
 
@@ -61,7 +60,7 @@ export default function CheckoutPage() {
     () =>
       lines
         .map((line) => {
-          const product = getProduct(line.code);
+          const product = lineProduct(line);
           if (!product) return null;
           return {
             code: line.code,

@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { CATEGORIES } from "@/lib/catalog";
-import { subcategoriesFor } from "@/lib/products";
+import type { CatalogIndex } from "@/lib/product-utils";
 import { cn } from "@/lib/utils";
 
 export function CategorySubNav() {
@@ -13,10 +14,24 @@ export function CategorySubNav() {
     (c) =>
       pathname === `/category/${c.slug}` || pathname.startsWith(`/shop/${c.slug}`),
   )?.slug;
+  const [index, setIndex] = useState<CatalogIndex | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/catalog/index")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: CatalogIndex | null) => {
+        if (!cancelled && data) setIndex(data);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   if (!slug) return null;
 
-  const subs = subcategoriesFor(slug);
+  const subs = index?.categories[slug]?.subs ?? [];
   if (subs.length < 2) return null;
 
   const active = params.get("sub");

@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { CATEGORIES } from "@/lib/catalog";
 import { ProductImage } from "@/components/product-image";
-import { categoryCounts } from "@/lib/products";
 import type { Product } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -38,7 +37,7 @@ export function HubTile({
     CATEGORIES.findIndex((c) => c.slug === slug),
   );
   const accent = ACCENTS[idx % ACCENTS.length];
-  const n = count ?? categoryCounts[slug] ?? 0;
+  const n = count ?? 0;
   const to = href ?? `/category/${slug}`;
 
   return (

@@ -3,7 +3,8 @@ import { Suspense } from "react";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { CatalogFilters } from "@/components/catalog-filters";
 import { CATEGORIES, categoryBySlug } from "@/lib/catalog";
-import { productsByCategory } from "@/lib/products";
+import { listingModel, queryFromSearchParams } from "@/lib/listing";
+import { productsByCategory } from "@/lib/product-utils";
 import { getCatalog } from "@/lib/supabase/catalog";
 
 export function generateStaticParams() {
@@ -12,14 +13,18 @@ export function generateStaticParams() {
 
 export default async function ShopListingPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { slug } = await params;
   const cat = categoryBySlug(slug);
   if (!cat) notFound();
   const catalog = await getCatalog();
   const items = productsByCategory(slug, catalog);
+  const sp = await searchParams;
+  const model = listingModel(items, queryFromSearchParams(sp));
 
   return (
     <div className="page-shell py-8 sm:py-10">
@@ -39,10 +44,16 @@ export default async function ShopListingPage({
       <div className="mt-8 sm:mt-10">
         <Suspense>
           <CatalogFilters
-            products={items}
+            products={model.products}
             categorySlug={slug}
             basePath={`/shop/${slug}`}
             grouped
+            totalCount={model.totalCount}
+            sourceCount={model.sourceCount}
+            page={model.page}
+            pages={model.pages}
+            subCounts={model.subCounts}
+            sizeOptions={model.sizeOptions}
           />
         </Suspense>
       </div>

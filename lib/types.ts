@@ -19,6 +19,7 @@ export type Product = {
   sheetCategory: string | null;
   totalQty: number;
   stockQty: number;
+  available: boolean;
   badge: "new" | "offer" | null;
   sizeOptions: string[];
   sizes: SizeStock[];
@@ -26,10 +27,36 @@ export type Product = {
   images: string[];
 };
 
+export type CartProductSnapshot = Pick<
+  Product,
+  | "id"
+  | "code"
+  | "item"
+  | "title"
+  | "name"
+  | "displayName"
+  | "category"
+  | "subcategory"
+  | "gender"
+  | "price"
+  | "unitPrice"
+  | "currency"
+  | "available"
+  | "sizeOptions"
+  | "sizes"
+  | "imageUrl"
+  | "images"
+  | "badge"
+  | "totalQty"
+  | "stockQty"
+  | "sheetCategory"
+>;
+
 export type CartLine = {
   code: string;
   size: string;
   qty: number;
+  product?: CartProductSnapshot;
 };
 
 export type Order = {

@@ -5,7 +5,7 @@ import { HubTile } from "@/components/hub-tile";
 import { Button } from "@/components/ui/button";
 import { CATEGORIES, categoryBySlug } from "@/lib/catalog";
 import { shoeHubGroups } from "@/lib/hubs";
-import { productsByCategory, subcategoriesFor } from "@/lib/products";
+import { productsByCategory, subcategoriesFor } from "@/lib/product-utils";
 import { getCatalog } from "@/lib/supabase/catalog";
 
 export function generateStaticParams() {
@@ -36,7 +36,7 @@ export default async function CategoryHubPage({
             {cat.name}
           </h1>
           <p className="mt-2 max-w-xl text-sm text-[#A0A0A0]">
-            {cat.blurb} {items.length} SKUs in opening stock.
+            {cat.blurb} {items.length} SKU{items.length === 1 ? "" : "s"} in the catalog.
           </p>
         </div>
         <Button asChild variant="outline" className="w-full sm:w-auto">

@@ -12,7 +12,7 @@ export function SiteFooter() {
             {TAGLINE}
           </p>
           <p className="mt-4 max-w-sm text-sm leading-6 text-[var(--muted)]">
-            Consumer sportswear and equipment. Live opening stock, sold at retail in Namibian dollars.
+            Consumer sportswear and equipment. Live catalog, sold at retail in Namibian dollars.
           </p>
         </div>
         <div>

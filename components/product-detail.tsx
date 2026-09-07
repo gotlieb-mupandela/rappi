@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ProductGallery } from "@/components/product-gallery";
 import { QtyStepper } from "@/components/qty-stepper";
 import { formatPrice } from "@/lib/format";
-import { isLowStock, totalStock } from "@/lib/products";
+import { isLowStock, isProductAvailable, isProductPriced, totalStock } from "@/lib/product-utils";
 import { useCart } from "@/lib/stores/cart";
 import { CATEGORIES, SUBCATEGORY_LABELS } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
@@ -18,13 +18,15 @@ export function ProductDetail({ product }: { product: Product }) {
   const [qty, setQty] = useState(1);
   const add = useCart((s) => s.add);
   const selected = product.sizes.find((s) => s.size === size);
-  const stock = selected?.stock ?? 0;
+  const available = isProductAvailable(product);
+  const priced = isProductPriced(product);
+  const stock = available && priced ? selected?.stock ?? 0 : 0;
   const cat = CATEGORIES.find((c) => c.slug === product.category);
   const title = product.displayName || product.item;
   const matrix = useMemo(() => product.sizes, [product.sizes]);
 
   function addToBag() {
-    const result = add(product.code, size, qty);
+    const result = add(product, size, qty);
     if (result.ok) toast.success(result.message);
     else toast.error(result.message);
   }
@@ -45,8 +47,13 @@ export function ProductDetail({ product }: { product: Product }) {
           {product.code}
         </p>
         <p className="price mt-6 text-2xl font-semibold tracking-tight text-white sm:text-[1.75rem]">
-          {formatPrice(product.price)}
+          {priced ? formatPrice(product.price) : "Unavailable"}
         </p>
+        {!available ? (
+          <p className="mt-3 text-sm text-[var(--muted)]">
+            This reference is listed as unavailable and cannot be added to the bag.
+          </p>
+        ) : null}
 
         <div className="mt-8">
           <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--muted)]">
@@ -108,7 +115,9 @@ export function ProductDetail({ product }: { product: Product }) {
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-[var(--border)] bg-[#080808]/92 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-xl md:hidden">
         <div className="mx-auto flex max-w-[1440px] items-center gap-3">
           <div className="min-w-0">
-            <p className="price text-sm font-semibold">{formatPrice(product.price)}</p>
+            <p className="price text-sm font-semibold">
+              {priced ? formatPrice(product.price) : "Unavailable"}
+            </p>
             <p className="truncate text-[11px] uppercase tracking-wider text-[var(--muted)]">
               Size {size}
             </p>

@@ -1,6 +1,6 @@
 import type { CartLine, Order } from "@/lib/types";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
-import { getProduct } from "@/lib/products";
+import { isProductAvailable, isProductPriced } from "@/lib/product-utils";
 
 type PlaceInput = {
   email: string;
@@ -20,8 +20,11 @@ type PlaceResult = { ok: true; order: Order } | { ok: false; message: string };
 function localPlace(input: PlaceInput): PlaceResult {
   const items: Order["items"] = [];
   for (const line of input.lines) {
-    const product = getProduct(line.code);
+    const product = line.product;
     if (!product) return { ok: false, message: `Product ${line.code} not found.` };
+    if (!isProductAvailable(product) || !isProductPriced(product)) {
+      return { ok: false, message: `${line.code} is unavailable.` };
+    }
     const sizeRow = product.sizes.find((s) => s.size === line.size);
     if (!sizeRow || sizeRow.stock < line.qty) {
       return {

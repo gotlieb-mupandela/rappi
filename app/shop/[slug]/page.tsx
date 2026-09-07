@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { Suspense } from "react";
-import { Breadcrumbs } from "@/components/breadcrumbs";
 import { CatalogFilters } from "@/components/catalog-filters";
+import { PageHeader } from "@/components/page-header";
+import { Button } from "@/components/ui/button";
 import { CATEGORIES, categoryBySlug } from "@/lib/catalog";
 import { buildListing } from "@/lib/listing";
 import { getCatalog } from "@/lib/supabase/catalog";
@@ -32,21 +34,23 @@ export default async function ShopListingPage({
   const listing = buildListing(catalog, sp, { categorySlug: slug });
 
   return (
-    <div className="page-shell py-8 sm:py-10">
-      <Breadcrumbs
-        items={[
+    <div>
+      <PageHeader
+        crumbs={[
           { href: "/", label: "Home" },
           { href: `/category/${slug}`, label: cat.name },
           { label: "Products" },
         ]}
+        eyebrow={`${listing.total} piece${listing.total === 1 ? "" : "s"}`}
+        title={cat.name}
+        description={cat.blurb}
+        actions={
+          <Button asChild variant="outline" className="w-full sm:w-auto">
+            <Link href={`/category/${slug}`}>Back to hub</Link>
+          </Button>
+        }
       />
-      <h1 className="mt-7 font-[family-name:var(--font-oswald)] text-3xl uppercase tracking-wide sm:text-5xl">
-        {cat.name}
-      </h1>
-      <p className="mt-2 text-sm text-[var(--muted)]">
-        {listing.total} piece{listing.total === 1 ? "" : "s"}
-      </p>
-      <div className="mt-8 sm:mt-10">
+      <div className="page-shell py-8 sm:py-10">
         <Suspense
           fallback={
             <p className="text-sm uppercase tracking-[0.16em] text-[var(--muted)]">

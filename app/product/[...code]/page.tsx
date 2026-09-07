@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ProductDetail } from "@/components/product-detail";
 import { ProductCard } from "@/components/product-card";
+import { SectionHeading } from "@/components/section-heading";
 import { categoryBySlug } from "@/lib/catalog";
 import { getProduct, productsByCategory } from "@/lib/products";
 import { getCatalog } from "@/lib/supabase/catalog";
@@ -36,11 +37,13 @@ export default async function ProductPage({
         <ProductDetail product={product} />
       </div>
       {related.length ? (
-        <section className="mt-16">
-          <h2 className="mb-6 font-[family-name:var(--font-oswald)] text-2xl uppercase">
-            More in {cat?.name}
-          </h2>
-          <div className="grid grid-cols-2 gap-x-3 gap-y-8 md:grid-cols-4">
+        <section className="mt-16 border-t border-[var(--border)] pt-12">
+          <SectionHeading
+            title={`More in ${cat?.name ?? "this hub"}`}
+            href={`/shop/${product.category}`}
+            linkLabel="Shop all"
+          />
+          <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">
             {related.map((p) => (
               <ProductCard key={p.code} product={p} />
             ))}

@@ -17,7 +17,7 @@ export function CategorySubNav({ taxonomy }: { taxonomy: StorefrontTaxonomy }) {
   if (!slug) return null;
 
   const subs = (taxonomy[slug] ?? []).filter((s) => s.count > 0);
-  if (subs.length < 2) return null;
+  if (subs.length < 2 || subs.length > 8) return null;
 
   const active = params.get("sub");
   const onShop = pathname.startsWith(`/shop/${slug}`);

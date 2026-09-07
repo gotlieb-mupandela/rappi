@@ -23,6 +23,8 @@ export function HubTile({
   product,
   banner,
   shape = "portrait",
+  fill = false,
+  className,
 }: {
   slug: string;
   name: string;
@@ -32,6 +34,8 @@ export function HubTile({
   product?: Product;
   banner?: string;
   shape?: "portrait" | "square";
+  fill?: boolean;
+  className?: string;
 }) {
   const idx = Math.max(
     0,
@@ -42,11 +46,15 @@ export function HubTile({
   const to = href ?? `/category/${slug}`;
 
   return (
-    <Link href={to} className="group block">
+    <Link href={to} className={cn("group block h-full", className)}>
       <div
         className={cn(
           "media-frame relative overflow-hidden rounded-lg border border-[var(--border)] transition-[border-color,box-shadow] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:border-[var(--border-strong)] group-hover:shadow-[var(--shadow-lift)]",
-          shape === "square" || compact ? "aspect-square" : "aspect-[3/4]",
+          fill
+            ? "h-full min-h-[20rem] md:min-h-full"
+            : shape === "square" || compact
+              ? "aspect-square"
+              : "aspect-[3/4]",
         )}
         style={
           product

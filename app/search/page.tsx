@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { Breadcrumbs } from "@/components/breadcrumbs";
 import { CatalogFilters } from "@/components/catalog-filters";
+import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { CATEGORIES } from "@/lib/catalog";
 import { buildListing } from "@/lib/listing";
@@ -34,23 +34,25 @@ export default async function SearchPage({
   const listing = buildListing(catalog, sp, { requireQuery: true });
 
   return (
-    <div className="page-shell py-8">
-      <Breadcrumbs
-        items={[{ href: "/", label: "Home" }, { label: "Search results" }]}
+    <div>
+      <PageHeader
+        crumbs={[{ href: "/", label: "Home" }, { label: "Search" }]}
+        eyebrow={
+          q
+            ? `${listing.total} result${listing.total === 1 ? "" : "s"}`
+            : `${catalog.length} pieces`
+        }
+        title="Search"
+        description={
+          q
+            ? `Results for “${q}”.`
+            : "Find a piece by code, name, or category."
+        }
       />
-      <h1 className="mt-6 font-[family-name:var(--font-oswald)] text-3xl uppercase tracking-wide sm:text-5xl">
-        Search
-      </h1>
-      <p className="mt-2 text-sm text-[var(--muted)]">
-        {q
-          ? `${listing.total} result${listing.total === 1 ? "" : "s"} for “${q}”`
-          : "Find a piece by code, name, or category."}
-      </p>
-
-      {!q ? (
-        <EmptySearch />
-      ) : (
-        <div className="mt-8">
+      <div className="page-shell py-8 sm:py-10">
+        {!q ? (
+          <EmptySearch />
+        ) : (
           <Suspense fallback={<ListingFallback />}>
             <CatalogFilters
               listing={listing}
@@ -61,15 +63,15 @@ export default async function SearchPage({
               emptyBody="Nothing in the catalog matched that code, name, or category."
             />
           </Suspense>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
 
 function EmptySearch() {
   return (
-    <div className="mt-8 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-6 py-12">
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-6 py-12">
       <form action="/search" className="mx-auto max-w-xl">
         <label htmlFor="search-q" className="sr-only">
           Search the catalog

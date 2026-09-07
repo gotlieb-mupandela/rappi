@@ -1,14 +1,17 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Breadcrumbs } from "@/components/breadcrumbs";
 import { HubTile } from "@/components/hub-tile";
+import { PageHeader } from "@/components/page-header";
+import { ProductCard } from "@/components/product-card";
+import { ProductImage } from "@/components/product-image";
+import { SectionHeading } from "@/components/section-heading";
 import { Button } from "@/components/ui/button";
 import { CATEGORIES, categoryBySlug } from "@/lib/catalog";
-import { firstImagedProduct } from "@/lib/classify";
+import { sampleForCategory } from "@/lib/classify";
 import { shoeHubGroups } from "@/lib/hubs";
-import { buildTaxonomy } from "@/lib/listing";
 import { productsByCategory } from "@/lib/products";
 import { getCatalog } from "@/lib/supabase/catalog";
+import { productPath } from "@/lib/utils";
 
 export function generateStaticParams() {
   return CATEGORIES.map((c) => ({ slug: c.slug }));
@@ -24,83 +27,144 @@ export default async function CategoryHubPage({
   if (!cat) notFound();
   const catalog = await getCatalog();
   const items = productsByCategory(slug, catalog);
-  const taxonomy = buildTaxonomy(catalog);
-  const subs = (taxonomy[slug] ?? []).filter((s) => s.slug !== "general" || s.count > 0);
+  const sample = sampleForCategory(catalog, slug);
+  const preview = items.slice(0, 12);
   const shoeGroups = slug === "shoes" ? shoeHubGroups(catalog) : [];
+  const otherHubs = CATEGORIES.filter(
+    (c) => c.slug !== slug && sampleForCategory(catalog, c.slug),
+  );
 
   return (
-    <div className="page-shell py-8">
-      <Breadcrumbs
-        items={[{ href: "/", label: "Home" }, { label: cat.name }]}
+    <div>
+      <PageHeader
+        crumbs={[{ href: "/", label: "Home" }, { label: cat.name }]}
+        eyebrow={
+          items.length
+            ? `${items.length} piece${items.length === 1 ? "" : "s"}`
+            : "Hub"
+        }
+        title={cat.name}
+        description={cat.blurb}
+        actions={
+          items.length ? (
+            <>
+              <Button asChild size="lg" className="w-full sm:w-auto">
+                <Link href={`/shop/${slug}`}>Shop all</Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="w-full sm:w-auto">
+                <Link href="/search">Browse catalog</Link>
+              </Button>
+            </>
+          ) : (
+            <Button asChild size="lg" className="w-full sm:w-auto">
+              <Link href="/search">Browse catalog</Link>
+            </Button>
+          )
+        }
+        media={
+          sample ? (
+            <Link
+              href={productPath(sample.code)}
+              className="media-frame group relative block overflow-hidden rounded-lg border border-[var(--border)]"
+            >
+              <ProductImage
+                product={sample}
+                src={sample.imageUrl}
+                alt=""
+                className="aspect-[4/5] w-full object-cover transition-transform duration-700 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                fallbackClassName="aspect-[4/5] w-full"
+              />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+                <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-[var(--accent)]">
+                  Featured
+                </p>
+                <p className="mt-1 truncate font-[family-name:var(--font-oswald)] text-sm uppercase text-white">
+                  {sample.displayName}
+                </p>
+              </div>
+            </Link>
+          ) : null
+        }
       />
-      <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-[family-name:var(--font-oswald)] text-3xl uppercase tracking-wide md:text-5xl">
-            {cat.name}
-          </h1>
-          <p className="mt-2 max-w-xl text-sm text-[#A0A0A0]">
-            {cat.blurb} {items.length} SKUs in opening stock.
-          </p>
-        </div>
-        {items.length > 0 ? (
-          <Button asChild variant="outline" className="w-full sm:w-auto">
-            <Link href={`/shop/${slug}`}>View all products</Link>
-          </Button>
+
+      <div className="page-shell py-10 lg:py-14">
+        {shoeGroups.length > 0 ? (
+          <section className="mb-12 lg:mb-16">
+            <SectionHeading title="Shop by fit" href={`/shop/${slug}`} linkLabel="All shoes" />
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+              {shoeGroups.map((g) => (
+                <HubTile
+                  key={g.key}
+                  slug={slug}
+                  name={g.name}
+                  count={g.count}
+                  href={g.href}
+                  product={g.sample}
+                  banner={g.banner}
+                  shape="square"
+                />
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {preview.length ? (
+          <section>
+            <SectionHeading
+              title="In this hub"
+              href={`/shop/${slug}`}
+              linkLabel={
+                items.length > preview.length
+                  ? `View all ${items.length}`
+                  : "View all"
+              }
+            />
+            <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
+              {preview.map((p) => (
+                <ProductCard key={p.code} product={p} />
+              ))}
+            </div>
+          </section>
+        ) : (
+          <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-6 py-16 text-center">
+            <p className="font-[family-name:var(--font-oswald)] text-2xl uppercase text-white">
+              No stock in this hub yet
+            </p>
+            <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-[var(--muted)]">
+              {cat.name} is not in the current Joma drop. Shop sportswear or browse the
+              full catalog.
+            </p>
+            <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+              <Button asChild>
+                <Link href="/category/sportswear">Shop sportswear</Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link href="/search">Browse catalog</Link>
+              </Button>
+            </div>
+          </section>
+        )}
+
+        {otherHubs.length ? (
+          <nav className="mt-14 border-t border-[var(--border)] pt-8" aria-label="Other hubs">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--muted-2)]">
+              Other hubs
+            </p>
+            <ul className="mt-4 flex flex-wrap gap-2">
+              {otherHubs.map((c) => (
+                <li key={c.slug}>
+                  <Link
+                    href={`/category/${c.slug}`}
+                    className="inline-flex min-h-10 items-center rounded-full border border-[var(--border-strong)] px-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-white transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
+                  >
+                    {c.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
         ) : null}
       </div>
-
-      {items.length === 0 ? (
-        <div className="mt-10 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-6 py-16 text-center">
-          <p className="text-lg font-semibold text-white">Nothing in {cat.name} yet</p>
-          <p className="mt-2 text-sm text-[var(--muted)]">
-            This hub has no matching stock in the current catalog. Browse sportswear, shoes, or
-            balls &amp; bags instead.
-          </p>
-          <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Button asChild>
-              <Link href="/category/sportswear">Sportswear</Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link href="/category/shoes">Shoes</Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link href="/category/balls-bags">Balls &amp; Bags</Link>
-            </Button>
-          </div>
-        </div>
-      ) : slug === "shoes" && shoeGroups.length > 0 ? (
-        <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">
-          {shoeGroups.map((g) => (
-            <HubTile
-              key={g.key}
-              slug={slug}
-              name={g.name}
-              count={g.count}
-              href={g.href}
-              product={g.sample}
-              banner={g.banner}
-              shape="square"
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="mt-10 grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-          {subs
-            .filter((s) => s.count > 0)
-            .map((s) => (
-              <HubTile
-                key={s.slug}
-                slug={slug}
-                name={s.name}
-                count={s.count}
-                href={`/shop/${slug}?sub=${encodeURIComponent(s.slug)}`}
-                product={firstImagedProduct(
-                  items.filter((p) => p.subcategory === s.slug),
-                )}
-              />
-            ))}
-        </div>
-      )}
     </div>
   );
 }

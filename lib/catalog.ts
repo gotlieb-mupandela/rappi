@@ -47,12 +47,12 @@ export const CATEGORIES: CategoryDef[] = [
   {
     slug: "boxing",
     name: "Boxing",
-    blurb: "Combat training shorts and related kit.",
+    blurb: "Combat training shorts for the gym and the ring.",
   },
   {
     slug: "hockey",
     name: "Hockey",
-    blurb: "Hockey clothing from opening stock.",
+    blurb: "Field hockey footwear from the current catalog.",
   },
   {
     slug: "running-fitness",
@@ -135,7 +135,9 @@ export const NAV_PRIMARY = [
 ] as const;
 
 export const NAV_MORE = CATEGORIES.filter(
-  (c) => !NAV_PRIMARY.includes(c.slug as (typeof NAV_PRIMARY)[number]),
+  (c) =>
+    c.slug !== "netball" &&
+    !NAV_PRIMARY.includes(c.slug as (typeof NAV_PRIMARY)[number]),
 );
 
 export function categoryBySlug(slug: string) {

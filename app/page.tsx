@@ -5,10 +5,11 @@ import { SectionHeading } from "@/components/section-heading";
 import { Button } from "@/components/ui/button";
 import { CATEGORIES, TAGLINE } from "@/lib/catalog";
 import { sampleForCategory } from "@/lib/classify";
-import { collectionTiles, kidsHubGroups, shoeHubGroups } from "@/lib/hubs";
+import { collectionTiles } from "@/lib/hubs";
 import { categoryCountsFrom } from "@/lib/products";
 import { getCatalog, getSiteSettings } from "@/lib/supabase/catalog";
 import type { Product } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 export default async function HomePage() {
   const [catalog, settings] = await Promise.all([getCatalog(), getSiteSettings()]);
@@ -16,12 +17,7 @@ export default async function HomePage() {
   const byCategory = (slug: string) => catalog.filter((p) => p.category === slug);
 
   const counts = categoryCountsFrom(catalog);
-  const featured = CATEGORIES.filter(
-    (c) => c.featured && sampleForCategory(catalog, c.slug),
-  );
-  const rest = CATEGORIES.filter(
-    (c) => !c.featured && sampleForCategory(catalog, c.slug),
-  );
+  const hubs = CATEGORIES.filter((c) => sampleForCategory(catalog, c.slug));
   const spotlightCodes =
     settings?.spotlight_codes?.length
       ? settings.spotlight_codes
@@ -30,8 +26,6 @@ export default async function HomePage() {
     .map((code) => byCode(code))
     .filter((p): p is Product => Boolean(p));
   const collections = collectionTiles(catalog);
-  const footwear = shoeHubGroups(catalog);
-  const kids = kidsHubGroups(catalog);
   const football = byCategory("football");
   const tagline = settings?.tagline ?? TAGLINE;
   const heroTitle = settings?.hero_title ?? "RAPPI SPORTS HUB";
@@ -95,17 +89,20 @@ export default async function HomePage() {
       </section>
 
       <section className="page-shell py-12 lg:py-16">
-        <SectionHeading eyebrow="01" title="Featured" />
+        <SectionHeading eyebrow="01" title="Shop" href="/search" linkLabel="Browse all" />
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
-          {featured.map((c) => (
-            <HubTile
-              key={c.slug}
-              slug={c.slug}
-              name={c.name}
-              compact
-              count={counts[c.slug]}
-              product={sampleForCategory(catalog, c.slug)}
-            />
+          {hubs.map((c, i) => (
+            <div key={c.slug} className={cn(i === 0 && "col-span-2 md:row-span-2")}>
+              <HubTile
+                slug={c.slug}
+                name={c.name}
+                count={counts[c.slug]}
+                product={sampleForCategory(catalog, c.slug)}
+                fill={i === 0}
+                shape={i === 0 ? "portrait" : "square"}
+                compact={i !== 0}
+              />
+            </div>
           ))}
         </div>
       </section>
@@ -113,11 +110,11 @@ export default async function HomePage() {
       <section className="page-shell pb-12 lg:pb-16">
         <SectionHeading
           eyebrow="02"
-          title="New collections"
+          title="Collections"
           href="/promotions"
           linkLabel="View all"
         />
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
           {collections.map((c) => (
             <HubTile
               key={c.key}
@@ -131,68 +128,9 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="page-shell pb-12 lg:pb-16">
-        <SectionHeading
-          eyebrow="03"
-          title="Footwear"
-          href="/category/shoes"
-          linkLabel="Shop shoes"
-        />
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
-          {footwear.map((g) => (
-            <HubTile
-              key={g.key}
-              slug="shoes"
-              name={g.name}
-              count={g.count}
-              href={g.href}
-              product={g.sample}
-              banner={g.banner}
-              shape="square"
-            />
-          ))}
-        </div>
-      </section>
-
-      <section className="page-shell pb-12 lg:pb-16">
-        <SectionHeading
-          eyebrow="04"
-          title="Kids"
-          href="/shop/sportswear?sub=tees-kids"
-          linkLabel="Shop kids"
-        />
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
-          {kids.map((g) => (
-            <HubTile
-              key={g.key}
-              slug="sportswear"
-              name={g.name}
-              count={g.count}
-              href={g.href}
-              product={g.sample}
-            />
-          ))}
-        </div>
-      </section>
-
-      <section className="page-shell pb-12 lg:pb-16">
-        <SectionHeading eyebrow="05" title="Shop by sport" />
-        <div className="grid grid-cols-2 gap-x-3 gap-y-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 md:gap-4">
-          {rest.map((c) => (
-            <HubTile
-              key={c.slug}
-              slug={c.slug}
-              name={c.name}
-              count={counts[c.slug]}
-              product={sampleForCategory(catalog, c.slug)}
-            />
-          ))}
-        </div>
-      </section>
-
       <section className="page-shell pb-16 lg:pb-20">
         <SectionHeading
-          eyebrow="06"
+          eyebrow="03"
           title="Now in"
           href="/shop/sportswear"
           linkLabel="View all"

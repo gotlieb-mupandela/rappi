@@ -52,6 +52,30 @@ export function ProductGrid({
     groups.set(key, list);
   }
   const entries = [...groups.entries()];
+  const labeled = entries.filter(([sub]) => SUBCATEGORY_LABELS[sub]).length;
+  const shouldGroup =
+    entries.length > 1 &&
+    entries.length <= 8 &&
+    labeled >= Math.ceil(entries.length / 2);
+
+  if (!shouldGroup) {
+    if (layout === "list") {
+      return (
+        <div>
+          {products.map((p) => (
+            <ProductCard key={p.code} product={p} layout="list" />
+          ))}
+        </div>
+      );
+    }
+    return (
+      <div className={GRID}>
+        {products.map((p) => (
+          <ProductCard key={p.code} product={p} />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-10">

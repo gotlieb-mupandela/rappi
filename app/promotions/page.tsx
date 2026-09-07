@@ -1,7 +1,8 @@
 import { Suspense } from "react";
-import { Breadcrumbs } from "@/components/breadcrumbs";
 import { CatalogFilters } from "@/components/catalog-filters";
 import { HubTile } from "@/components/hub-tile";
+import { PageHeader } from "@/components/page-header";
+import { SectionHeading } from "@/components/section-heading";
 import { collectionTiles } from "@/lib/hubs";
 import { paginateListing } from "@/lib/listing";
 import { getCatalog } from "@/lib/supabase/catalog";
@@ -39,47 +40,43 @@ export default async function PromotionsPage({
   const collections = collectionTiles(catalog);
 
   return (
-    <div className="page-shell py-8">
-      <Breadcrumbs
-        items={[{ href: "/", label: "Home" }, { label: "New collections" }]}
+    <div>
+      <PageHeader
+        crumbs={[{ href: "/", label: "Home" }, { label: "New collections" }]}
+        eyebrow="Drop"
+        title="New collections"
+        description="Opening-season footwear and apparel. New and offer pieces from the current drop."
       />
-      <h1 className="mt-6 font-[family-name:var(--font-oswald)] text-3xl uppercase tracking-wide md:text-5xl">
-        New collections
-      </h1>
-      <p className="mt-2 max-w-xl text-sm text-[#A0A0A0]">
-        Opening-season footwear and apparel. New and offer pieces from the current drop.
-      </p>
-
-      <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
-        {collections.map((c) => (
-          <HubTile
-            key={c.key}
-            slug={c.key === "footwear" ? "shoes" : "sportswear"}
-            name={c.name}
-            count={c.count}
-            href={c.href}
-            product={c.sample}
-          />
-        ))}
-      </div>
-
-      <h2 className="mt-14 font-[family-name:var(--font-oswald)] text-3xl uppercase tracking-wide">
-        Highlighted stock [{highlighted.length}]
-      </h2>
-      <div className="mt-8">
-        {highlighted.length === 0 ? (
-          <p className="text-sm text-[#A0A0A0]">
-            No promotions on this opening stock list.
-          </p>
-        ) : (
-          <Suspense>
-            <CatalogFilters
-              listing={listing}
-              basePath="/promotions"
-              grouped
+      <div className="page-shell py-10 lg:py-14">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
+          {collections.map((c) => (
+            <HubTile
+              key={c.key}
+              slug={c.key === "footwear" ? "shoes" : "sportswear"}
+              name={c.name}
+              count={c.count}
+              href={c.href}
+              product={c.sample}
             />
-          </Suspense>
-        )}
+          ))}
+        </div>
+
+        <section className="mt-14">
+          <SectionHeading title={`Highlighted stock [${highlighted.length}]`} />
+          {highlighted.length === 0 ? (
+            <p className="text-sm text-[var(--muted)]">
+              No promotions on this opening stock list.
+            </p>
+          ) : (
+            <Suspense>
+              <CatalogFilters
+                listing={listing}
+                basePath="/promotions"
+                grouped
+              />
+            </Suspense>
+          )}
+        </section>
       </div>
     </div>
   );

@@ -97,20 +97,22 @@ export function CatalogFilters({
           </FilterBlock>
         ) : null}
 
-        <FilterBlock title="Type">
-          <FilterLink active={sub === "all"} onClick={() => setParam("sub", "all")}>
-            All ({listing.total})
-          </FilterLink>
-          {listing.facets.subs.map((s) => (
-            <FilterLink
-              key={s.slug}
-              active={sub === s.slug}
-              onClick={() => setParam("sub", s.slug)}
-            >
-              {s.name} ({s.count})
+        {listing.facets.subs.length > 0 && listing.facets.subs.length <= 12 ? (
+          <FilterBlock title="Type">
+            <FilterLink active={sub === "all"} onClick={() => setParam("sub", "all")}>
+              All ({listing.total})
             </FilterLink>
-          ))}
-        </FilterBlock>
+            {listing.facets.subs.map((s) => (
+              <FilterLink
+                key={s.slug}
+                active={sub === s.slug}
+                onClick={() => setParam("sub", s.slug)}
+              >
+                {s.name} ({s.count})
+              </FilterLink>
+            ))}
+          </FilterBlock>
+        ) : null}
 
         {listing.facets.sizes.length > 1 ? (
           <FilterBlock title="Size">

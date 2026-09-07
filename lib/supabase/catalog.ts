@@ -3,6 +3,7 @@ import type { Product } from "@/lib/types";
 import bundled from "@/data/products.json";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { withStorefrontCategories } from "@/lib/classify";
 import { withProductImages } from "@/lib/media";
 
 function mapRow(
@@ -51,7 +52,9 @@ function mapRow(
 }
 
 export const getCatalog = cache(async (): Promise<Product[]> => {
-  const offline = (bundled as Product[]).map(withProductImages);
+  const offline = withStorefrontCategories(
+    (bundled as Product[]).map(withProductImages),
+  );
   if (!isSupabaseConfigured()) {
     return offline;
   }
@@ -79,9 +82,11 @@ export const getCatalog = cache(async (): Promise<Product[]> => {
       byProduct.set(s.product_id, list);
     }
 
-    return rows.map((row) =>
-      withProductImages(
-        mapRow(row as Parameters<typeof mapRow>[0], byProduct.get(row.id) ?? []),
+    return withStorefrontCategories(
+      rows.map((row) =>
+        withProductImages(
+          mapRow(row as Parameters<typeof mapRow>[0], byProduct.get(row.id) ?? []),
+        ),
       ),
     );
   } catch {

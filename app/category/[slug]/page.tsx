@@ -4,6 +4,7 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { HubTile } from "@/components/hub-tile";
 import { Button } from "@/components/ui/button";
 import { CATEGORIES, categoryBySlug } from "@/lib/catalog";
+import { firstImagedProduct } from "@/lib/classify";
 import { shoeHubGroups } from "@/lib/hubs";
 import { productsByCategory, subcategoriesFor } from "@/lib/products";
 import { getCatalog } from "@/lib/supabase/catalog";
@@ -68,7 +69,9 @@ export default async function CategoryHubPage({
               name={s.name}
               count={s.count}
               href={`/shop/${slug}?sub=${encodeURIComponent(s.slug)}`}
-              product={items.find((p) => p.subcategory === s.slug)}
+              product={firstImagedProduct(
+                items.filter((p) => p.subcategory === s.slug),
+              )}
             />
           ))}
         </div>

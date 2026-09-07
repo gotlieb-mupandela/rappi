@@ -4,7 +4,9 @@ import { ProductCard } from "@/components/product-card";
 import { SectionHeading } from "@/components/section-heading";
 import { Button } from "@/components/ui/button";
 import { CATEGORIES, TAGLINE } from "@/lib/catalog";
+import { sampleForCategory } from "@/lib/classify";
 import { collectionTiles, kidsHubGroups, shoeHubGroups } from "@/lib/hubs";
+import { categoryCountsFrom } from "@/lib/products";
 import { getCatalog, getSiteSettings } from "@/lib/supabase/catalog";
 import type { Product } from "@/lib/types";
 
@@ -13,8 +15,13 @@ export default async function HomePage() {
   const byCode = (code: string) => catalog.find((p) => p.code === code);
   const byCategory = (slug: string) => catalog.filter((p) => p.category === slug);
 
-  const featured = CATEGORIES.filter((c) => c.featured);
-  const rest = CATEGORIES.filter((c) => !c.featured);
+  const counts = categoryCountsFrom(catalog);
+  const featured = CATEGORIES.filter(
+    (c) => c.featured && sampleForCategory(catalog, c.slug),
+  );
+  const rest = CATEGORIES.filter(
+    (c) => !c.featured && sampleForCategory(catalog, c.slug),
+  );
   const spotlightCodes =
     settings?.spotlight_codes?.length
       ? settings.spotlight_codes
@@ -96,7 +103,8 @@ export default async function HomePage() {
               slug={c.slug}
               name={c.name}
               compact
-              product={byCategory(c.slug)[0]}
+              count={counts[c.slug]}
+              product={sampleForCategory(catalog, c.slug)}
             />
           ))}
         </div>
@@ -175,7 +183,8 @@ export default async function HomePage() {
               key={c.slug}
               slug={c.slug}
               name={c.name}
-              product={byCategory(c.slug)[0]}
+              count={counts[c.slug]}
+              product={sampleForCategory(catalog, c.slug)}
             />
           ))}
         </div>

@@ -1,3 +1,4 @@
+import { firstImagedProduct } from "@/lib/classify";
 import type { Product } from "@/lib/types";
 import { products as bundled, productsByCategory } from "@/lib/products";
 
@@ -24,28 +25,28 @@ export function shoeHubGroups(catalog: Product[] = bundled) {
       name: "Adult",
       count: adult.length,
       href: "/shop/shoes?audience=adult",
-      sample: adult[0],
+      sample: firstImagedProduct(adult),
     },
     {
       key: "kids",
       name: "Kids",
       count: kids.length,
       href: "/shop/shoes?audience=kids",
-      sample: kids[0],
+      sample: firstImagedProduct(kids),
     },
     {
       key: "training",
       name: "Training",
       count: training.length,
       href: "/shop/shoes?sub=training-shoes",
-      sample: training[0],
+      sample: firstImagedProduct(training),
     },
     {
       key: "offers",
       name: "Outlet",
       count: offers.length || shoes.length,
       href: "/promotions",
-      sample: offers[0] ?? shoes[0],
+      sample: firstImagedProduct(offers.length ? offers : shoes),
       banner: "Special offers",
     },
   ].filter((g) => g.count > 0);
@@ -65,28 +66,28 @@ export function kidsHubGroups(catalog: Product[] = bundled) {
       name: "Kids tees",
       count: tees.length,
       href: "/shop/sportswear?sub=tees-kids",
-      sample: tees[0],
+      sample: firstImagedProduct(tees),
     },
     {
       key: "shorts",
       name: "Kids shorts",
       count: shorts.length,
       href: "/shop/sportswear?sub=shorts",
-      sample: shorts[0],
+      sample: firstImagedProduct(shorts),
     },
     {
       key: "jackets",
       name: "Kids jackets",
       count: jackets.length,
       href: "/shop/sportswear?sub=jackets-kids",
-      sample: jackets[0],
+      sample: firstImagedProduct(jackets),
     },
     {
       key: "shoes",
       name: "Kids shoes",
       count: kidsShoes.length,
       href: "/shop/shoes?audience=kids",
-      sample: kidsShoes[0],
+      sample: firstImagedProduct(kidsShoes),
     },
   ].filter((g) => g.count > 0);
 }
@@ -106,14 +107,18 @@ export function collectionTiles(catalog: Product[] = bundled) {
       name: "Footwear",
       href: "/shop/shoes",
       count: footwear.length,
-      sample: footwear.find((p) => p.badge === "new") ?? footwear[0],
+      sample:
+        firstImagedProduct(footwear.filter((p) => p.badge === "new")) ??
+        firstImagedProduct(footwear),
     },
     {
       key: "apparel",
       name: "Apparel & accessories",
       href: "/category/sportswear",
       count: apparel.length,
-      sample: apparel.find((p) => p.badge === "new") ?? apparel[0],
+      sample:
+        firstImagedProduct(apparel.filter((p) => p.badge === "new")) ??
+        firstImagedProduct(apparel),
     },
   ];
 }

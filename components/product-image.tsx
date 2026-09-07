@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { Product } from "@/lib/types";
 import { ProductVisual } from "@/components/product-visual";
+import { productImageAlt } from "@/lib/copy";
 import { cn } from "@/lib/utils";
 
 export function ProductImage({
@@ -36,7 +37,7 @@ export function ProductImage({
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={src}
-      alt={alt ?? product.code}
+      alt={alt ?? productImageAlt(product)}
       className={cn("img-in", className)}
       loading={priority ? "eager" : "lazy"}
       decoding="async"

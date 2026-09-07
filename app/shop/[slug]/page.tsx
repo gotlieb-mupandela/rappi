@@ -4,13 +4,21 @@ import { Suspense } from "react";
 import { CatalogFilters } from "@/components/catalog-filters";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
-import { AUDIENCES, CATEGORIES, audienceBySlug, categoryBySlug } from "@/lib/catalog";
+import {
+  AUDIENCES,
+  CATEGORIES,
+  CATEGORY_ALIASES,
+  audienceBySlug,
+  categoryBySlug,
+  resolveCategorySlug,
+} from "@/lib/catalog";
 import { buildListing } from "@/lib/listing";
 import { getCatalog } from "@/lib/supabase/catalog";
 
 export function generateStaticParams() {
   return [
     ...CATEGORIES.map((c) => ({ slug: c.slug })),
+    ...Object.keys(CATEGORY_ALIASES).map((slug) => ({ slug })),
     ...AUDIENCES.map((a) => ({ slug: a.slug })),
   ];
 }
@@ -31,18 +39,19 @@ export default async function ShopListingPage({
 }) {
   const { slug } = await params;
   const sp = await searchParams;
+  const hubSlug = resolveCategorySlug(slug);
   const audience = audienceBySlug(slug);
-  const cat = categoryBySlug(slug);
+  const cat = categoryBySlug(hubSlug);
   if (!audience && !cat) notFound();
 
   const catalog = await getCatalog();
   const listing = audience
     ? buildListing(catalog, { ...sp, audience: slug })
-    : buildListing(catalog, sp, { categorySlug: slug });
+    : buildListing(catalog, sp, { categorySlug: hubSlug });
 
-  const title = audience?.name ?? cat?.name ?? slug;
+  const title = audience?.name ?? cat?.name ?? hubSlug;
   const description = audience?.blurb ?? cat?.blurb;
-  const backHref = audience ? "/" : `/category/${slug}`;
+  const backHref = audience ? "/" : `/category/${hubSlug}`;
   const backLabel = audience ? "Back to home" : "Back to hub";
 
   return (
@@ -52,7 +61,7 @@ export default async function ShopListingPage({
           { href: "/", label: "Home" },
           audience
             ? { label: audience.name }
-            : { href: `/category/${slug}`, label: cat?.name ?? slug },
+            : { href: `/category/${hubSlug}`, label: cat?.name ?? hubSlug },
           audience ? { label: "Products" } : { label: "Products" },
         ]}
         eyebrow={`${listing.total} piece${listing.total === 1 ? "" : "s"}`}
@@ -74,8 +83,8 @@ export default async function ShopListingPage({
         >
           <CatalogFilters
             listing={listing}
-            categorySlug={audience ? undefined : slug}
-            basePath={`/shop/${slug}`}
+            categorySlug={audience ? undefined : hubSlug}
+            basePath={`/shop/${hubSlug}`}
             grouped
             showCategoryFilter={Boolean(audience)}
             showAudienceFilter={!audience}

@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { Product } from "@/lib/types";
 import { ProductImage } from "@/components/product-image";
 import { ProductVisual } from "@/components/product-visual";
+import { productImageAlt } from "@/lib/copy";
 import { cn } from "@/lib/utils";
 
 export function ProductGallery({ product }: { product: Product }) {
@@ -30,7 +31,7 @@ export function ProductGallery({ product }: { product: Product }) {
         <ProductImage
           product={product}
           src={current}
-          alt={`${product.code} photo ${active + 1}`}
+          alt={productImageAlt(product, shots.length > 1 ? `photo ${active + 1}` : undefined)}
           className="aspect-[3/4] w-full max-h-[760px] object-contain object-center"
           fallbackClassName="aspect-[3/4] max-h-[640px]"
           priority

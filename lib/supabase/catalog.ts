@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { withStorefrontCategories } from "@/lib/classify";
 import { withProductImages } from "@/lib/media";
+import { shippingMethodsSnapshot } from "@/lib/shipping";
 
 function mapRow(
   row: {
@@ -114,12 +115,9 @@ export async function getSiteSettings() {
 }
 
 export async function getShippingMethods() {
+  const locked = shippingMethodsSnapshot();
   if (!isSupabaseConfigured()) {
-    return [
-      { id: "standard", name: "Standard (5–8 days)", cost: 100, sort_order: 1 },
-      { id: "express", name: "Express (2–3 days)", cost: 150, sort_order: 2 },
-      { id: "pickup", name: "Hub pickup", cost: 0, sort_order: 3 },
-    ];
+    return locked;
   }
   try {
     const supabase = await createClient();
@@ -129,8 +127,7 @@ export async function getShippingMethods() {
       .order("sort_order");
     if (data?.length) {
       // Keep DB rows for labels/order, but lock costs to storefront rates.
-      const { SHIPPING_METHODS } = await import("@/lib/shipping");
-      const byId = new Map(SHIPPING_METHODS.map((m) => [m.id, m.cost]));
+      const byId = new Map(locked.map((m) => [m.id, m.cost]));
       return data.map((row) => ({
         ...row,
         cost: byId.has(row.id) ? byId.get(row.id)! : Number(row.cost) || 0,
@@ -139,9 +136,5 @@ export async function getShippingMethods() {
   } catch {
     /* fall through */
   }
-  return [
-    { id: "standard", name: "Standard (5–8 days)", cost: 100, sort_order: 1 },
-    { id: "express", name: "Express (2–3 days)", cost: 150, sort_order: 2 },
-    { id: "pickup", name: "Hub pickup", cost: 0, sort_order: 3 },
-  ];
+  return locked;
 }

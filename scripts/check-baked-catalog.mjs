@@ -20,6 +20,18 @@ else {
   if (!bib.description || String(bib.description).length <= 20) {
     fail(`bib description too short: ${JSON.stringify(bib.description)}`);
   }
+  if (bib.subcategory !== "accessories") fail(`bib subcategory ${bib.subcategory}, expected accessories`);
+  if (/\btights?\b/i.test(bib.description)) fail("bib description mentions tights");
+}
+
+for (const code of ["101353.020", "101353.100"]) {
+  const trail = catalog.find((p) => p.code === code);
+  if (!trail) fail(`missing ${code}`);
+  else {
+    if (trail.subcategory !== "shorts") fail(`${code} subcategory ${trail.subcategory}, expected shorts`);
+    if (/\btights?\b/i.test(trail.description)) fail(`${code} description still says tights`);
+    if (!/\bshorts\b/i.test(trail.description)) fail(`${code} description missing shorts`);
+  }
 }
 
 const sample = catalog.filter((_, i) => i % 137 === 0);
@@ -47,11 +59,33 @@ if (large.length) fail(`catalog _large left: ${large.length}`);
 if (emptyDesc.length) fail(`catalog empty descriptions: ${emptyDesc.length}`);
 if (badBibs.length) fail(`101686 family not 900: ${badBibs.map((p) => p.code).join(",")}`);
 
-if (!/cost:\s*100/.test(checkout) || !/cost:\s*150/.test(checkout) || !/cost:\s*0/.test(checkout)) {
-  fail("checkout fallbacks missing 100/150/0");
+if (!checkout.includes("@/lib/shipping")) {
+  fail("checkout is not wired to lib/shipping");
+}
+if (!/Standard N\$100/.test(checkout) || !/Express N\$150/.test(checkout)) {
+  fail("empty checkout does not surface Standard N$100 / Express N$150");
 }
 if (!/cost:\s*100/.test(shippingLib) || !/cost:\s*150/.test(shippingLib) || !/cost:\s*0/.test(shippingLib)) {
   fail("lib/shipping missing 100/150/0");
+}
+
+const nextConfig = readFileSync(new URL("../next.config.ts", import.meta.url), "utf8");
+if (!/source:\s*"\/shop\/teampro"/.test(nextConfig) || !/destination:\s*"\/shop\/teampro-2026"/.test(nextConfig)) {
+  fail("missing /shop/teampro redirect");
+}
+if (!/source:\s*"\/category\/teampro"/.test(nextConfig)) {
+  fail("missing /category/teampro redirect");
+}
+
+const productImage = readFileSync(new URL("../components/product-image.tsx", import.meta.url), "utf8");
+if (!/productImageAlt/.test(productImage) || /alt=\{\s*alt \?\? product\.code\s*\}/.test(productImage)) {
+  fail("product image alt still falls back to SKU code");
+}
+
+const shoeSample = catalog.find((p) => p.code === "BF1448W2503");
+if (!shoeSample || shoeSample.category !== "shoes") fail("BF1448W2503 is not in shoes");
+if (/\b(vest|shirt|tee)\b/i.test(`${shoeSample.displayName} ${shoeSample.name}`)) {
+  fail("shoes sample SKU looks like apparel");
 }
 
 console.log("ok", {

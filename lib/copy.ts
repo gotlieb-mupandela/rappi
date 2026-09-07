@@ -11,10 +11,9 @@ function audienceLabel(product: Product) {
 
 /**
  * Short factual retail blurb. No invented specs — only name, hub, fit, and pack.
+ * Always derived from current merch fields so a reclassify can refresh copy.
  */
 export function productDescription(product: Product): string {
-  if (product.description?.trim()) return product.description.trim();
-
   const hub = CATEGORIES.find((c) => c.slug === product.category)?.name ?? "the catalog";
   const sub = SUBCATEGORY_LABELS[product.subcategory];
   const who = audienceLabel(product);
@@ -40,4 +39,12 @@ export function productDescription(product: Product): string {
 
   bits.push("Priced in Namibian dollars.");
   return bits.join(" ");
+}
+
+export function productImageAlt(
+  product: Pick<Product, "displayName" | "name" | "title" | "code">,
+  suffix?: string,
+) {
+  const label = product.displayName || product.name || product.title || product.code;
+  return suffix ? `${label}, ${suffix}` : label;
 }

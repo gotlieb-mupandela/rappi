@@ -69,9 +69,13 @@ export function withStorefrontCategories<T extends Product>(catalog: T[]): T[] {
 
 function sampleScore(product: Product) {
   const n = `${product.displayName} ${product.item}`.toLowerCase();
-  if (/\b(jersey|shirt|short|bermuda|dress|sneaker|shoe|swim)\b/.test(n)) return 3;
-  if (/\b(ball|helmet|sock|bag|glove|nail)\b/.test(n)) return 0;
-  return 1;
+  let score = 1;
+  if (/\b(jersey|shirt|polo|short|bermuda|dress|sneaker|shoe|swim)\b/.test(n)) score += 4;
+  if (/\b(ball|helmet|sock|bag|glove|nail)\b/.test(n)) score -= 4;
+  // Prefer lighter/colourful shots so dark tiles do not look empty.
+  if (/\b(white|yellow|red|green|blue|navy|royal|orange|pink)\b/.test(n)) score += 3;
+  if (/\bblack\b/.test(n) && !/\b(white|yellow|red|green)\b/.test(n)) score -= 2;
+  return score;
 }
 
 /** Prefer an in-hub SKU with a real photo; skip empty-image placeholders. */

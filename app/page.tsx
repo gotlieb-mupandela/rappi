@@ -1,14 +1,12 @@
 import Link from "next/link";
 import { HubTile } from "@/components/hub-tile";
 import { ProductCard } from "@/components/product-card";
-import { ProductImage } from "@/components/product-image";
 import { SectionHeading } from "@/components/section-heading";
 import { Button } from "@/components/ui/button";
 import { CATEGORIES, TAGLINE } from "@/lib/catalog";
 import { collectionTiles, kidsHubGroups, shoeHubGroups } from "@/lib/hubs";
 import { getCatalog, getSiteSettings } from "@/lib/supabase/catalog";
 import type { Product } from "@/lib/types";
-import { productPath } from "@/lib/utils";
 
 export default async function HomePage() {
   const [catalog, settings] = await Promise.all([getCatalog(), getSiteSettings()]);
@@ -28,7 +26,6 @@ export default async function HomePage() {
   const footwear = shoeHubGroups(catalog);
   const kids = kidsHubGroups(catalog);
   const football = byCategory("football");
-  const heroShots = spotlight.length ? spotlight : football.slice(0, 4);
   const tagline = settings?.tagline ?? TAGLINE;
   const heroTitle = settings?.hero_title ?? "RAPPI SPORTS HUB";
   const heroBody =
@@ -37,9 +34,9 @@ export default async function HomePage() {
 
   return (
     <div>
-      <section className="border-b border-[var(--border)]">
-        <div className="page-shell grid items-center gap-12 py-14 sm:py-16 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:py-24">
-          <div>
+      <section className="relative overflow-hidden border-b border-[var(--border)]">
+        <div className="page-shell grid items-end gap-6 pt-10 sm:pt-14 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,28rem)] lg:gap-6 lg:pt-12">
+          <div className="relative z-10 pb-12 lg:pb-20">
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[var(--accent)] sm:text-xs">
               {tagline}
             </p>
@@ -75,24 +72,17 @@ export default async function HomePage() {
               ))}
             </dl>
           </div>
-          <div className="hidden grid-cols-2 gap-3 lg:grid">
-            {heroShots.map((p) => (
-              <Link
-                key={p.code}
-                href={productPath(p.code)}
-                className="media-frame group relative overflow-hidden rounded-lg border border-[var(--border)]"
-              >
-                <ProductImage
-                  product={p}
-                  src={p.imageUrl}
-                  className="aspect-[3/4] w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05]"
-                  fallbackClassName="aspect-[3/4]"
-                />
-                <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 font-mono text-[11px] font-bold">
-                  {p.code}
-                </span>
-              </Link>
-            ))}
+          <div className="relative -mx-4 h-[22rem] sm:-mx-0 sm:h-[30rem] lg:-mr-4 lg:h-[44rem]">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-x-[6%] bottom-[4%] top-[14%] rounded-[100%] bg-[radial-gradient(ellipse_at_center,rgba(94,255,56,0.2),transparent_70%)] blur-3xl"
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/brand/hero-athlete.png?v=3"
+              alt="RAPPI SPORTS HUB athlete in opening-shop kit with ball and bag"
+              className="absolute inset-x-0 bottom-0 mx-auto h-full w-auto max-w-none object-contain object-bottom [mask-image:linear-gradient(to_top,transparent_0%,#000_8%,#000_100%)] [-webkit-mask-image:linear-gradient(to_top,transparent_0%,#000_8%,#000_100%)]"
+            />
           </div>
         </div>
       </section>

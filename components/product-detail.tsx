@@ -8,6 +8,7 @@ import { ProductGallery } from "@/components/product-gallery";
 import { QtyStepper } from "@/components/qty-stepper";
 import { AssortmentBadge, AssortmentHint } from "@/components/assortment-label";
 import { getAssortment } from "@/lib/assortment";
+import { productDescription } from "@/lib/copy";
 import { formatPrice } from "@/lib/format";
 import {
   buyableSizes,
@@ -34,6 +35,7 @@ export function ProductDetail({ product }: { product: Product }) {
   const cat = CATEGORIES.find((c) => c.slug === product.category);
   const title = product.displayName || product.item;
   const assortment = getAssortment(product);
+  const details = productDescription(product);
   const showPicker = hasVisibleSizePicker(product);
   const unitLabel = sizeDisplayLabel(size);
 
@@ -127,14 +129,12 @@ export function ProductDetail({ product }: { product: Product }) {
           </p>
         )}
 
-        {product.description ? (
-          <div className="mt-8 max-w-xl">
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--muted)]">
-              Details
-            </p>
-            <p className="mt-3 text-sm leading-7 text-[var(--muted)]">{product.description}</p>
-          </div>
-        ) : null}
+        <div className="mt-8 max-w-xl">
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--muted)]">
+            Details
+          </p>
+          <p className="mt-3 text-sm leading-7 text-[var(--muted)]">{details}</p>
+        </div>
 
         <div className="mt-8 hidden items-center gap-3 md:flex">
           <QtyStepper

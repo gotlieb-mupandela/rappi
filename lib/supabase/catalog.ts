@@ -48,6 +48,8 @@ function mapRow(
     sizes,
     imageUrl: row.image_url,
     images: row.images ?? [],
+    // Supabase has no description column — merchandising fills this next.
+    description: "",
   };
 }
 
@@ -82,6 +84,8 @@ export const getCatalog = cache(async (): Promise<Product[]> => {
       byProduct.set(s.product_id, list);
     }
 
+    // Always re-run merchandising so prices, images, and descriptions
+    // are storefront-correct even when the products table has no description.
     return withStorefrontCategories(
       rows.map((row) =>
         withProductImages(

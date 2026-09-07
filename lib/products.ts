@@ -1,16 +1,17 @@
 import type { Product } from "@/lib/types";
 import { CATEGORIES, SUBCATEGORY_LABELS } from "@/lib/catalog";
-import { withStorefrontCategories } from "@/lib/classify";
+import { withStorefrontCategories, withStorefrontMerchandising } from "@/lib/classify";
 import { withProductImages } from "@/lib/media";
 import raw from "@/data/products.json";
 
-/** Bundled JSON fallback for client components and offline. */
+/** Bundled catalog — merchandised so cart/PDP/client prices and copy stay in sync. */
 export const products = withStorefrontCategories(
   (raw as Product[]).map(withProductImages),
 );
 
 export function getProduct(code: string, catalog: Product[] = products) {
-  return catalog.find((p) => p.code === code);
+  const found = catalog.find((p) => p.code === code);
+  return found ? withStorefrontMerchandising(found) : undefined;
 }
 
 export function productsByCategory(slug: string, catalog: Product[] = products) {

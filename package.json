@@ -9,6 +9,8 @@
     "lint": "eslint",
     "catalog": "python3 scripts/write-source.py",
     "check:catalog": "python3 scripts/check-catalog.py",
+    "check:merch": "node scripts/check-baked-catalog.mjs",
+    "bake:catalog": "npx tsx scripts/bake-catalog.ts",
     "sync:joma": "node scripts/sync-joma-catalog.mjs",
     "images": "python scripts/expand-product-images.py",
     "images:upload": "node scripts/upload-product-images.mjs"

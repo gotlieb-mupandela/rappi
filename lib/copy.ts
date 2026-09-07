@@ -4,8 +4,9 @@ import type { Product } from "@/lib/types";
 
 function audienceLabel(product: Product) {
   const match = AUDIENCES.find((a) => a.slug === product.gender);
-  if (match) return `${match.name}’s`;
-  return "Unisex";
+  if (!match) return "Unisex";
+  if (match.slug === "kids") return "Kids";
+  return `${match.name}’s`;
 }
 
 /**

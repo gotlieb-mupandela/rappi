@@ -388,7 +388,10 @@ export function classifyStorefrontSubcategory(
   const name = `${product.displayName} ${product.name} ${product.item}`.toLowerCase();
 
   if (category === "brama") {
-    if (/\b(legging|tight)\b/.test(name)) return "tights";
+    if (/\b(leggings?|tights?)\b/.test(name)) {
+      if (/\bshort\b/.test(name) && !/\blong\b/.test(name)) return "shorts";
+      return "tights";
+    }
     if (/\bshorts?\b/.test(name) && !/\b(shirt|jersey)\b/.test(name)) return "shorts";
     return "skins";
   }
@@ -510,6 +513,11 @@ function sampleScore(product: Product, slug?: string) {
     if (/\b(helmet|protection|protec)\b/.test(n)) score -= 12;
     if (/\b(skrum|stone rugby|olimpiada rugby|hook)\b/.test(n)) score += 8;
     if (/\b(jersey|shirt|short)\b/.test(n)) score += 4;
+  }
+  if (slug === "brama") {
+    if (!/\bbrama\b/.test(n)) score -= 8;
+    if (/\b(tights?|leggings?|skin|fleece|base)\b/.test(n)) score += 8;
+    if (/\bshorts?\b/.test(n) && !/\b(tights?|leggings?)\b/.test(n)) score -= 4;
   }
   return score;
 }

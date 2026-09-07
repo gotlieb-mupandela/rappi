@@ -212,6 +212,36 @@ export function rugbyHubGroups(catalog: Product[] = bundled) {
   ].filter((g) => g.count > 0);
 }
 
+export function bramaHubGroups(catalog: Product[] = bundled) {
+  const items = productsByCategory("brama", catalog);
+  const skins = items.filter((p) => p.subcategory === "skins");
+  const tights = items.filter((p) => p.subcategory === "tights");
+  const shorts = items.filter((p) => p.subcategory === "shorts");
+  return [
+    {
+      key: "skins",
+      name: "Skins",
+      count: skins.length,
+      href: "/shop/brama?sub=skins",
+      sample: sampleFromList(skins, "brama") ?? firstImagedProduct(skins),
+    },
+    {
+      key: "tights",
+      name: "Tights",
+      count: tights.length,
+      href: "/shop/brama?sub=tights",
+      sample: sampleFromList(tights, "brama") ?? firstImagedProduct(tights),
+    },
+    {
+      key: "shorts",
+      name: "Short tights",
+      count: shorts.length,
+      href: "/shop/brama?sub=shorts",
+      sample: sampleFromList(shorts, "brama") ?? firstImagedProduct(shorts),
+    },
+  ].filter((g) => g.count > 0);
+}
+
 function audienceSample(items: Product[], slug: AudienceSlug) {
   const preferred = items.filter((p) =>
     ["sportswear", "shoes", "running-fitness", "football", "rugby"].includes(p.category),

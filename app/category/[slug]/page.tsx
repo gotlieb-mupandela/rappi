@@ -8,7 +8,7 @@ import { SectionHeading } from "@/components/section-heading";
 import { Button } from "@/components/ui/button";
 import { CATEGORIES, categoryBySlug } from "@/lib/catalog";
 import { sampleForCategory } from "@/lib/classify";
-import { audienceTiles, rugbyHubGroups, shoeHubGroups } from "@/lib/hubs";
+import { audienceTiles, bramaHubGroups, rugbyHubGroups, shoeHubGroups } from "@/lib/hubs";
 import { productsByCategory } from "@/lib/products";
 import { getCatalog } from "@/lib/supabase/catalog";
 import { productPath } from "@/lib/utils";
@@ -44,6 +44,7 @@ export default async function CategoryHubPage({
       : items.slice(0, 12);
   const shoeGroups = slug === "shoes" ? shoeHubGroups(catalog) : [];
   const rugbyGroups = slug === "rugby" ? rugbyHubGroups(catalog) : [];
+  const bramaGroups = slug === "brama" ? bramaHubGroups(catalog) : [];
   const audiences = audienceTiles(catalog, { categorySlug: slug });
   const otherHubs = CATEGORIES.filter(
     (c) => c.slug !== slug && sampleForCategory(catalog, c.slug),
@@ -146,6 +147,25 @@ export default async function CategoryHubPage({
             <SectionHeading title="Shop rugby" href="/shop/rugby" linkLabel="All rugby" />
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
               {rugbyGroups.map((g) => (
+                <HubTile
+                  key={g.key}
+                  slug={slug}
+                  name={g.name}
+                  count={g.count}
+                  href={g.href}
+                  product={g.sample}
+                  shape="square"
+                />
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {bramaGroups.length > 0 ? (
+          <section className="mb-12 lg:mb-16">
+            <SectionHeading title="Shop Brama" href="/shop/brama" linkLabel="All Brama" />
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 md:gap-4">
+              {bramaGroups.map((g) => (
                 <HubTile
                   key={g.key}
                   slug={slug}

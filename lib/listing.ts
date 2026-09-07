@@ -85,7 +85,11 @@ function facetSubs(list: Product[]): ListingFacet[] {
 
 function facetSizes(list: Product[]): string[] {
   const set = new Set<string>();
-  for (const p of list) p.sizes.forEach((s) => set.add(s.size));
+  for (const p of list) {
+    p.sizes.forEach((s) => {
+      if (!/^(ONE|SKU|PACK)$/i.test(s.size) && s.stock > 0) set.add(s.size);
+    });
+  }
   const order = ["XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "ONE"];
   return [...set].sort((a, b) => {
     const ia = order.indexOf(a.toUpperCase());

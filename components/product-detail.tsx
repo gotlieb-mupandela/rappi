@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import type { Product } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -9,25 +9,39 @@ import { QtyStepper } from "@/components/qty-stepper";
 import { AssortmentBadge, AssortmentHint } from "@/components/assortment-label";
 import { getAssortment } from "@/lib/assortment";
 import { formatPrice } from "@/lib/format";
-import { stockLabel } from "@/lib/sizes";
-import { isLowStock, totalStock } from "@/lib/products";
+import {
+  buyableSizes,
+  hasVisibleSizePicker,
+  isSoldOut,
+  pickerSizes,
+  sizeDisplayLabel,
+  stockLabel,
+} from "@/lib/sizes";
+import { isLowStock } from "@/lib/products";
 import { useCart } from "@/lib/stores/cart";
 import { CATEGORIES, SUBCATEGORY_LABELS } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
 
 export function ProductDetail({ product }: { product: Product }) {
-  const inStock = product.sizes.filter((s) => s.stock > 0);
-  const [size, setSize] = useState(inStock[0]?.size ?? product.sizes[0]?.size ?? "ONE");
+  const buyable = buyableSizes(product);
+  const visible = pickerSizes(product);
+  const [size, setSize] = useState(buyable[0]?.size ?? product.sizes[0]?.size ?? "SKU");
   const [qty, setQty] = useState(1);
   const add = useCart((s) => s.add);
   const selected = product.sizes.find((s) => s.size === size);
   const stock = selected?.stock ?? 0;
+  const soldOut = isSoldOut(product);
   const cat = CATEGORIES.find((c) => c.slug === product.category);
   const title = product.displayName || product.item;
-  const matrix = useMemo(() => product.sizes, [product.sizes]);
   const assortment = getAssortment(product);
+  const showPicker = hasVisibleSizePicker(product);
+  const unitLabel = sizeDisplayLabel(size);
 
   function addToBag() {
+    if (soldOut || stock <= 0) {
+      toast.error("This piece is sold out.");
+      return;
+    }
     const result = add(product.code, size, qty);
     if (result.ok) toast.success(result.message);
     else toast.error(result.message);
@@ -57,50 +71,58 @@ export function ProductDetail({ product }: { product: Product }) {
             <AssortmentHint product={product} />
           </div>
           <p className="mt-2 text-sm text-[var(--muted)]">{stockLabel(product)}</p>
-          {assortment?.isAssortment && assortment.packSize == null ? (
+          {assortment?.isAssortment ? (
             <p className="mt-1 text-[12px] text-[var(--muted-2)]">
-              Pack price for a mixed-size assortment. Size buttons show the typical run in the box —
-              not a confirmed per-size count.
+              Sold as a wholesale assortment pack, not a single pair. The N$ price is the pack
+              price. Mixed sizes ship as packed by the supplier — we do not invent a single-pair size.
             </p>
           ) : null}
         </div>
 
-        <div className="mt-8">
-          <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--muted)]">
-            Size
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {matrix.map((row) => (
-              <button
-                key={row.size}
-                type="button"
-                disabled={row.stock === 0}
-                onClick={() => {
-                  setSize(row.size);
-                  setQty(1);
-                }}
-                className={cn(
-                  "min-h-11 min-w-11 rounded-full border px-4 text-sm font-medium uppercase tracking-wide transition-[border-color,background-color,color] duration-200",
-                  size === row.size
-                    ? "border-[var(--accent)] bg-[var(--accent)] text-[var(--on-accent)]"
-                    : "border-[var(--border-strong)] text-white hover:border-white",
-                  row.stock === 0 && "cursor-not-allowed opacity-35",
-                )}
-              >
-                {row.size}
-              </button>
-            ))}
-          </div>
-          {selected ? (
-            <p className="mt-3 text-sm text-[var(--muted)]">
-              {stock === 0
-                ? "Sold out in this size"
-                : isLowStock(stock)
-                  ? `Limited — ${stock} left`
-                  : `${totalStock(product)} across all sizes`}
+        {showPicker ? (
+          <div className="mt-8">
+            <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--muted)]">
+              Size
             </p>
-          ) : null}
-        </div>
+            <div className="flex flex-wrap gap-2">
+              {visible.map((row) => (
+                <button
+                  key={row.size}
+                  type="button"
+                  disabled={row.stock === 0}
+                  onClick={() => {
+                    setSize(row.size);
+                    setQty(1);
+                  }}
+                  className={cn(
+                    "min-h-11 min-w-11 rounded-full border px-4 text-sm font-medium uppercase tracking-wide transition-[border-color,background-color,color] duration-200",
+                    size === row.size
+                      ? "border-[var(--accent)] bg-[var(--accent)] text-[var(--on-accent)]"
+                      : "border-[var(--border-strong)] text-white hover:border-white",
+                    row.stock === 0 && "cursor-not-allowed opacity-35",
+                  )}
+                >
+                  {sizeDisplayLabel(row.size)}
+                </button>
+              ))}
+            </div>
+            {selected ? (
+              <p className="mt-3 text-sm text-[var(--muted)]">
+                {stock === 0
+                  ? "Sold out in this size"
+                  : isLowStock(stock)
+                    ? `Limited — ${stock} left`
+                    : stockLabel(product)}
+              </p>
+            ) : null}
+          </div>
+        ) : (
+          <p className="mt-8 text-sm text-[var(--muted)]">
+            {assortment?.isAssortment
+              ? "Order unit: assortment pack."
+              : "Order unit: SKU. A per-size run is attached when the Joma B2B export lists one."}
+          </p>
+        )}
 
         <div className="mt-8 hidden items-center gap-3 md:flex">
           <QtyStepper
@@ -111,10 +133,10 @@ export function ProductDetail({ product }: { product: Product }) {
           <Button
             size="lg"
             onClick={addToBag}
-            disabled={stock === 0}
+            disabled={soldOut || stock === 0}
             className="min-w-48 flex-1"
           >
-            Add to bag
+            {soldOut ? "Sold out" : "Add to bag"}
           </Button>
         </div>
         <p className="mt-8 hidden max-w-md text-sm leading-7 text-[var(--muted)] md:block">
@@ -127,7 +149,7 @@ export function ProductDetail({ product }: { product: Product }) {
           <div className="min-w-0">
             <p className="price text-sm font-semibold">{formatPrice(product.price)}</p>
             <p className="truncate text-[11px] uppercase tracking-wider text-[var(--muted)]">
-              Size {size}
+              {soldOut ? "Sold out" : unitLabel}
             </p>
           </div>
           <QtyStepper
@@ -139,10 +161,10 @@ export function ProductDetail({ product }: { product: Product }) {
           <Button
             size="lg"
             onClick={addToBag}
-            disabled={stock === 0}
+            disabled={soldOut || stock === 0}
             className="min-w-0 flex-1"
           >
-            Add to bag
+            {soldOut ? "Sold out" : "Add to bag"}
           </Button>
         </div>
       </div>

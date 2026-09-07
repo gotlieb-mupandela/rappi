@@ -1,4 +1,4 @@
-import { withInferredSizes } from "@/lib/sizes";
+import { withCatalogSizes } from "@/lib/sizes";
 import type { Product } from "@/lib/types";
 
 function textBlob(product: Product) {
@@ -379,7 +379,7 @@ export function withStorefrontMerchandising<T extends Product>(product: T): T {
     category === product.category && subcategory === product.subcategory
       ? product
       : { ...product, category, subcategory };
-  return withInferredSizes(next);
+  return withCatalogSizes(next);
 }
 
 export function withStorefrontCategories<T extends Product>(catalog: T[]): T[] {

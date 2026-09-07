@@ -1,95 +1,173 @@
 import source from "@/data/products-source.json";
+import sizeMaster from "@/data/size-master.json";
+import { getAssortment } from "@/lib/assortment";
 import type { Product, SizeStock } from "@/lib/types";
 
 type SourceRow = { code: string; sizes?: string | null; qty?: number };
+type MasterRow = {
+  sizes: string[];
+  qty?: number;
+  /** Per-size counts only when the feed provided them. Never invented. */
+  perSize?: Record<string, number> | null;
+};
 
 const SOURCE_BY_CODE = new Map(
   (source as SourceRow[]).map((row) => [row.code, row]),
 );
+const MASTER_BY_CODE = new Map(
+  Object.entries(sizeMaster as Record<string, MasterRow>),
+);
 
-const ADULT_APPAREL = ["XS", "S", "M", "L", "XL", "2XL"];
-const KIDS_APPAREL = ["6", "8", "10", "12", "14"];
-const ADULT_SHOE = ["39", "40", "41", "42", "43", "44", "45"];
-const KIDS_SHOE = ["28", "30", "32", "34", "36", "38"];
-const WOMEN_SHOE = ["36", "37", "38", "39", "40", "41"];
-const SOCK = ["35-38", "39-42"];
-const GLOVE = ["7", "8", "9", "10", "11"];
-const ONE = ["ONE"];
+const TRUE_ONE_SIZE_SUBS = new Set([
+  "bags",
+  "balls",
+  "rackets",
+  "caps",
+  "goggles",
+  "mats",
+  "towels",
+]);
 
 function parseSizeList(raw: string | null | undefined): string[] {
   if (!raw) return [];
-  return raw
+  const upper = String(raw).trim();
+  if (!upper || /^one(?:\s*size)?$/i.test(upper)) return ["ONE"];
+  return upper
     .split(/[\/|,]/)
     .map((s) => s.trim())
     .filter(Boolean);
 }
 
-function isKids(product: Product) {
-  if (product.gender === "kids") return true;
-  return /\b(junior| jr\b|kids|child|baby)\b/i.test(
-    `${product.displayName} ${product.name} ${product.item} ${product.subcategory}`,
-  );
+function skuStock(product: Product, overlayQty?: number) {
+  const n = overlayQty ?? product.stockQty ?? product.totalQty ?? 0;
+  return Number.isFinite(n) ? Math.max(0, n) : 0;
 }
 
-function inferredChart(product: Product): string[] {
-  const sub = product.subcategory;
-  const cat = product.category;
-  const kids = isKids(product);
-
-  if (["bags", "balls", "rackets", "caps", "goggles", "mats", "towels"].includes(sub)) {
-    return ONE;
-  }
-  if (sub === "socks") return SOCK;
-  if (sub === "gk-gloves") return GLOVE;
-  if (sub === "boots" || cat === "shoes" || sub === "kids-shoes") {
-    if (kids) return KIDS_SHOE;
-    if (product.gender === "women" || /\blady\b/i.test(product.displayName)) return WOMEN_SHOE;
-    return ADULT_SHOE;
-  }
-  if (kids) return KIDS_APPAREL;
-  return ADULT_APPAREL;
+function isTrueOneSize(product: Product) {
+  if (TRUE_ONE_SIZE_SUBS.has(product.subcategory)) return true;
+  const blob = `${product.displayName} ${product.item} ${product.sheetCategory}`.toLowerCase();
+  return /\b(one size|trolley|first aid|gps bib)\b/.test(blob);
 }
 
-function distributeStock(sizes: string[], total: number): SizeStock[] {
-  if (!sizes.length) return [{ size: "ONE", stock: Math.max(total, 0) }];
-  if (total <= 0) return sizes.map((size) => ({ size, stock: 0 }));
-  const each = Math.max(1, Math.floor(total / sizes.length));
-  let remaining = total;
-  return sizes.map((size, i) => {
-    const stock = i === sizes.length - 1 ? remaining : Math.min(each, remaining);
-    remaining -= stock;
-    return { size, stock: Math.max(stock, 0) };
+function hasRecordedSizeRun(product: Product) {
+  const opts = product.sizeOptions ?? [];
+  if (opts.length === 0) return false;
+  if (opts.length === 1 && /^(ONE|SKU|PACK)$/i.test(opts[0])) return false;
+  return true;
+}
+
+function rowsFromSizes(
+  sizes: string[],
+  total: number,
+  perSize?: Record<string, number> | null,
+): SizeStock[] {
+  return sizes.map((size) => {
+    if (perSize && Object.prototype.hasOwnProperty.call(perSize, size)) {
+      const n = Number(perSize[size]);
+      return { size, stock: Number.isFinite(n) ? Math.max(0, n) : 0 };
+    }
+    // Size exists on the master; per-size qty is unknown. Availability follows SKU stock.
+    return { size, stock: total > 0 ? total : 0 };
   });
 }
 
 /**
- * Prefer the opening-shop sheet size run when the SKU overlaps.
- * Otherwise infer a typical chart from category / audience.
- * Per-size units are a split of `stockQty` — live Joma B2B size inventory is deferred.
+ * Attach only sizes that exist on a catalog master.
+ * Does not invent apparel/shoe charts. Placeholder `ONE` on clothing/footwear
+ * is not treated as a real size.
  */
-export function withInferredSizes<T extends Product>(product: T): T {
-  const overlay = SOURCE_BY_CODE.get(product.code);
-  const fromSheet = parseSizeList(overlay?.sizes ?? undefined);
-  const hasReal =
-    product.sizeOptions?.length > 1 ||
-    (product.sizeOptions?.length === 1 && product.sizeOptions[0] !== "ONE");
-  if (hasReal) return product;
+export function withCatalogSizes<T extends Product>(product: T): T {
+  const master = MASTER_BY_CODE.get(product.code);
+  const sheet = SOURCE_BY_CODE.get(product.code);
+  const recorded = hasRecordedSizeRun(product);
+  const total = skuStock(product, master?.qty ?? sheet?.qty);
 
-  const sizes = fromSheet.length ? fromSheet : inferredChart(product);
-  const total = overlay?.qty ?? product.stockQty ?? product.totalQty ?? 0;
-  const rows = distributeStock(sizes, total);
+  if (master?.sizes?.length) {
+    const rows = rowsFromSizes(master.sizes, total, master.perSize);
+    return {
+      ...product,
+      sizeOptions: rows.map((r) => r.size),
+      sizes: rows,
+      stockQty: total,
+      totalQty: total,
+    };
+  }
+
+  const fromSheet = parseSizeList(sheet?.sizes);
+  if (fromSheet.length && !(fromSheet.length === 1 && fromSheet[0] === "ONE" && !isTrueOneSize(product))) {
+    const rows = rowsFromSizes(fromSheet, total);
+    return {
+      ...product,
+      sizeOptions: rows.map((r) => r.size),
+      sizes: rows,
+      stockQty: total,
+      totalQty: total,
+    };
+  }
+
+  if (recorded) {
+    const rows = (product.sizes?.length ? product.sizes : product.sizeOptions.map((size) => ({ size, stock: total })))
+      .map((row) => ({ size: row.size, stock: row.stock > 0 && total > 0 ? row.stock : 0 }));
+    return { ...product, sizes: rows, stockQty: total, totalQty: total };
+  }
+
+  const assortment = getAssortment(product);
+  if (assortment?.isAssortment) {
+    return {
+      ...product,
+      sizeOptions: ["PACK"],
+      sizes: [{ size: "PACK", stock: total }],
+      stockQty: total,
+      totalQty: total,
+    };
+  }
+
+  if (isTrueOneSize(product)) {
+    return {
+      ...product,
+      sizeOptions: ["ONE"],
+      sizes: [{ size: "ONE", stock: total }],
+      stockQty: total,
+      totalQty: total,
+    };
+  }
+
+  // Clothing/footwear with no size master: sell as a SKU, do not show a fake ONE size.
   return {
     ...product,
-    sizeOptions: rows.map((r) => r.size),
-    sizes: rows,
-    totalQty: total,
+    sizeOptions: ["SKU"],
+    sizes: [{ size: "SKU", stock: total }],
     stockQty: total,
+    totalQty: total,
   };
 }
 
+export function buyableSizes(product: Product): SizeStock[] {
+  return (product.sizes ?? []).filter((s) => s.stock > 0);
+}
+
+export function isSoldOut(product: Product) {
+  return buyableSizes(product).length === 0 || skuStock(product) <= 0;
+}
+
+export function pickerSizes(product: Product): SizeStock[] {
+  return (product.sizes ?? []).filter((s) => !/^(SKU|PACK|ONE)$/i.test(s.size));
+}
+
+export function hasVisibleSizePicker(product: Product) {
+  return pickerSizes(product).length > 0;
+}
+
+export function sizeDisplayLabel(size: string) {
+  if (size === "PACK") return "Assortment pack";
+  if (size === "SKU") return "SKU";
+  if (size === "ONE") return "One size";
+  return size;
+}
+
 export function stockLabel(product: Product) {
-  const total = product.sizes.reduce((sum, s) => sum + s.stock, 0) || product.stockQty || 0;
-  if (total <= 0) return "Sold out";
+  if (isSoldOut(product)) return "Sold out";
+  const total = skuStock(product);
   if (total < 5) return `${total} left`;
   return `${total} in stock`;
 }

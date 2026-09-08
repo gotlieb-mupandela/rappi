@@ -152,12 +152,23 @@ export const SUBCATEGORY_LABELS: Record<string, string> = {
   "ball-bags": "Ball Bags",
   rackets: "Rackets",
   skins: "Skins",
+  accessories: "Accessories",
   general: "More",
 };
+
+/** Legacy / short hub paths that should resolve to a live category slug. */
+export const CATEGORY_ALIASES: Record<string, string> = {
+  teampro: "teampro-2026",
+};
+
+export function resolveCategorySlug(slug: string) {
+  return CATEGORY_ALIASES[slug] ?? slug;
+}
 
 export const CAMPAIGN_COLLECTIONS = [
   "padel",
   "hiking",
+  "brama",
   "resort",
   "lifestyle",
   "teampro-2026",
@@ -181,7 +192,7 @@ export const NAV_MORE = CATEGORIES.filter(
 );
 
 export function categoryBySlug(slug: string) {
-  return CATEGORIES.find((c) => c.slug === slug);
+  return CATEGORIES.find((c) => c.slug === resolveCategorySlug(slug));
 }
 
 export const AUDIENCES = [

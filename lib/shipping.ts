@@ -15,3 +15,7 @@ export const SHIPPING_METHODS: ShippingMethod[] = [
 export function shippingCostById(id: string): number {
   return SHIPPING_METHODS.find((m) => m.id === id)?.cost ?? 0;
 }
+
+export function shippingMethodsSnapshot(): ShippingMethod[] {
+  return SHIPPING_METHODS.map((m) => ({ ...m }));
+}

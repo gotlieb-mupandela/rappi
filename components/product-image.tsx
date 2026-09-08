@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { Product } from "@/lib/types";
 import { ProductVisual } from "@/components/product-visual";
+import { productImageAlt } from "@/lib/copy";
 import { cn } from "@/lib/utils";
 
 export function ProductImage({
@@ -20,11 +21,8 @@ export function ProductImage({
   fallbackClassName?: string;
   priority?: boolean;
 }) {
-  const [failed, setFailed] = useState(false);
-
-  useEffect(() => {
-    setFailed(false);
-  }, [src]);
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  const failed = Boolean(src) && failedSrc === src;
 
   if (!src || failed) {
     return (
@@ -36,12 +34,12 @@ export function ProductImage({
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={src}
-      alt={alt ?? product.code}
-      className={cn("img-in", className)}
+      alt={alt ?? productImageAlt(product)}
+      className={className}
       loading={priority ? "eager" : "lazy"}
       decoding="async"
       fetchPriority={priority ? "high" : "auto"}
-      onError={() => setFailed(true)}
+      onError={() => setFailedSrc(src)}
     />
   );
 }

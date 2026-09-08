@@ -9,10 +9,13 @@ export function ProductGrid({
   products,
   grouped = false,
   layout = "grid",
+  groupCounts,
 }: {
   products: Product[];
   grouped?: boolean;
   layout?: "grid" | "list";
+  /** Facet / catalog totals — keep headings aligned with filter counts. */
+  groupCounts?: Record<string, number>;
 }) {
   if (products.length === 0) {
     return (
@@ -87,7 +90,7 @@ export function ProductGrid({
               href={`#${sub}`}
               className="inline-flex min-h-10 shrink-0 items-center whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)] hover:text-[var(--accent)]"
             >
-              {SUBCATEGORY_LABELS[sub] ?? sub} [{list.length}]
+              {SUBCATEGORY_LABELS[sub] ?? sub} [{groupCounts?.[sub] ?? list.length}]
             </a>
           ))}
         </nav>
@@ -96,7 +99,7 @@ export function ProductGrid({
         <section key={sub} id={sub}>
           <div className="mb-6">
             <h2 className="text-sm font-bold uppercase tracking-[0.16em] text-ink">
-              {SUBCATEGORY_LABELS[sub] ?? sub} [{list.length}]
+              {SUBCATEGORY_LABELS[sub] ?? sub} [{groupCounts?.[sub] ?? list.length}]
             </h2>
           </div>
           {layout === "list" ? (

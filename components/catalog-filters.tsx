@@ -1,18 +1,23 @@
 "use client";
 
 import { useState, useTransition, type ReactNode } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { ProductGrid } from "@/components/product-grid";
 import { ListingPagination } from "@/components/listing-pagination";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import type { ListingResult } from "@/lib/listing-types";
+import type { ListingQuery, ListingResult } from "@/lib/listing-types";
 import { LayoutGrid, List } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+function asAll(value?: string) {
+  return !value || value === "all" ? "all" : value;
+}
+
 export function CatalogFilters({
   listing,
+  query,
   categorySlug,
   basePath,
   grouped = true,
@@ -20,8 +25,10 @@ export function CatalogFilters({
   showAudienceFilter = true,
   emptyTitle,
   emptyBody,
+  children,
 }: {
   listing: ListingResult;
+  query?: ListingQuery;
   categorySlug?: string;
   basePath: string;
   grouped?: boolean;
@@ -29,19 +36,31 @@ export function CatalogFilters({
   showAudienceFilter?: boolean;
   emptyTitle?: string;
   emptyBody?: string;
+  children?: ReactNode;
 }) {
-  const params = useSearchParams();
   const router = useRouter();
-  const sub = params.get("sub") ?? "all";
-  const size = params.get("size") ?? "all";
-  const maxPrice = params.get("max") ?? "";
-  const q = params.get("q") ?? "";
-  const cat = params.get("cat") ?? categorySlug ?? "all";
-  const audience = params.get("audience") ?? "all";
+  const sub = asAll(query?.sub);
+  const size = asAll(query?.size);
+  const maxPrice = query?.max ?? "";
+  const q = query?.q ?? "";
+  const cat = asAll(query?.cat) !== "all" ? asAll(query?.cat) : categorySlug ?? "all";
+  const audience = asAll(query?.audience);
   const [draftQ, setDraftQ] = useState(q);
   const [layout, setLayout] = useState<"grid" | "list">("grid");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [pending, startTransition] = useTransition();
+
+  function currentParams() {
+    const next = new URLSearchParams();
+    if (q) next.set("q", q);
+    if (cat && cat !== "all" && cat !== categorySlug) next.set("cat", cat);
+    if (sub !== "all") next.set("sub", sub);
+    if (size !== "all") next.set("size", size);
+    if (maxPrice) next.set("max", maxPrice);
+    if (audience !== "all") next.set("audience", audience);
+    if (query?.page && Number(query.page) > 1) next.set("page", String(query.page));
+    return next;
+  }
 
   function hrefWith(next: URLSearchParams) {
     const qs = next.toString();
@@ -49,7 +68,7 @@ export function CatalogFilters({
   }
 
   function setParam(key: string, value: string, resetPage = true) {
-    const next = new URLSearchParams(params.toString());
+    const next = currentParams();
     if (!value || value === "all") next.delete(key);
     else next.set(key, value);
     if (resetPage && key !== "page") next.delete("page");
@@ -59,7 +78,7 @@ export function CatalogFilters({
   }
 
   function pageHref(page: number) {
-    const next = new URLSearchParams(params.toString());
+    const next = currentParams();
     if (page <= 1) next.delete("page");
     else next.set("page", String(page));
     return hrefWith(next);
@@ -212,30 +231,32 @@ export function CatalogFilters({
               ? ` · page ${listing.page} of ${listing.pageCount}`
               : ""}
           </p>
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              aria-label="Grid view"
-              onClick={() => setLayout("grid")}
-              className={cn(
-                "rounded-full p-2 transition-colors",
-                layout === "grid" ? "bg-[var(--hover-strong)] text-[var(--accent)]" : "text-[var(--muted-2)] hover:text-ink",
-              )}
-            >
-              <LayoutGrid className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              aria-label="List view"
-              onClick={() => setLayout("list")}
-              className={cn(
-                "rounded-full p-2 transition-colors",
-                layout === "list" ? "bg-[var(--hover-strong)] text-[var(--accent)]" : "text-[var(--muted-2)] hover:text-ink",
-              )}
-            >
-              <List className="h-4 w-4" />
-            </button>
-          </div>
+          {children ? null : (
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                aria-label="Grid view"
+                onClick={() => setLayout("grid")}
+                className={cn(
+                  "rounded-full p-2 transition-colors",
+                  layout === "grid" ? "bg-[var(--hover-strong)] text-[var(--accent)]" : "text-[var(--muted-2)] hover:text-ink",
+                )}
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                aria-label="List view"
+                onClick={() => setLayout("list")}
+                className={cn(
+                  "rounded-full p-2 transition-colors",
+                  layout === "list" ? "bg-[var(--hover-strong)] text-[var(--accent)]" : "text-[var(--muted-2)] hover:text-ink",
+                )}
+              >
+                <List className="h-4 w-4" />
+              </button>
+            </div>
+          )}
         </div>
         {listing.total === 0 ? (
           <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-6 py-16 text-center">
@@ -248,7 +269,16 @@ export function CatalogFilters({
           </div>
         ) : (
           <>
-            <ProductGrid products={listing.products} grouped={grouped} layout={layout} />
+            {children ?? (
+              <ProductGrid
+                products={listing.products}
+                grouped={grouped}
+                layout={layout}
+                groupCounts={Object.fromEntries(
+                  listing.facets.subs.map((s) => [s.slug, s.count]),
+                )}
+              />
+            )}
             <ListingPagination
               page={listing.page}
               pageCount={listing.pageCount}

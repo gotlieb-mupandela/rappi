@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { CatalogFilters } from "@/components/catalog-filters";
 import { HubTile } from "@/components/hub-tile";
 import { PageHeader } from "@/components/page-header";
@@ -69,13 +68,12 @@ export default async function PromotionsPage({
               No promotions on this opening stock list.
             </p>
           ) : (
-            <Suspense>
-              <CatalogFilters
-                listing={listing}
-                basePath="/promotions"
-                grouped
-              />
-            </Suspense>
+            <CatalogFilters
+              listing={listing}
+              query={sp}
+              basePath="/promotions"
+              grouped
+            />
           )}
         </section>
       </div>

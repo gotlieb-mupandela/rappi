@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { formatPrice } from "@/lib/format";
 import { placeOrder } from "@/lib/place-order";
 import { getProduct } from "@/lib/products";
+import { shippingMethodsSnapshot } from "@/lib/shipping";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { useAuth } from "@/lib/stores/auth";
 import { useCart } from "@/lib/stores/cart";
@@ -19,11 +20,7 @@ import type { Order } from "@/lib/types";
 
 type ShippingRow = { id: string; name: string; cost: number };
 
-const FALLBACK_SHIPPING: ShippingRow[] = [
-  { id: "standard", name: "Standard (5–8 days)", cost: 100 },
-  { id: "express", name: "Express (2–3 days)", cost: 150 },
-  { id: "pickup", name: "Hub pickup", cost: 0 },
-];
+const FALLBACK_SHIPPING: ShippingRow[] = shippingMethodsSnapshot();
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -121,11 +118,43 @@ export default function CheckoutPage() {
 
   if (!rows.length) {
     return (
-      <div className="mx-auto max-w-[1440px] px-4 py-16 text-center">
-        <p className="text-lg">Nothing to check out.</p>
-        <Button asChild className="mt-6">
-          <Link href="/cart">Back to cart</Link>
-        </Button>
+      <div className="page-shell py-8">
+        <Breadcrumbs
+          items={[
+            { href: "/", label: "Home" },
+            { href: "/cart", label: "Cart" },
+            { label: "Shipping & billing" },
+          ]}
+        />
+        <h1 className="mt-4 font-[family-name:var(--font-oswald)] text-3xl uppercase sm:text-4xl">
+          Shipping & billing
+        </h1>
+        <p className="mt-2 max-w-xl text-sm text-[var(--muted)]">
+          Your bag is empty. Delivery rates still apply once you add pieces — Standard N$100,
+          Express N$150, or free hub pickup.
+        </p>
+        <section className="mt-8 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
+          <h2 className="text-sm font-bold uppercase tracking-wider">Shipping options</h2>
+          <ul className="mt-4 space-y-2">
+            {shippingOptions.map((s) => (
+              <li
+                key={s.id}
+                className="flex items-center justify-between rounded-xl border border-[var(--border)] px-3 py-3 text-sm"
+              >
+                <span>{s.name}</span>
+                <span className="font-semibold">{s.cost ? formatPrice(s.cost) : "Free"}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <Button asChild>
+            <Link href="/cart">Back to cart</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/">Continue shopping</Link>
+          </Button>
+        </div>
       </div>
     );
   }

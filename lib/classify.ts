@@ -113,6 +113,32 @@ function isVolleyBall(name: string) {
   return /\b(volley|volleyball)\b/.test(name) && BALL_RE.test(name);
 }
 
+/** Garment title only — ignore Joma sheet families such as "Pants & Tights". */
+function garmentName(product: Product) {
+  return `${product.displayName} ${product.name}`.toLowerCase();
+}
+
+function withoutSleeveWords(name: string) {
+  return name.replace(/short[- ]sleeved?\b/gi, " ").replace(/\s+/g, " ").trim();
+}
+
+/** Trail / training shorts that are not compression tights or short-sleeve shirts. */
+function isNamedShortNotTight(name: string) {
+  return isNamedShortsGarment(name) && !/\b(tights?|leggings?)\b/.test(name);
+}
+
+function isNamedShortsGarment(name: string) {
+  const cleaned = withoutSleeveWords(name);
+  if (/\b(tights?|leggings?)\b/.test(cleaned)) return false;
+  if (
+    /\b(shirt|jersey|tee|t-shirt|tshirt|top)\b/.test(cleaned) &&
+    !/\b(shorts|bermuda)\b/.test(cleaned)
+  ) {
+    return false;
+  }
+  return /\b(shorts|bermuda)\b/.test(cleaned) || /\bshort\b/.test(cleaned);
+}
+
 /**
  * Re-home Joma B2B rows that landed in a catch-all (usually sportswear)
  * onto the storefront hub they belong to.
@@ -299,7 +325,12 @@ const SUB_RULES: Array<{ slug: string; test: (name: string, family: string) => b
   },
   {
     slug: "tights",
-    test: (name, family) => /\btight/.test(name) || family === "tights",
+    // Sheet families like "Pants & Tights" must not override a shorts title.
+    test: (name, family) => {
+      const garment = name.replace(/pants\s*&\s*tights/gi, " ");
+      if (isNamedShortNotTight(garment)) return false;
+      return /\btights?\b/.test(garment) || family === "tights";
+    },
   },
   {
     slug: "dresses",
@@ -336,8 +367,11 @@ const SUB_RULES: Array<{ slug: string; test: (name: string, family: string) => b
   },
   {
     slug: "shorts",
-    test: (name, family) =>
-      /\b(short|bermuda)\b/.test(name) || family === "shorts" || family.includes("short"),
+    test: (name, family) => {
+      if (isNamedShortsGarment(name)) return true;
+      const fam = withoutSleeveWords(family);
+      return fam === "shorts" || (fam.includes("short") && !/\b(shirt|tee|top)\b/.test(fam));
+    },
   },
   {
     slug: "pants",
@@ -345,6 +379,10 @@ const SUB_RULES: Array<{ slug: string; test: (name: string, family: string) => b
       /\b(pant|trouser|sweatpant)\b/.test(name) ||
       family.includes("pant") ||
       family.includes("trouser"),
+  },
+  {
+    slug: "accessories",
+    test: (name) => /\bbib\b/.test(name) && !/\b(shorts?|bermuda)\b/.test(name),
   },
   {
     slug: "socks",
@@ -385,6 +423,7 @@ export function classifyStorefrontSubcategory(
   category = product.category,
 ): string {
   const family = itemFamily(product.item || "");
+  const garment = garmentName(product);
   const name = `${product.displayName} ${product.name} ${product.item}`.toLowerCase();
 
   if (category === "brama") {
@@ -403,6 +442,11 @@ export function classifyStorefrontSubcategory(
       return "shorts";
     }
     return "jerseys";
+  }
+
+  if (isNamedShortNotTight(garment)) return "shorts";
+  if (/\bbib\b/.test(garment) && !/\b(shorts?|bermuda)\b/.test(garment)) {
+    return "accessories";
   }
 
   for (const rule of SUB_RULES) {

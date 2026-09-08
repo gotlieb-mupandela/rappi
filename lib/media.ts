@@ -38,6 +38,25 @@ export function upgradeProductImageUrl(url: string) {
   return url.replace(/_large(?=\.(jpe?g|png|webp)(\?|$))/i, "");
 }
 
+function isUsableImageUrl(url: string | undefined | null): url is string {
+  return Boolean(url && (isRemoteUrl(url) || url.startsWith("/")));
+}
+
+/**
+ * Ordered photo URLs for a card/PDP. Primary first, then gallery extras.
+ * Used so a failed Joma hotlink can fall through to Demandware / Storage copies
+ * instead of the silhouette placeholder.
+ */
+export function productImageCandidates(
+  product: { imageUrl?: string; images?: string[] },
+  preferred?: string | null,
+) {
+  const urls = [preferred, product.imageUrl, ...(product.images ?? [])]
+    .filter(isUsableImageUrl)
+    .map(upgradeProductImageUrl);
+  return [...new Set(urls)];
+}
+
 export function productPublicUrls(id: string) {
   const images = [1, 2, 3, 4, 5].map(
     (n) => `/products/${id}/${String(n).padStart(2, "0")}.webp`,

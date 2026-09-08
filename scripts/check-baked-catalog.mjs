@@ -121,11 +121,33 @@ if (dwMulti.length < catalog.length * 0.4) {
 if (!checkout.includes("@/lib/shipping")) {
   fail("checkout is not wired to lib/shipping");
 }
-if (!/Standard N\$100/.test(checkout) || !/Express N\$150/.test(checkout)) {
-  fail("empty checkout does not surface Standard N$100 / Express N$150");
+if (!checkout.includes("format(100)") || !checkout.includes("format(150)")) {
+  fail("empty checkout does not surface converted Standard 100 / Express 150 rates");
+}
+if (!checkout.includes("shippingName")) {
+  fail("checkout missing translated shipping labels");
 }
 if (!/cost:\s*100/.test(shippingLib) || !/cost:\s*150/.test(shippingLib) || !/cost:\s*0/.test(shippingLib)) {
   fail("lib/shipping missing 100/150/0");
+}
+
+const currencyLib = readFileSync(new URL("../lib/i18n/currency.ts", import.meta.url), "utf8");
+if (!/Math\.round\(n \* rate \* 100\) \/ 100/.test(currencyLib)) {
+  fail("EUR rounding is not 2 decimal cents");
+}
+const i18nConfig = readFileSync(new URL("../lib/i18n/config.ts", import.meta.url), "utf8");
+if (!/DEFAULT_EUR_PER_NAD = 0\.05/.test(i18nConfig)) {
+  fail("missing documented default EUR per NAD rate");
+}
+const readme = readFileSync(new URL("../README.md", import.meta.url), "utf8");
+if (!/NEXT_PUBLIC_EUR_PER_NAD/.test(readme) || !/0\.05/.test(readme)) {
+  fail("README missing EUR display rate documentation");
+}
+function nadToEur(n, rate = 0.05) {
+  return Math.round(n * rate * 100) / 100;
+}
+if (nadToEur(100) !== 5 || nadToEur(150) !== 7.5) {
+  fail("default rate does not convert shipping 100/150 to 5/7.5 EUR");
 }
 
 const nextConfig = readFileSync(new URL("../next.config.ts", import.meta.url), "utf8");

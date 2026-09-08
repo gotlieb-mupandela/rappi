@@ -6,6 +6,8 @@ import { Providers } from "@/components/providers";
 import { StorefrontChrome } from "@/components/storefront-chrome";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TAGLINE } from "@/lib/catalog";
+import { MARKET_BOOTSTRAP, htmlLang } from "@/lib/i18n/config";
+import { getMarket } from "@/lib/i18n/server";
 import { buildTaxonomy, categoryCountsFromTaxonomy } from "@/lib/listing";
 import { getCatalog } from "@/lib/supabase/catalog";
 import { THEME_BOOTSTRAP } from "@/lib/theme";
@@ -53,11 +55,13 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const catalog = await getCatalog();
   const taxonomy = buildTaxonomy(catalog);
   const categoryCounts = categoryCountsFromTaxonomy(taxonomy);
+  const market = await getMarket();
 
   return (
     <html
-      lang="en"
+      lang={htmlLang(market)}
       data-theme="dark"
+      data-market={market}
       suppressHydrationWarning
       className={`${inter.variable} ${geistMono.variable} ${oswald.variable} h-full antialiased`}
     >
@@ -65,10 +69,13 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <Script id="rappi-theme" strategy="beforeInteractive">
           {THEME_BOOTSTRAP}
         </Script>
+        <Script id="rappi-market" strategy="beforeInteractive">
+          {MARKET_BOOTSTRAP}
+        </Script>
         <BrandAtmosphere />
         <div className="relative z-10 flex min-h-full flex-1 flex-col">
           <ThemeProvider>
-            <Providers>
+            <Providers initialMarket={market}>
               <StorefrontChrome taxonomy={taxonomy} categoryCounts={categoryCounts}>
                 {children}
               </StorefrontChrome>

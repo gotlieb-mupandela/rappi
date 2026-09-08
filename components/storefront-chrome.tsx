@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { useT } from "@/components/locale-provider";
 import type { StorefrontTaxonomy } from "@/lib/listing-types";
 
 export function StorefrontChrome({
@@ -16,6 +17,7 @@ export function StorefrontChrome({
   categoryCounts: Record<string, number>;
 }) {
   const pathname = usePathname();
+  const t = useT();
   const isAdmin = pathname?.startsWith("/admin");
 
   if (isAdmin) {
@@ -25,7 +27,7 @@ export function StorefrontChrome({
   return (
     <>
       <a href="#main" className="skip-link">
-        Skip to content
+        {t("skip")}
       </a>
       <Suspense fallback={null}>
         <SiteHeader taxonomy={taxonomy} categoryCounts={categoryCounts} />

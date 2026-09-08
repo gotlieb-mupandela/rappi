@@ -8,7 +8,7 @@ import type { Product } from "@/lib/types";
 import { AssortmentBadge, AssortmentHint } from "@/components/assortment-label";
 import { Badge } from "@/components/ui/badge";
 import { ProductImage } from "@/components/product-image";
-import { formatPrice } from "@/lib/format";
+import { useLocale } from "@/components/locale-provider";
 import { totalStock } from "@/lib/products";
 import { buyableSizes, isSoldOut, stockLabel } from "@/lib/sizes";
 import { useCart } from "@/lib/stores/cart";
@@ -22,6 +22,7 @@ export function ProductCard({
   layout?: "grid" | "list";
 }) {
   const add = useCart((s) => s.add);
+  const { t, format } = useLocale();
   const stock = totalStock(product);
   const first = buyableSizes(product)[0];
   const soldOut = isSoldOut(product);
@@ -31,12 +32,12 @@ export function ProductCard({
     e.preventDefault();
     e.stopPropagation();
     if (!first || soldOut) {
-      toast.error("This piece is sold out.");
+      toast.error(t("product.soldOutPiece"));
       return;
     }
     const result = add(product.code, first.size, 1);
-    if (result.ok) toast.success(result.message);
-    else toast.error(result.message);
+    if (result.ok) toast.success(t(result.messageKey, result.values));
+    else toast.error(t(result.messageKey, result.values));
   }
 
   if (layout === "list") {
@@ -56,22 +57,22 @@ export function ProductCard({
             {product.code}
           </p>
           <p className="price mt-1 text-sm font-semibold sm:hidden">
-            {formatPrice(product.unitPrice)}
+            {format(product.unitPrice)}
           </p>
           <AssortmentHint product={product} className="sm:hidden" />
-          <p className="text-[11px] text-[var(--muted)] sm:hidden">{stockLabel(product)}</p>
+          <p className="text-[11px] text-[var(--muted)] sm:hidden">{stockLabel(product, t)}</p>
         </Link>
         <div className="col-span-2 flex items-center justify-between sm:col-span-1 sm:justify-end sm:gap-4">
           <div className="hidden sm:block">
-            <p className="price text-sm font-semibold">{formatPrice(product.unitPrice)}</p>
+            <p className="price text-sm font-semibold">{format(product.unitPrice)}</p>
             <AssortmentHint product={product} />
-            <p className="text-[11px] text-[var(--muted)]">{stockLabel(product)}</p>
+            <p className="text-[11px] text-[var(--muted)]">{stockLabel(product, t)}</p>
           </div>
           <button
             type="button"
             onClick={quickAdd}
             className="flex h-10 w-10 items-center justify-center rounded-full text-[var(--accent)] transition-colors hover:bg-[var(--hover)]"
-            aria-label={`Add ${title} to bag`}
+            aria-label={t("common.addToBagAria", { title })}
           >
             <ShoppingBag className="h-4 w-4" />
           </button>
@@ -87,14 +88,14 @@ export function ProductCard({
           <div className="absolute left-3 top-3 z-10 flex max-w-[calc(100%-3.5rem)] flex-col items-start gap-1">
             {product.badge ? (
               <Badge variant={product.badge === "offer" ? "offer" : "new"}>
-                {product.badge === "offer" ? "Offer" : "New"}
+                {product.badge === "offer" ? t("common.offer") : t("common.new")}
               </Badge>
             ) : null}
             <AssortmentBadge product={product} />
           </div>
           {stock === 0 ? (
             <span className="absolute bottom-3 left-3 z-10 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/80">
-              Sold out
+              {t("common.soldOut")}
             </span>
           ) : null}
           <ProductImage
@@ -112,15 +113,15 @@ export function ProductCard({
             {product.code}
           </p>
           <p className="price pt-1 text-sm font-semibold text-ink">
-            {formatPrice(product.unitPrice)}
+            {format(product.unitPrice)}
           </p>
           <AssortmentHint product={product} />
-          <p className="text-[11px] text-[var(--muted)]">{stockLabel(product)}</p>
+          <p className="text-[11px] text-[var(--muted)]">{stockLabel(product, t)}</p>
         </div>
       </Link>
       <button
         type="button"
-        aria-label={`Add ${title} to bag`}
+        aria-label={t("common.addToBagAria", { title })}
         onClick={quickAdd}
         className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-black/50 text-white/90 opacity-100 backdrop-blur-md transition-[opacity,border-color,color,transform] duration-300 hover:border-[var(--accent)] hover:text-[var(--accent)] sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"
       >

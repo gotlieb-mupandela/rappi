@@ -1,9 +1,13 @@
+"use client";
+
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
+import { useT } from "@/components/locale-provider";
 
 export type Crumb = { href?: string; label: string };
 
 export function Breadcrumbs({ items }: { items: Crumb[] }) {
+  const t = useT();
   return (
     <div className="flex flex-wrap items-center gap-2 text-[12px] text-[var(--muted)]">
       <Link
@@ -11,7 +15,7 @@ export function Breadcrumbs({ items }: { items: Crumb[] }) {
         className="inline-flex items-center gap-0.5 uppercase tracking-wider transition-colors hover:text-[var(--accent)]"
       >
         <ChevronLeft className="h-3.5 w-3.5" />
-        Back
+        {t("back")}
       </Link>
       <span className="text-[var(--border-strong)]">/</span>
       {items.map((item, i) => (

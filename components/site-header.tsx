@@ -6,7 +6,10 @@ import { FormEvent, Suspense, useEffect, useRef, useState } from "react";
 import { Menu, Search, ShoppingBag, User, X, ChevronDown } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LocaleSwitcher } from "@/components/locale-switcher";
+import { useT } from "@/components/locale-provider";
 import { AUDIENCES, CATEGORIES, NAV_PRIMARY } from "@/lib/catalog";
+import { audienceName, hubName, hubNav } from "@/lib/i18n/labels";
 import { useAuth } from "@/lib/stores/auth";
 import { cartCount, useCart } from "@/lib/stores/cart";
 import { CategorySubNav } from "@/components/category-sub-nav";
@@ -33,6 +36,7 @@ export function SiteHeader({
   const [scrolled, setScrolled] = useState(false);
   const accountRef = useRef<HTMLDivElement>(null);
   const moreRef = useRef<HTMLLIElement>(null);
+  const t = useT();
   const lines = useCart((s) => s.lines);
   const user = useAuth((s) => s.user);
   const logout = useAuth((s) => s.logout);
@@ -117,14 +121,14 @@ export function SiteHeader({
         <button
           type="button"
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink transition-colors hover:bg-[var(--hover)] lg:hidden"
-          aria-label={open ? "Close menu" : "Open menu"}
+          aria-label={open ? t("nav.closeMenu") : t("nav.openMenu")}
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
 
-        <Link href="/" className="flex shrink-0 items-center" aria-label="RAPPI SPORTS HUB home">
+        <Link href="/" className="flex shrink-0 items-center" aria-label={t("nav.homeAria")}>
           <BrandLogo
             className="h-[4.25rem] w-auto max-w-none sm:h-[4.75rem]"
             priority
@@ -137,19 +141,20 @@ export function SiteHeader({
             <Input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search the catalog"
+              placeholder={t("nav.searchPlaceholder")}
               className="h-10 pl-10"
-              aria-label="Search catalog"
+              aria-label={t("nav.searchAria")}
             />
           </div>
         </form>
 
         <div className="ml-auto flex items-center gap-0.5 sm:gap-1">
+          <LocaleSwitcher className="mr-0.5" />
           <ThemeToggle />
           <button
             type="button"
             className="flex h-11 w-11 items-center justify-center rounded-full text-ink transition-colors hover:bg-[var(--hover)] hover:text-[var(--accent)] md:hidden"
-            aria-label={searchOpen ? "Close search" : "Search"}
+            aria-label={searchOpen ? t("nav.closeSearch") : t("nav.search")}
             aria-expanded={searchOpen}
             onClick={() => {
               setOpen(false);
@@ -161,7 +166,7 @@ export function SiteHeader({
           <Link
             href="/cart"
             className="relative flex h-11 w-11 items-center justify-center rounded-full text-ink transition-colors hover:bg-[var(--hover)] hover:text-[var(--accent)]"
-            aria-label="Cart"
+            aria-label={t("nav.cart")}
           >
             <ShoppingBag className="h-5 w-5" />
             {ready && count > 0 ? (
@@ -194,21 +199,21 @@ export function SiteHeader({
                     role="menuitem"
                     className="block px-3 py-2.5 text-xs uppercase tracking-wider hover:bg-[var(--hover)] hover:text-[var(--accent)]"
                   >
-                    Account
+                    {t("nav.account")}
                   </Link>
                   <Link
                     href="/account/orders"
                     role="menuitem"
                     className="block px-3 py-2.5 text-xs uppercase tracking-wider hover:bg-[var(--hover)] hover:text-[var(--accent)]"
                   >
-                    Orders
+                    {t("nav.orders")}
                   </Link>
                   <Link
                     href="/account/profile"
                     role="menuitem"
                     className="block px-3 py-2.5 text-xs uppercase tracking-wider hover:bg-[var(--hover)] hover:text-[var(--accent)]"
                   >
-                    Profile
+                    {t("nav.profile")}
                   </Link>
                   <button
                     type="button"
@@ -220,7 +225,7 @@ export function SiteHeader({
                     }}
                     className="block w-full px-3 py-2.5 text-left text-xs uppercase tracking-wider hover:bg-[var(--hover)] hover:text-[var(--accent)]"
                   >
-                    Logout
+                    {t("nav.logout")}
                   </button>
                 </div>
               ) : null}
@@ -232,7 +237,7 @@ export function SiteHeader({
             >
               <User className="h-5 w-5" />
               <span className="hidden text-[11px] font-semibold uppercase tracking-wider sm:inline">
-                Account
+                {t("nav.account")}
               </span>
             </Link>
           )}
@@ -247,14 +252,14 @@ export function SiteHeader({
               <Input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="Search by name, code, or category"
+                placeholder={t("nav.searchPlaceholderLong")}
                 className="h-11 pl-10"
-                aria-label="Search catalog"
+                aria-label={t("nav.searchAria")}
                 autoFocus
               />
             </div>
             <Button type="submit" className="mt-3 w-full">
-              Search
+              {t("nav.search")}
             </Button>
           </form>
         </div>
@@ -269,7 +274,7 @@ export function SiteHeader({
                 data-active={activeAudience === a.slug || undefined}
                 className="nav-link text-[11px] font-semibold uppercase tracking-[0.14em]"
               >
-                {a.name}
+                {audienceName(a.slug, t)}
               </Link>
             </li>
           ))}
@@ -280,7 +285,7 @@ export function SiteHeader({
                 data-active={activeSlug === c.slug || undefined}
                 className="nav-link text-[11px] font-semibold uppercase tracking-[0.14em]"
               >
-                {c.nav ?? c.name}
+                {hubNav(c.slug, t)}
               </Link>
             </li>
           ))}
@@ -294,7 +299,7 @@ export function SiteHeader({
               className="nav-link cursor-pointer border-0 bg-transparent text-[11px] font-semibold uppercase tracking-[0.14em]"
               onClick={() => setMoreOpen((v) => !v)}
             >
-              More
+              {t("nav.more")}
               <ChevronDown className={cn("ml-1 h-3.5 w-3.5 transition-transform", moreOpen && "rotate-180")} />
             </button>
             {moreOpen ? (
@@ -312,7 +317,7 @@ export function SiteHeader({
                       activeSlug === c.slug && "text-[var(--accent)]",
                     )}
                   >
-                    {c.name}
+                    {hubName(c.slug, t)}
                   </Link>
                 ))}
               </div>
@@ -325,7 +330,7 @@ export function SiteHeader({
               data-active={pathname === "/promotions" || undefined}
               className="nav-link text-[11px] font-semibold uppercase tracking-[0.14em] !text-[var(--accent)]"
             >
-              New collections
+              {t("nav.newCollections")}
             </Link>
           </li>
         </ul>
@@ -340,10 +345,13 @@ export function SiteHeader({
             <Input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search by name, code, or category"
+              placeholder={t("nav.searchPlaceholderLong")}
               className="h-11"
             />
           </form>
+          <div className="mb-4 flex justify-center">
+            <LocaleSwitcher />
+          </div>
           <ul className="mb-3 grid grid-cols-3 gap-1">
             {AUDIENCES.map((a) => (
               <li key={a.slug}>
@@ -354,7 +362,7 @@ export function SiteHeader({
                     activeAudience === a.slug && "text-[var(--accent)]",
                   )}
                 >
-                  {a.name}
+                  {audienceName(a.slug, t)}
                 </Link>
               </li>
             ))}
@@ -369,18 +377,18 @@ export function SiteHeader({
                     activeSlug === c.slug && "text-[var(--accent)]",
                   )}
                 >
-                  {c.name}
+                  {hubName(c.slug, t)}
                 </Link>
               </li>
             ))}
           </ul>
           <div className="mt-5 grid gap-2">
             <Button asChild className="w-full" variant="outline">
-              <Link href="/promotions">New collections</Link>
+              <Link href="/promotions">{t("nav.newCollections")}</Link>
             </Button>
             <Button asChild className="w-full" variant="outline">
               <Link href={user ? "/account" : "/login"}>
-                {user ? "My account" : "Sign in"}
+                {user ? t("nav.myAccount") : t("nav.signIn")}
               </Link>
             </Button>
             {user ? (
@@ -394,7 +402,7 @@ export function SiteHeader({
                   router.push("/");
                 }}
               >
-                Logout
+                {t("nav.logout")}
               </Button>
             ) : null}
           </div>

@@ -8,13 +8,15 @@ import { BrandLogo } from "@/components/brand-logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { DEMO_EMAIL, DEMO_PASSWORD, TAGLINE } from "@/lib/catalog";
+import { DEMO_EMAIL, DEMO_PASSWORD } from "@/lib/catalog";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { useAuth } from "@/lib/stores/auth";
+import { useT } from "@/components/locale-provider";
 
 export default function LoginPage() {
   const router = useRouter();
   const login = useAuth((s) => s.login);
+  const t = useT();
   const [email, setEmail] = useState(DEMO_EMAIL);
   const [password, setPassword] = useState(DEMO_PASSWORD);
   const [loading, setLoading] = useState(false);
@@ -39,7 +41,7 @@ export default function LoginPage() {
           email: profile?.email ?? data.user.email ?? email,
           name: profile?.full_name || data.user.email?.split("@")[0] || "RAPPI Shop",
         });
-        toast.success("Welcome back.");
+        toast.success(t("login.welcome"));
         setLoading(false);
         router.push("/account");
         return;
@@ -50,10 +52,10 @@ export default function LoginPage() {
     const result = login(email, password);
     setLoading(false);
     if (result.ok) {
-      toast.success("Welcome back.");
+      toast.success(t("login.welcome"));
       router.push("/account");
     } else {
-      toast.error(result.message);
+      toast.error(t("login.invalid"));
     }
   }
 
@@ -61,16 +63,16 @@ export default function LoginPage() {
     <div className="mx-auto flex min-h-[70vh] max-w-[1440px] items-center justify-center px-4 py-16">
       <div className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-[var(--shadow-soft)] sm:p-8">
         <BrandLogo className="mx-auto mb-5 h-28 w-auto" />
-        <p className="text-center text-[11px] uppercase tracking-[0.22em] text-[var(--accent)]">{TAGLINE}</p>
+        <p className="text-center text-[11px] uppercase tracking-[0.22em] text-[var(--accent)]">{t("home.tagline")}</p>
         <h1 className="mt-2 font-[family-name:var(--font-oswald)] text-4xl uppercase">
-          Sign in
+          {t("login.title")}
         </h1>
         <p className="mt-2 text-sm text-[var(--muted)]">
-          Demo shop login. Guests can browse and check out without an account.
+          {t("login.hint")}
         </p>
         <form onSubmit={onSubmit} className="mt-8 space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t("login.email")}</Label>
             <Input
               id="email"
               type="email"
@@ -80,7 +82,7 @@ export default function LoginPage() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">{t("login.password")}</Label>
             <Input
               id="password"
               type="password"
@@ -90,14 +92,14 @@ export default function LoginPage() {
             />
           </div>
           <Button type="submit" className="w-full" size="lg" disabled={loading}>
-            {loading ? "Signing in…" : "Sign in"}
+            {loading ? t("login.signingIn") : t("login.submit")}
           </Button>
         </form>
         <p className="mt-4 text-xs text-[var(--muted-2)]">
-          Demo: {DEMO_EMAIL} / {DEMO_PASSWORD}
+          {t("login.demo", { email: DEMO_EMAIL, password: DEMO_PASSWORD })}
         </p>
         <Button asChild variant="outline" className="mt-6 w-full">
-          <Link href="/">Continue as guest</Link>
+          <Link href="/">{t("login.guest")}</Link>
         </Button>
       </div>
     </div>

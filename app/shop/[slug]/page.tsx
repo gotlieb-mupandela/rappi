@@ -14,6 +14,8 @@ import {
 } from "@/lib/catalog";
 import { buildListing } from "@/lib/listing";
 import { getCatalog } from "@/lib/supabase/catalog";
+import { getT } from "@/lib/i18n/server";
+import { audienceBlurb, audienceName, hubBlurb, hubName } from "@/lib/i18n/labels";
 
 export function generateStaticParams() {
   return [
@@ -45,26 +47,27 @@ export default async function ShopListingPage({
   if (!audience && !cat) notFound();
 
   const catalog = await getCatalog();
+  const t = await getT();
   const listing = audience
     ? buildListing(catalog, { ...sp, audience: slug })
     : buildListing(catalog, sp, { categorySlug: hubSlug });
 
-  const title = audience?.name ?? cat?.name ?? hubSlug;
-  const description = audience?.blurb ?? cat?.blurb;
+  const title = audience ? audienceName(audience.slug, t) : hubName(hubSlug, t);
+  const description = audience ? audienceBlurb(audience.slug, t) : hubBlurb(hubSlug, t);
   const backHref = audience ? "/" : `/category/${hubSlug}`;
-  const backLabel = audience ? "Back to home" : "Back to hub";
+  const backLabel = audience ? t("common.backToHome") : t("common.backToHub");
 
   return (
     <div>
       <PageHeader
         crumbs={[
-          { href: "/", label: "Home" },
+          { href: "/", label: t("common.home") },
           audience
-            ? { label: audience.name }
-            : { href: `/category/${hubSlug}`, label: cat?.name ?? hubSlug },
-          audience ? { label: "Products" } : { label: "Products" },
+            ? { label: audienceName(audience.slug, t) }
+            : { href: `/category/${hubSlug}`, label: hubName(hubSlug, t) },
+          { label: t("common.products") },
         ]}
-        eyebrow={`${listing.total} piece${listing.total === 1 ? "" : "s"}`}
+        eyebrow={t.plural("count.pieces", listing.total)}
         title={title}
         description={description}
         actions={
@@ -84,10 +87,10 @@ export default async function ShopListingPage({
           showAudienceFilter={!audience}
           emptyTitle={
             audience
-              ? `No ${audience.name.toLowerCase()} pieces in this filter`
-              : `No ${cat?.name.toLowerCase()} in this filter`
+              ? t("shop.emptyAudience", { name: audienceName(audience.slug, t).toLowerCase() })
+              : t("shop.emptyHub", { name: hubName(hubSlug, t).toLowerCase() })
           }
-          emptyBody="Clear filters or try another type."
+          emptyBody={t("shop.emptyBody")}
         >
           <ProductGrid
             products={listing.products}

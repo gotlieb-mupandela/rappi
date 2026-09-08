@@ -2,13 +2,21 @@
 
 import { useEffect, type ReactNode } from "react";
 import { Toaster } from "sonner";
+import { LocaleProvider } from "@/components/locale-provider";
 import { useTheme } from "@/components/theme-provider";
+import type { Market } from "@/lib/i18n/config";
 import { useAuth } from "@/lib/stores/auth";
 import { useCart } from "@/lib/stores/cart";
 import { useOrders } from "@/lib/stores/orders";
 import { useWishlist } from "@/lib/stores/wishlist";
 
-export function Providers({ children }: { children: ReactNode }) {
+export function Providers({
+  children,
+  initialMarket,
+}: {
+  children: ReactNode;
+  initialMarket: Market;
+}) {
   const { theme } = useTheme();
 
   useEffect(() => {
@@ -19,7 +27,7 @@ export function Providers({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <>
+    <LocaleProvider initialMarket={initialMarket}>
       {children}
       <Toaster
         theme={theme}
@@ -35,6 +43,6 @@ export function Providers({ children }: { children: ReactNode }) {
           },
         }}
       />
-    </>
+    </LocaleProvider>
   );
 }

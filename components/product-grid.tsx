@@ -1,5 +1,9 @@
+"use client";
+
 import type { Product } from "@/lib/types";
 import { ProductCard } from "@/components/product-card";
+import { useT } from "@/components/locale-provider";
+import { subName } from "@/lib/i18n/labels";
 import { SUBCATEGORY_LABELS } from "@/lib/catalog";
 
 const GRID =
@@ -17,12 +21,13 @@ export function ProductGrid({
   /** Facet / catalog totals — keep headings aligned with filter counts. */
   groupCounts?: Record<string, number>;
 }) {
+  const t = useT();
   if (products.length === 0) {
     return (
       <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-6 py-16 text-center">
-        <p className="text-lg font-semibold text-ink">No products found</p>
+        <p className="text-lg font-semibold text-ink">{t("search.noProducts")}</p>
         <p className="mt-2 text-sm text-[var(--muted)]">
-          Try another code, category, or clear filters.
+          {t("search.noProductsBody")}
         </p>
       </div>
     );
@@ -90,7 +95,7 @@ export function ProductGrid({
               href={`#${sub}`}
               className="inline-flex min-h-10 shrink-0 items-center whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)] hover:text-[var(--accent)]"
             >
-              {SUBCATEGORY_LABELS[sub] ?? sub} [{groupCounts?.[sub] ?? list.length}]
+              {subName(sub, t)} [{groupCounts?.[sub] ?? list.length}]
             </a>
           ))}
         </nav>
@@ -99,7 +104,7 @@ export function ProductGrid({
         <section key={sub} id={sub}>
           <div className="mb-6">
             <h2 className="text-sm font-bold uppercase tracking-[0.16em] text-ink">
-              {SUBCATEGORY_LABELS[sub] ?? sub} [{groupCounts?.[sub] ?? list.length}]
+              {subName(sub, t)} [{groupCounts?.[sub] ?? list.length}]
             </h2>
           </div>
           {layout === "list" ? (

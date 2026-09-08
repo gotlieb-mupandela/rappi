@@ -2,6 +2,7 @@ import source from "@/data/products-source.json";
 import sizeMaster from "@/data/size-master.json";
 import { getAssortment } from "@/lib/assortment";
 import type { Product, SizeStock } from "@/lib/types";
+import type { TFunction } from "@/lib/i18n/translate";
 
 type SourceRow = { code: string; sizes?: string | null; qty?: number };
 type MasterRow = {
@@ -158,10 +159,10 @@ export function hasVisibleSizePicker(product: Product) {
   return pickerSizes(product).length > 0;
 }
 
-export function sizeDisplayLabel(size: string) {
-  if (size === "PACK") return "Assortment pack";
+export function sizeDisplayLabel(size: string, t?: TFunction) {
+  if (size === "PACK") return t ? t("product.assortmentPack") : "Assortment pack";
   if (size === "SKU") return "SKU";
-  if (size === "ONE") return "One size";
+  if (size === "ONE") return t ? t("product.oneSize") : "One size";
   const bib: Record<string, string> = {
     S01: "3XS",
     S02: "XS",
@@ -172,9 +173,9 @@ export function sizeDisplayLabel(size: string) {
   return mapped ? `${size} · ${mapped}` : size;
 }
 
-export function stockLabel(product: Product) {
-  if (isSoldOut(product)) return "Sold out";
+export function stockLabel(product: Product, t?: TFunction) {
+  if (isSoldOut(product)) return t ? t("product.soldOut") : "Sold out";
   const total = skuStock(product);
-  if (total < 5) return `${total} left`;
-  return `${total} in stock`;
+  if (total < 5) return t ? t("product.left", { total }) : `${total} left`;
+  return t ? t("product.inStock", { total }) : `${total} in stock`;
 }

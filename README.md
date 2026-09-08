@@ -2,7 +2,7 @@
 
 Consumer sports catalog for **RAPPI SPORTS HUB**. Tagline: **EQUIP | PERFORM | INSPIRE**.
 
-Dark storefront with neon lime CTAs. Opening-shop stock — **184 SKUs**. Unit prices are retail Namibian dollars (**N$**). Guest browse and cart are enabled. Checkout is a stub (no real payments).
+Dark storefront with neon lime CTAs. Opening-shop stock — **184 SKUs**. Unit prices are retail Namibian dollars (**N$**). France / EU visitors can switch the storefront to **French + euros** (converted from NAD). Guest browse and cart are enabled. Checkout is a stub (no real payments).
 
 When `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are set, the storefront reads catalog, shipping, and site settings from Supabase (with `/data/products.json` as offline fallback). Orders go through the `place_order` RPC.
 
@@ -65,6 +65,30 @@ npm run catalog
 Product photos live at `public/products/{safeCode}/01…05.webp` and in Storage bucket `product-images`. Cards use photo 01; the PDP gallery uses the full set.
 
 Search by product **CODE**, title, or category from the header or `/search`.
+
+## Locale & currency
+
+The storefront serves two markets from the same NAD catalog:
+
+| Market | UI | Prices | When it is chosen |
+| --- | --- | --- | --- |
+| Namibia (default) | English | **N$** (whole dollars) | Unsure, `NA` geo, or English-first `Accept-Language` |
+| France / EU | French | **€** (2 decimals) | `FR` / EU geo (`x-vercel-ip-country`), French `Accept-Language`, or Europe timezone |
+
+**Manual override:** header switcher **EN · N$** ↔ **FR · €**. Choice is stored in the `rappi-market` cookie and `localStorage` (`rappi-market`) with source `manual`, and wins over auto-detect.
+
+**Conversion:** catalog and checkout payloads stay in NAD. EUR is display-only:
+
+```
+EUR = round(NAD × NEXT_PUBLIC_EUR_PER_NAD, 2 cents)
+```
+
+- Env: `NEXT_PUBLIC_EUR_PER_NAD` (alias `NEXT_PUBLIC_NAD_TO_EUR`)
+- Default rate: **0.05** (illustrative fixed rate: **N$20 = €1**, not a live FX feed). Update the env var when you want a new display rate.
+- Rounding: NAD stays whole dollars; EUR uses 2 decimal places.
+- Shipping: Standard **N$100** / Express **N$150** / hub pickup free — shown as €5.00 / €7.50 / Offert at the default rate.
+
+Product names and descriptions stay in the source catalog language for v1.
 
 ## Routes
 

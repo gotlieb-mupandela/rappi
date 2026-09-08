@@ -11,6 +11,51 @@ function fail(msg) {
   process.exitCode = 1;
 }
 
+function checkAiSmoke(code, { primary, extras, price, stock }) {
+  const product = catalog.find((p) => p.code === code);
+  if (!product) {
+    fail(`missing ${code}`);
+    return;
+  }
+  if (product.imageUrl !== primary) fail(`${code} imageUrl changed: ${product.imageUrl}`);
+  if (!Array.isArray(product.images) || product.images[0] !== primary) {
+    fail(`${code} primary is not images[0]`);
+  }
+  if (product.images.length < 1 + extras.length) {
+    fail(`${code} expected >= ${1 + extras.length} gallery images, got ${product.images.length}`);
+  }
+  for (const url of extras) {
+    if (!product.images.includes(url)) fail(`${code} missing ${url}`);
+  }
+  if (product.price !== price || product.unitPrice !== price) {
+    fail(`${code} price ${product.price}/${product.unitPrice}`);
+  }
+  if (product.stockQty !== stock || product.totalQty !== stock) {
+    fail(`${code} stock ${product.stockQty}/${product.totalQty}`);
+  }
+}
+
+checkAiSmoke("100807.040", {
+  primary:
+    "https://v1.joma-sport.net/files/0001/h1bk2b91212b127y123ydhe783737371/web.system/products/20250730091158.100807.040.jpg",
+  extras: [
+    "https://wzmzwerzbyudcvoiiege.supabase.co/storage/v1/object/public/product-images/100807-040/ai-02-back.webp",
+    "https://wzmzwerzbyudcvoiiege.supabase.co/storage/v1/object/public/product-images/100807-040/ai-03-threequarter.webp",
+  ],
+  price: 2555,
+  stock: 463,
+});
+checkAiSmoke("100807.200", {
+  primary:
+    "https://v1.joma-sport.net/files/0001/h1bk2b91212b127y123ydhe783737371/web.system/products/20250730120016.100807.200.jpg",
+  extras: [
+    "https://wzmzwerzbyudcvoiiege.supabase.co/storage/v1/object/public/product-images/100807-200/ai-02-back.webp",
+    "https://wzmzwerzbyudcvoiiege.supabase.co/storage/v1/object/public/product-images/100807-200/ai-03-threequarter.webp",
+  ],
+  price: 2555,
+  stock: 431,
+});
+
 const bib = catalog.find((p) => p.code === "101686.010");
 if (!bib) fail("missing 101686.010");
 else {
@@ -84,6 +129,9 @@ if (!/cost:\s*100/.test(shippingLib) || !/cost:\s*150/.test(shippingLib) || !/co
 }
 
 const nextConfig = readFileSync(new URL("../next.config.ts", import.meta.url), "utf8");
+if (!/wzmzwerzbyudcvoiiege\.supabase\.co/.test(nextConfig)) {
+  fail("next.config missing AI gallery supabase remotePattern");
+}
 if (!/source:\s*"\/shop\/teampro"/.test(nextConfig) || !/destination:\s*"\/shop\/teampro-2026"/.test(nextConfig)) {
   fail("missing /shop/teampro redirect");
 }

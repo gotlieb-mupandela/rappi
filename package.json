@@ -14,7 +14,8 @@
     "sync:joma": "node scripts/sync-joma-catalog.mjs",
     "images:demandware": "node scripts/enrich-demandware-images.mjs --write",
     "images": "python scripts/expand-product-images.py",
-    "images:upload": "node scripts/upload-product-images.mjs"
+    "images:upload": "node scripts/upload-product-images.mjs",
+    "gallery:ai": "node scripts/apply-ai-gallery-urls.mjs"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.23",

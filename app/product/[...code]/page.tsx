@@ -3,10 +3,11 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ProductDetail } from "@/components/product-detail";
 import { ProductCard } from "@/components/product-card";
 import { SectionHeading } from "@/components/section-heading";
-import { categoryBySlug } from "@/lib/catalog";
 import { getProduct, productsByCategory } from "@/lib/products";
 import { getCatalog } from "@/lib/supabase/catalog";
 import { decodeProductCode } from "@/lib/utils";
+import { getT } from "@/lib/i18n/server";
+import { hubName } from "@/lib/i18n/labels";
 
 export default async function ProductPage({
   params,
@@ -18,7 +19,8 @@ export default async function ProductPage({
   const catalog = await getCatalog();
   const product = getProduct(sku, catalog);
   if (!product) notFound();
-  const cat = categoryBySlug(product.category);
+  const t = await getT();
+  const catName = hubName(product.category, t);
   const related = productsByCategory(product.category, catalog)
     .filter((p) => p.code !== product.code)
     .slice(0, 4);
@@ -27,9 +29,9 @@ export default async function ProductPage({
     <div className="page-shell py-8">
       <Breadcrumbs
         items={[
-          { href: "/", label: "Home" },
-          { href: `/category/${product.category}`, label: cat?.name ?? product.category },
-          { href: `/shop/${product.category}`, label: "Products" },
+          { href: "/", label: t("common.home") },
+          { href: `/category/${product.category}`, label: catName },
+          { href: `/shop/${product.category}`, label: t("common.products") },
           { label: product.code },
         ]}
       />
@@ -39,9 +41,9 @@ export default async function ProductPage({
       {related.length ? (
         <section className="mt-16 border-t border-[var(--border)] pt-12">
           <SectionHeading
-            title={`More in ${cat?.name ?? "this hub"}`}
+            title={t("product.moreIn", { name: catName })}
             href={`/shop/${product.category}`}
-            linkLabel="Shop all"
+            linkLabel={t("common.shopAll")}
           />
           <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">
             {related.map((p) => (

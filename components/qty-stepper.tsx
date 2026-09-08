@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/components/locale-provider";
 import { cn } from "@/lib/utils";
 
 export function QtyStepper({
@@ -17,6 +18,7 @@ export function QtyStepper({
 }) {
   const lo = Math.max(min, 1);
   const hi = Math.max(max, lo);
+  const t = useT();
 
   return (
     <div
@@ -27,7 +29,7 @@ export function QtyStepper({
     >
       <button
         type="button"
-        aria-label="Decrease quantity"
+        aria-label={t("qty.decrease")}
         disabled={value <= lo}
         onClick={() => onChange(Math.max(lo, value - 1))}
         className="flex h-12 w-12 items-center justify-center text-lg text-ink transition-colors hover:text-[var(--accent)] disabled:text-[var(--muted-2)]"
@@ -39,7 +41,7 @@ export function QtyStepper({
       </span>
       <button
         type="button"
-        aria-label="Increase quantity"
+        aria-label={t("qty.increase")}
         disabled={value >= hi}
         onClick={() => onChange(Math.min(hi, value + 1))}
         className="flex h-12 w-12 items-center justify-center text-lg text-ink transition-colors hover:text-[var(--accent)] disabled:text-[var(--muted-2)]"

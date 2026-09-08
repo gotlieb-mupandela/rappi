@@ -1,4 +1,7 @@
-import { getAssortment } from "@/lib/assortment";
+"use client";
+
+import { assortmentCopy, getAssortment } from "@/lib/assortment";
+import { useLocale } from "@/components/locale-provider";
 import type { Product } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -9,7 +12,8 @@ export function AssortmentBadge({
   product: Product;
   className?: string;
 }) {
-  const info = getAssortment(product);
+  const { t, format } = useLocale();
+  const info = assortmentCopy(product, t, format) ?? getAssortment(product);
   if (!info) return null;
   return (
     <span
@@ -30,7 +34,8 @@ export function AssortmentHint({
   product: Product;
   className?: string;
 }) {
-  const info = getAssortment(product);
+  const { t, format } = useLocale();
+  const info = assortmentCopy(product, t, format) ?? getAssortment(product);
   if (!info?.pairHint) return null;
   return <p className={cn("text-[11px] text-[var(--muted)]", className)}>{info.pairHint}</p>;
 }

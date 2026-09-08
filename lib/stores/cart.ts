@@ -6,9 +6,15 @@ import type { CartLine } from "@/lib/types";
 import { getProduct } from "@/lib/products";
 import { sizeDisplayLabel } from "@/lib/sizes";
 
+type CartMessage = {
+  ok: boolean;
+  messageKey: string;
+  values?: Record<string, string | number>;
+};
+
 type CartState = {
   lines: CartLine[];
-  add: (code: string, size: string, qty: number) => { ok: boolean; message: string };
+  add: (code: string, size: string, qty: number) => CartMessage;
   setQty: (code: string, size: string, qty: number) => void;
   remove: (code: string, size: string) => void;
   clear: () => void;
@@ -28,12 +34,12 @@ export const useCart = create<CartState>()(
   persist(
     (set, get) => ({
       lines: [],
-      add: (code, size, qty) => {
+      add: (code, size, qty): CartMessage => {
         const product = getProduct(code);
-        if (!product) return { ok: false, message: "Product not found." };
+        if (!product) return { ok: false, messageKey: "cart.productNotFound" };
         const sizeRow = product.sizes.find((s) => s.size === size);
         if (!sizeRow || sizeRow.stock <= 0) {
-          return { ok: false, message: "That size is not in stock." };
+          return { ok: false, messageKey: "cart.sizeNotInStock" };
         }
         const existing = get().lines.find((l) => l.code === code && l.size === size);
         const nextQty = (existing?.qty ?? 0) + qty;
@@ -42,7 +48,8 @@ export const useCart = create<CartState>()(
         if (nextQty > max) {
           return {
             ok: false,
-            message: max <= 0 ? "Sold out." : `Only ${max} in stock.`,
+            messageKey: max <= 0 ? "cart.soldOut" : "cart.onlyInStock",
+            values: { max },
           };
         }
         if (existing) {
@@ -55,7 +62,11 @@ export const useCart = create<CartState>()(
           set({ lines: [...get().lines, { code, size, qty }] });
         }
         const label = sizeDisplayLabel(size);
-        return { ok: true, message: `Added to bag · ${product.displayName || product.code} · ${label}` };
+        return {
+          ok: true,
+          messageKey: "cart.added",
+          values: { name: product.displayName || product.code, label },
+        };
       },
       setQty: (code, size, qty) => {
         const product = getProduct(code);

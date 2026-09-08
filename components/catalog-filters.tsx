@@ -10,6 +10,9 @@ import { Button } from "@/components/ui/button";
 import type { ListingQuery, ListingResult } from "@/lib/listing-types";
 import { LayoutGrid, List } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/components/locale-provider";
+import { convertToNad, convertFromNad, currencySymbol } from "@/lib/i18n/currency";
+import { audienceName, hubName, subName } from "@/lib/i18n/labels";
 
 function asAll(value?: string) {
   return !value || value === "all" ? "all" : value;
@@ -39,6 +42,7 @@ export function CatalogFilters({
   children?: ReactNode;
 }) {
   const router = useRouter();
+  const { t, market } = useLocale();
   const sub = asAll(query?.sub);
   const size = asAll(query?.size);
   const maxPrice = query?.max ?? "";
@@ -93,7 +97,7 @@ export function CatalogFilters({
           className="w-full"
           onClick={() => setFiltersOpen((v) => !v)}
         >
-          {filtersOpen ? "Hide filters" : "Filters"}
+          {filtersOpen ? t("filters.hide") : t("filters.filters")}
         </Button>
       </div>
       <aside
@@ -103,9 +107,9 @@ export function CatalogFilters({
         )}
       >
         {showCategoryFilter ? (
-          <FilterBlock title="Category">
+          <FilterBlock title={t("filters.category")}>
             <FilterLink active={cat === "all"} onClick={() => setParam("cat", "all")}>
-              All ({listing.total})
+              {t("common.all")} ({listing.total})
             </FilterLink>
             {listing.facets.categories.map((c) => (
               <FilterLink
@@ -113,16 +117,16 @@ export function CatalogFilters({
                 active={cat === c.slug}
                 onClick={() => setParam("cat", c.slug)}
               >
-                {c.name} ({c.count})
+                {hubName(c.slug, t)} ({c.count})
               </FilterLink>
             ))}
           </FilterBlock>
         ) : null}
 
         {showAudienceFilter && listing.facets.audiences.length > 0 ? (
-          <FilterBlock title="Shop for">
+          <FilterBlock title={t("filters.shopFor")}>
             <FilterLink active={audience === "all"} onClick={() => setParam("audience", "all")}>
-              All ({listing.total})
+              {t("common.all")} ({listing.total})
             </FilterLink>
             {listing.facets.audiences.map((a) => (
               <FilterLink
@@ -130,16 +134,16 @@ export function CatalogFilters({
                 active={audience === a.slug}
                 onClick={() => setParam("audience", a.slug)}
               >
-                {a.name} ({a.count})
+                {audienceName(a.slug, t)} ({a.count})
               </FilterLink>
             ))}
           </FilterBlock>
         ) : null}
 
         {listing.facets.subs.length > 0 && listing.facets.subs.length <= 12 ? (
-          <FilterBlock title="Type">
+          <FilterBlock title={t("filters.type")}>
             <FilterLink active={sub === "all"} onClick={() => setParam("sub", "all")}>
-              All ({listing.total})
+              {t("common.all")} ({listing.total})
             </FilterLink>
             {listing.facets.subs.map((s) => (
               <FilterLink
@@ -147,14 +151,14 @@ export function CatalogFilters({
                 active={sub === s.slug}
                 onClick={() => setParam("sub", s.slug)}
               >
-                {s.name} ({s.count})
+                {subName(s.slug, t)} ({s.count})
               </FilterLink>
             ))}
           </FilterBlock>
         ) : null}
 
         {listing.facets.sizes.length > 1 ? (
-          <FilterBlock title="Size">
+          <FilterBlock title={t("filters.size")}>
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
@@ -166,7 +170,7 @@ export function CatalogFilters({
                     : "border-[var(--border-strong)] text-[var(--muted)] hover:border-[var(--text)] hover:text-ink",
                 )}
               >
-                All
+                {t("common.all")}
               </button>
               {listing.facets.sizes.map((s) => (
                 <button
@@ -187,14 +191,28 @@ export function CatalogFilters({
           </FilterBlock>
         ) : null}
 
-        <FilterBlock title="Price">
+        <FilterBlock title={t("filters.price")}>
           <Input
+            key={`${market}-${maxPrice}`}
             type="number"
             min={0}
-            step="0.01"
-            placeholder="Up to N$"
-            defaultValue={maxPrice}
-            onBlur={(e) => setParam("max", e.target.value)}
+            step={market === "eu" ? "0.01" : "1"}
+            placeholder={t("filters.maxPlaceholder", { symbol: currencySymbol(market) })}
+            defaultValue={
+              maxPrice
+                ? String(convertFromNad(Number(maxPrice), market))
+                : ""
+            }
+            onBlur={(e) => {
+              const raw = e.target.value.trim();
+              if (!raw) {
+                setParam("max", "");
+                return;
+              }
+              const display = Number(raw);
+              if (!Number.isFinite(display)) return;
+              setParam("max", String(convertToNad(display, market)));
+            }}
           />
         </FilterBlock>
 
@@ -205,11 +223,11 @@ export function CatalogFilters({
           }}
           className="space-y-2"
         >
-          <Label>Search</Label>
+          <Label>{t("filters.search")}</Label>
           <Input
             value={draftQ}
             onChange={(e) => setDraftQ(e.target.value)}
-            placeholder="Code or name"
+            placeholder={t("filters.codeOrName")}
           />
         </form>
 
@@ -219,23 +237,23 @@ export function CatalogFilters({
           className="w-full"
           onClick={() => startTransition(() => router.push(basePath))}
         >
-          Clear filters
+          {t("filters.clear")}
         </Button>
       </aside>
 
       <div className={cn("min-w-0 transition-opacity duration-300", pending && "opacity-50")}>
         <div className="mb-5 flex items-center justify-between gap-3">
           <p className="text-xs uppercase tracking-[0.16em] text-[var(--muted)]">
-            {listing.total} piece{listing.total === 1 ? "" : "s"}
+            {t.plural("count.pieces", listing.total)}
             {listing.pageCount > 1
-              ? ` · page ${listing.page} of ${listing.pageCount}`
+              ? t("filters.pageOf", { page: listing.page, pageCount: listing.pageCount })
               : ""}
           </p>
           {children ? null : (
             <div className="flex items-center gap-1">
               <button
                 type="button"
-                aria-label="Grid view"
+                aria-label={t("common.gridView")}
                 onClick={() => setLayout("grid")}
                 className={cn(
                   "rounded-full p-2 transition-colors",
@@ -246,7 +264,7 @@ export function CatalogFilters({
               </button>
               <button
                 type="button"
-                aria-label="List view"
+                aria-label={t("common.listView")}
                 onClick={() => setLayout("list")}
                 className={cn(
                   "rounded-full p-2 transition-colors",
@@ -261,10 +279,10 @@ export function CatalogFilters({
         {listing.total === 0 ? (
           <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-6 py-16 text-center">
             <p className="text-lg font-semibold text-ink">
-              {emptyTitle ?? "No products found"}
+              {emptyTitle ?? t("search.noProducts")}
             </p>
             <p className="mt-2 text-sm text-[var(--muted)]">
-              {emptyBody ?? "Try another code, category, or clear filters."}
+              {emptyBody ?? t("search.noProductsBody")}
             </p>
           </div>
         ) : (

@@ -3,24 +3,30 @@
 import Link from "next/link";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Button } from "@/components/ui/button";
-import { formatDate, formatPrice } from "@/lib/format";
+import { formatDate } from "@/lib/format";
+import { useLocale } from "@/components/locale-provider";
 import { useAuth } from "@/lib/stores/auth";
 import { useOrders } from "@/lib/stores/orders";
 
-const STEPS = ["Next", "Preparing", "Waiting", "Reserved", "Shipped", "Delivered"] as const;
+function statusKey(status: string) {
+  if (status === "shipped") return "statusShipped" as const;
+  if (status === "preparing") return "statusPreparing" as const;
+  return "statusReserved" as const;
+}
 
 export default function OrdersPage() {
   const user = useAuth((s) => s.user);
   const orders = useOrders((s) => s.orders);
   const mine = user ? orders.filter((o) => o.email === user.email) : orders;
+  const { t, format } = useLocale();
 
   if (!user) {
     return (
       <div className="mx-auto max-w-[640px] px-4 py-16 text-center">
-        <h1 className="font-[family-name:var(--font-oswald)] text-4xl uppercase">Orders</h1>
-        <p className="mt-3 text-sm text-[var(--muted)]">Sign in to see orders tied to your account.</p>
+        <h1 className="font-[family-name:var(--font-oswald)] text-4xl uppercase">{t("account.orders")}</h1>
+        <p className="mt-3 text-sm text-[var(--muted)]">{t("account.ordersSignIn")}</p>
         <Button asChild className="mt-6">
-          <Link href="/login">Sign in</Link>
+          <Link href="/login">{t("nav.signIn")}</Link>
         </Button>
       </div>
     );
@@ -30,30 +36,28 @@ export default function OrdersPage() {
     <div className="page-shell py-8">
       <Breadcrumbs
         items={[
-          { href: "/", label: "Home" },
-          { href: "/account", label: "My account" },
-          { label: "Orders" },
+          { href: "/", label: t("common.home") },
+          { href: "/account", label: t("account.myAccount") },
+          { label: t("account.orders") },
         ]}
       />
       <h1 className="mt-6 font-[family-name:var(--font-oswald)] text-4xl uppercase">
-        Orders
+        {t("account.orders")}
       </h1>
       <p className="mt-2 max-w-2xl text-sm text-[var(--muted)]">
-        Order history to view or track orders already placed. Checkout is a stub — status
-        starts at Reserved.
+        {t("account.ordersIntro")}
       </p>
 
       {!mine.length ? (
         <div className="mt-10 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-6 py-16 text-center">
-          <p className="text-lg font-semibold">No orders yet</p>
-          <p className="mt-2 text-sm text-[var(--muted)]">Place a stub order from checkout to see it here.</p>
+          <p className="text-lg font-semibold">{t("account.noOrders")}</p>
+          <p className="mt-2 text-sm text-[var(--muted)]">{t("account.noOrdersHint")}</p>
         </div>
       ) : (
         <>
         <div className="mt-8 space-y-4 md:hidden">
           {mine.map((order) => {
-            const active =
-              order.status === "shipped" ? "Shipped" : order.status === "preparing" ? "Preparing" : "Reserved";
+            const active = statusKey(order.status);
             return (
               <article key={order.id} className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
                 <p className="font-mono text-lg font-bold text-[var(--accent)]">{order.id}</p>
@@ -63,8 +67,10 @@ export default function OrdersPage() {
                   <br />
                   {order.city}, {order.country}
                 </p>
-                <p className="mt-3 text-lg font-semibold">{formatPrice(order.total)}</p>
-                <p className="mt-1 text-xs uppercase tracking-wider text-[var(--accent)]">{active}</p>
+                <p className="mt-3 text-lg font-semibold">{format(order.total)}</p>
+                <p className="mt-1 text-xs uppercase tracking-wider text-[var(--accent)]">
+                  {t(`account.${active}`)}
+                </p>
               </article>
             );
           })}
@@ -73,23 +79,30 @@ export default function OrdersPage() {
           <table className="w-full min-w-[860px] text-left text-sm">
             <thead className="bg-[var(--surface-2)] text-[11px] uppercase tracking-wider text-[var(--muted)]">
               <tr>
-                <th className="px-3 py-3">Date</th>
-                <th className="px-3 py-3">Order</th>
-                <th className="px-3 py-3">Ship to</th>
-                <th className="px-3 py-3">Total</th>
-                <th className="px-3 py-3">Status</th>
+                <th className="px-3 py-3">{t("account.date")}</th>
+                <th className="px-3 py-3">{t("account.order")}</th>
+                <th className="px-3 py-3">{t("account.shipTo")}</th>
+                <th className="px-3 py-3">{t("account.total")}</th>
+                <th className="px-3 py-3">{t("account.status")}</th>
               </tr>
             </thead>
             <tbody>
               {mine.map((order) => {
-                const active =
-                  order.status === "shipped" ? "Shipped" : order.status === "preparing" ? "Preparing" : "Reserved";
+                const active = statusKey(order.status);
+                const stepKeys = [
+                  "statusNext",
+                  "statusPreparing",
+                  "statusWaiting",
+                  "statusReserved",
+                  "statusShipped",
+                  "statusDelivered",
+                ] as const;
                 return (
                   <tr key={order.id} className="border-t border-[var(--border)] align-top">
                     <td className="px-3 py-4 whitespace-nowrap">{formatDate(order.createdAt)}</td>
                     <td className="px-3 py-4">
                       <p className="font-mono font-bold text-[var(--accent)]">{order.id}</p>
-                      <p className="text-xs text-[var(--muted)]">{order.items.length} line(s)</p>
+                      <p className="text-xs text-[var(--muted)]">{t.plural("count.lines", order.items.length)}</p>
                     </td>
                     <td className="px-3 py-4 text-xs leading-5">
                       {order.name}
@@ -98,10 +111,10 @@ export default function OrdersPage() {
                       <br />
                       {order.city}, {order.country}
                     </td>
-                    <td className="px-3 py-4">{formatPrice(order.total)}</td>
+                    <td className="px-3 py-4">{format(order.total)}</td>
                     <td className="px-3 py-4">
                       <ol className="space-y-1">
-                        {STEPS.map((step) => (
+                        {stepKeys.map((step) => (
                           <li key={step} className="flex items-center gap-2 text-[11px]">
                             <span
                               className={`h-2 w-2 rounded-full ${
@@ -109,7 +122,7 @@ export default function OrdersPage() {
                               }`}
                             />
                             <span className={step === active ? "text-ink" : "text-[var(--muted-2)]"}>
-                              {step}
+                              {t(`account.${step}`)}
                             </span>
                           </li>
                         ))}

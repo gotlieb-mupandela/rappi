@@ -5,25 +5,28 @@ import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Button } from "@/components/ui/button";
-import { formatDate, formatPrice } from "@/lib/format";
+import { useLocale } from "@/components/locale-provider";
+import { formatDate } from "@/lib/format";
+import { translateStoredShipping } from "@/lib/i18n/labels";
 import { useOrders } from "@/lib/stores/orders";
 
 function ConfirmationInner() {
   const params = useSearchParams();
   const id = params.get("id");
   const order = useOrders((s) => s.orders.find((o) => o.id === id));
+  const { t, format, market } = useLocale();
 
   if (!order) {
     return (
       <div className="mx-auto max-w-[720px] px-4 py-16 text-center">
         <h1 className="font-[family-name:var(--font-oswald)] text-4xl uppercase">
-          Order not found
+          {t("checkout.orderNotFound")}
         </h1>
         <p className="mt-3 text-sm text-[var(--muted)]">
-          This confirmation is stored in this browser only.
+          {t("checkout.confirmationHint")}
         </p>
         <Button asChild className="mt-6">
-          <Link href="/account/orders">View orders</Link>
+          <Link href="/account/orders">{t("checkout.viewOrders")}</Link>
         </Button>
       </div>
     );
@@ -33,13 +36,13 @@ function ConfirmationInner() {
     <div className="mx-auto max-w-[900px] px-4 py-8 lg:px-6">
       <Breadcrumbs
         items={[
-          { href: "/", label: "Home" },
-          { href: "/cart", label: "Cart" },
-          { label: "Confirmation" },
+          { href: "/", label: t("common.home") },
+          { href: "/cart", label: t("cart.crumb") },
+          { label: t("checkout.confirmation") },
         ]}
       />
       <p className="mt-6 text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
-        Order placed
+        {t("checkout.orderPlaced")}
       </p>
       <h1 className="mt-2 font-[family-name:var(--font-oswald)] text-4xl uppercase">
         {order.id}
@@ -48,7 +51,7 @@ function ConfirmationInner() {
 
       <div className="mt-8 grid gap-4 md:grid-cols-2">
         <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
-          <h2 className="text-sm font-bold uppercase tracking-wider">Ship to</h2>
+          <h2 className="text-sm font-bold uppercase tracking-wider">{t("checkout.shipTo")}</h2>
           <p className="mt-3 text-sm leading-6">
             {order.name}
             <br />
@@ -58,34 +61,36 @@ function ConfirmationInner() {
             <br />
             {order.email}
           </p>
-          <p className="mt-3 text-sm text-[var(--muted)]">{order.shippingMethod}</p>
+          <p className="mt-3 text-sm text-[var(--muted)]">
+            {translateStoredShipping(order.shippingMethod, t)}
+          </p>
         </section>
         <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
-          <h2 className="text-sm font-bold uppercase tracking-wider">Totals</h2>
+          <h2 className="text-sm font-bold uppercase tracking-wider">{t("checkout.totals")}</h2>
           <p className="mt-3 flex justify-between text-sm">
-            <span>Merchandise</span>
-            <span>{formatPrice(order.subtotal)}</span>
+            <span>{t("checkout.merchandise")}</span>
+            <span>{format(order.subtotal)}</span>
           </p>
           <p className="flex justify-between text-sm">
-            <span>Shipping</span>
-            <span>{formatPrice(order.shippingCost)}</span>
+            <span>{t("checkout.shipping")}</span>
+            <span>{format(order.shippingCost)}</span>
           </p>
           <p className="mt-2 flex justify-between text-lg font-semibold">
-            <span>Total (N$)</span>
-            <span>{formatPrice(order.total)}</span>
+            <span>{market === "eu" ? t("checkout.totalEur") : t("checkout.totalNad")}</span>
+            <span>{format(order.total)}</span>
           </p>
         </section>
       </div>
 
       <section className="mt-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
-        <h2 className="text-sm font-bold uppercase tracking-wider">Items</h2>
+        <h2 className="text-sm font-bold uppercase tracking-wider">{t("checkout.items")}</h2>
         <ul className="mt-3 divide-y divide-[var(--border)] text-sm">
           {order.items.map((item) => (
             <li key={`${item.code}-${item.size}`} className="flex flex-col gap-1 py-2 sm:flex-row sm:justify-between">
               <span className="break-words">
                 {item.code} · {item.name} · {item.size} × {item.qty}
               </span>
-              <span className="shrink-0 font-semibold">{formatPrice(item.price * item.qty)}</span>
+              <span className="shrink-0 font-semibold">{format(item.price * item.qty)}</span>
             </li>
           ))}
         </ul>
@@ -93,10 +98,10 @@ function ConfirmationInner() {
 
       <div className="mt-8 flex flex-wrap gap-3">
         <Button asChild>
-          <Link href="/account/orders">View in account</Link>
+          <Link href="/account/orders">{t("checkout.viewInAccount")}</Link>
         </Button>
         <Button asChild variant="outline">
-          <Link href="/">Continue shopping</Link>
+          <Link href="/">{t("common.continueShopping")}</Link>
         </Button>
       </div>
     </div>

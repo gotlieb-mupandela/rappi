@@ -12,6 +12,8 @@ import { audienceTiles, bramaHubGroups, rugbyHubGroups, shoeHubGroups } from "@/
 import { productsByCategory } from "@/lib/products";
 import { getCatalog } from "@/lib/supabase/catalog";
 import { productPath } from "@/lib/utils";
+import { getT } from "@/lib/i18n/server";
+import { audienceName, groupName, hubBlurb, hubName } from "@/lib/i18n/labels";
 
 export function generateStaticParams() {
   return [
@@ -29,6 +31,7 @@ export default async function CategoryHubPage({
   const hubSlug = resolveCategorySlug(slug);
   const cat = categoryBySlug(hubSlug);
   if (!cat) notFound();
+  const t = await getT();
   const catalog = await getCatalog();
   const items = productsByCategory(hubSlug, catalog);
   const sample = sampleForCategory(catalog, hubSlug);
@@ -57,27 +60,27 @@ export default async function CategoryHubPage({
   return (
     <div>
       <PageHeader
-        crumbs={[{ href: "/", label: "Home" }, { label: cat.name }]}
+        crumbs={[{ href: "/", label: t("common.home") }, { label: hubName(hubSlug, t) }]}
         eyebrow={
           items.length
-            ? `${items.length} piece${items.length === 1 ? "" : "s"}`
-            : "Hub"
+            ? t.plural("count.pieces", items.length)
+            : t("shop.hub")
         }
-        title={cat.name}
-        description={cat.blurb}
+        title={hubName(hubSlug, t)}
+        description={hubBlurb(hubSlug, t)}
         actions={
           items.length ? (
             <>
               <Button asChild size="lg" className="w-full sm:w-auto">
-                <Link href={`/shop/${hubSlug}`}>Shop all</Link>
+                <Link href={`/shop/${hubSlug}`}>{t("common.shopAll")}</Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="w-full sm:w-auto">
-                <Link href="/search">Browse catalog</Link>
+                <Link href="/search">{t("common.browseCatalog")}</Link>
               </Button>
             </>
           ) : (
             <Button asChild size="lg" className="w-full sm:w-auto">
-              <Link href="/search">Browse catalog</Link>
+              <Link href="/search">{t("common.browseCatalog")}</Link>
             </Button>
           )
         }
@@ -97,7 +100,7 @@ export default async function CategoryHubPage({
               />
               <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-4">
                 <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-[var(--accent)]">
-                  Featured
+                  {t("common.featured")}
                 </p>
                 <p className="mt-1 truncate font-[family-name:var(--font-oswald)] text-sm uppercase text-white">
                   {sample.displayName}
@@ -110,13 +113,13 @@ export default async function CategoryHubPage({
       <div className="page-shell py-10 lg:py-14">
         {audiences.length > 1 ? (
           <section className="mb-12 lg:mb-16">
-            <SectionHeading title="Shop by athlete" href={`/shop/${hubSlug}`} linkLabel="Shop all" />
+            <SectionHeading title={t("shop.shopByAthlete")} href={`/shop/${hubSlug}`} linkLabel={t("common.shopAll")} />
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 md:gap-4">
               {audiences.map((g) => (
                 <HubTile
                   key={g.key}
                   slug={hubSlug}
-                  name={g.name}
+                  name={audienceName(g.key, t)}
                   count={g.count}
                   href={g.href}
                   product={g.sample}
@@ -130,17 +133,17 @@ export default async function CategoryHubPage({
 
         {shoeGroups.length > 0 ? (
           <section className="mb-12 lg:mb-16">
-            <SectionHeading title="Shop by fit" href={`/shop/${hubSlug}`} linkLabel="All shoes" />
+            <SectionHeading title={t("shop.shopByFit")} href={`/shop/${hubSlug}`} linkLabel={t("shop.allShoes")} />
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
               {shoeGroups.map((g) => (
                 <HubTile
                   key={g.key}
                   slug={hubSlug}
-                  name={g.name}
+                  name={groupName("shoes", g.key, t)}
                   count={g.count}
                   href={g.href}
                   product={g.sample}
-                  banner={g.banner}
+                  banner={g.banner ? t("group.shoes.offersBanner") : undefined}
                   shape="square"
                 />
               ))}
@@ -150,13 +153,13 @@ export default async function CategoryHubPage({
 
         {rugbyGroups.length > 0 ? (
           <section className="mb-12 lg:mb-16">
-            <SectionHeading title="Shop rugby" href="/shop/rugby" linkLabel="All rugby" />
+            <SectionHeading title={t("shop.shopRugby")} href="/shop/rugby" linkLabel={t("shop.allRugby")} />
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
               {rugbyGroups.map((g) => (
                 <HubTile
                   key={g.key}
                   slug={hubSlug}
-                  name={g.name}
+                  name={groupName("rugby", g.key, t)}
                   count={g.count}
                   href={g.href}
                   product={g.sample}
@@ -169,13 +172,13 @@ export default async function CategoryHubPage({
 
         {bramaGroups.length > 0 ? (
           <section className="mb-12 lg:mb-16">
-            <SectionHeading title="Shop Brama" href="/shop/brama" linkLabel="All Brama" />
+            <SectionHeading title={t("shop.shopBrama")} href="/shop/brama" linkLabel={t("shop.allBrama")} />
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 md:gap-4">
               {bramaGroups.map((g) => (
                 <HubTile
                   key={g.key}
                   slug={hubSlug}
-                  name={g.name}
+                  name={groupName("brama", g.key, t)}
                   count={g.count}
                   href={g.href}
                   product={g.sample}
@@ -189,12 +192,12 @@ export default async function CategoryHubPage({
         {preview.length ? (
           <section>
             <SectionHeading
-              title="In this hub"
+              title={t("shop.inThisHub")}
               href={`/shop/${hubSlug}`}
               linkLabel={
                 items.length > preview.length
-                  ? `View all ${items.length}`
-                  : "View all"
+                  ? t("shop.viewAllCount", { count: items.length })
+                  : t("home.viewAll")
               }
             />
             <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
@@ -206,27 +209,26 @@ export default async function CategoryHubPage({
         ) : (
           <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-6 py-16 text-center">
             <p className="font-[family-name:var(--font-oswald)] text-2xl uppercase text-ink">
-              No stock in this hub yet
+              {t("shop.noStockTitle")}
             </p>
             <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-[var(--muted)]">
-              {cat.name} is not in the current Joma drop. Shop sportswear or browse the
-              full catalog.
+              {t("shop.noStockBody", { name: hubName(hubSlug, t) })}
             </p>
             <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
               <Button asChild>
-                <Link href="/category/sportswear">Shop sportswear</Link>
+                <Link href="/category/sportswear">{t("home.shopSportswear")}</Link>
               </Button>
               <Button asChild variant="outline">
-                <Link href="/search">Browse catalog</Link>
+                <Link href="/search">{t("common.browseCatalog")}</Link>
               </Button>
             </div>
           </section>
         )}
 
         {otherHubs.length ? (
-          <nav className="mt-14 border-t border-[var(--border)] pt-8" aria-label="Other hubs">
+          <nav className="mt-14 border-t border-[var(--border)] pt-8" aria-label={t("common.otherHubs")}>
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--muted-2)]">
-              Other hubs
+              {t("common.otherHubs")}
             </p>
             <ul className="mt-4 flex flex-wrap gap-2">
               {otherHubs.map((c) => (
@@ -235,7 +237,7 @@ export default async function CategoryHubPage({
                     href={`/category/${c.slug}`}
                     className="inline-flex min-h-10 items-center rounded-full border border-[var(--border-strong)] px-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
                   >
-                    {c.name}
+                    {hubName(c.slug, t)}
                   </Link>
                 </li>
               ))}

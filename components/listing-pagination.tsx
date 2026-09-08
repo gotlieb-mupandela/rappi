@@ -1,6 +1,9 @@
+"use client";
+
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { useT } from "@/components/locale-provider";
 
 export function ListingPagination({
   page,
@@ -11,6 +14,7 @@ export function ListingPagination({
   pageCount: number;
   hrefFor: (page: number) => string;
 }) {
+  const t = useT();
   if (pageCount <= 1) return null;
 
   const window: number[] = [];
@@ -20,11 +24,11 @@ export function ListingPagination({
 
   return (
     <nav
-      aria-label="Pagination"
+      aria-label={t("common.pagination")}
       className="mt-10 flex flex-wrap items-center justify-center gap-2"
     >
       <PageLink href={page > 1 ? hrefFor(page - 1) : null} rel="prev">
-        Previous
+        {t("common.previous")}
       </PageLink>
       {start > 1 ? (
         <>
@@ -48,7 +52,7 @@ export function ListingPagination({
         </>
       ) : null}
       <PageLink href={page < pageCount ? hrefFor(page + 1) : null} rel="next">
-        Next
+        {t("common.next")}
       </PageLink>
     </nav>
   );

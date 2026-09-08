@@ -5,6 +5,8 @@ import { SectionHeading } from "@/components/section-heading";
 import { collectionTiles } from "@/lib/hubs";
 import { paginateListing } from "@/lib/listing";
 import { getCatalog } from "@/lib/supabase/catalog";
+import { getT } from "@/lib/i18n/server";
+import { hubName } from "@/lib/i18n/labels";
 
 export default async function PromotionsPage({
   searchParams,
@@ -20,6 +22,7 @@ export default async function PromotionsPage({
 }) {
   const sp = await searchParams;
   const catalog = await getCatalog();
+  const t = await getT();
   const highlighted = catalog.filter(
     (p) => p.badge === "offer" || p.badge === "new",
   );
@@ -41,10 +44,10 @@ export default async function PromotionsPage({
   return (
     <div>
       <PageHeader
-        crumbs={[{ href: "/", label: "Home" }, { label: "New collections" }]}
-        eyebrow="Drop"
-        title="New collections"
-        description="Padel, Hiking, Resort, Lifestyle, and Teampro 2026 — plus new and offer pieces from the current drop."
+        crumbs={[{ href: "/", label: t("common.home") }, { label: t("promotions.crumb") }]}
+        eyebrow={t("promotions.eyebrow")}
+        title={t("promotions.title")}
+        description={t("promotions.description")}
       />
       <div className="page-shell py-10 lg:py-14">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 md:gap-5">
@@ -52,7 +55,7 @@ export default async function PromotionsPage({
             <HubTile
               key={c.key}
               slug={c.key}
-              name={c.name}
+              name={hubName(c.key, t)}
               count={c.count}
               href={c.href}
               product={c.sample}
@@ -62,10 +65,10 @@ export default async function PromotionsPage({
         </div>
 
         <section className="mt-14">
-          <SectionHeading title={`Highlighted stock [${highlighted.length}]`} />
+          <SectionHeading title={t("promotions.highlighted", { count: highlighted.length })} />
           {highlighted.length === 0 ? (
             <p className="text-sm text-[var(--muted)]">
-              No promotions on this opening stock list.
+              {t("promotions.none")}
             </p>
           ) : (
             <CatalogFilters

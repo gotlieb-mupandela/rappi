@@ -5,10 +5,13 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { CATEGORIES, SUBCATEGORY_LABELS } from "@/lib/catalog";
 import type { StorefrontTaxonomy } from "@/lib/listing-types";
 import { cn } from "@/lib/utils";
+import { useT } from "@/components/locale-provider";
+import { subName } from "@/lib/i18n/labels";
 
 export function CategorySubNav({ taxonomy }: { taxonomy: StorefrontTaxonomy }) {
   const pathname = usePathname();
   const params = useSearchParams();
+  const t = useT();
   const slug = CATEGORIES.find(
     (c) =>
       pathname === `/category/${c.slug}` || pathname.startsWith(`/shop/${c.slug}`),
@@ -35,7 +38,7 @@ export function CategorySubNav({ taxonomy }: { taxonomy: StorefrontTaxonomy }) {
               "nav-link text-[11px] font-medium uppercase tracking-[0.12em]",
             )}
           >
-            All
+            {t("common.all")}
           </Link>
         </li>
         {subs.map((s) => (
@@ -45,7 +48,7 @@ export function CategorySubNav({ taxonomy }: { taxonomy: StorefrontTaxonomy }) {
               data-active={active === s.slug ? "true" : undefined}
               className="nav-link text-[11px] font-medium uppercase tracking-[0.12em]"
             >
-              {s.name}
+              {subName(s.slug, t)}
             </Link>
           </li>
         ))}

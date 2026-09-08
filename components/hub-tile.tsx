@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { CATEGORIES } from "@/lib/catalog";
 import { ProductImage } from "@/components/product-image";
+import { useT } from "@/components/locale-provider";
 import { productImageAlt } from "@/lib/copy";
 import { categoryCounts } from "@/lib/products";
 import type { Product } from "@/lib/types";
@@ -47,6 +50,7 @@ export function HubTile({
   const accent = ACCENTS[idx % ACCENTS.length];
   const n = count ?? categoryCounts[slug] ?? 0;
   const to = href ?? `/category/${slug}`;
+  const t = useT();
 
   return (
     <Link href={to} className={cn("group block h-full", className)}>
@@ -88,7 +92,7 @@ export function HubTile({
         <div className="absolute inset-x-0 bottom-0 p-3">
           {n > 0 ? (
             <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[var(--accent)]">
-              {n} piece{n === 1 ? "" : "s"}
+              {t.plural("count.pieces", n)}
             </p>
           ) : null}
           <p className="mt-0.5 font-[family-name:var(--font-oswald)] text-sm uppercase tracking-wide text-white sm:text-base">

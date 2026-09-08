@@ -9,7 +9,9 @@ import { QtyStepper } from "@/components/qty-stepper";
 import { AssortmentBadge, AssortmentHint } from "@/components/assortment-label";
 import { getAssortment } from "@/lib/assortment";
 import { productDescription } from "@/lib/copy";
-import { formatPrice } from "@/lib/format";
+import { useLocale } from "@/components/locale-provider";
+import { currencySymbol } from "@/lib/i18n/currency";
+import { hubName, subName } from "@/lib/i18n/labels";
 import {
   buyableSizes,
   hasVisibleSizePicker,
@@ -20,7 +22,6 @@ import {
 } from "@/lib/sizes";
 import { isLowStock } from "@/lib/products";
 import { useCart } from "@/lib/stores/cart";
-import { CATEGORIES, SUBCATEGORY_LABELS } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
 
 export function ProductDetail({ product }: { product: Product }) {
@@ -29,24 +30,26 @@ export function ProductDetail({ product }: { product: Product }) {
   const [size, setSize] = useState(buyable[0]?.size ?? product.sizes[0]?.size ?? "SKU");
   const [qty, setQty] = useState(1);
   const add = useCart((s) => s.add);
+  const { t, format, market } = useLocale();
   const selected = product.sizes.find((s) => s.size === size);
   const stock = selected?.stock ?? 0;
   const soldOut = isSoldOut(product);
-  const cat = CATEGORIES.find((c) => c.slug === product.category);
+  const catName = hubName(product.category, t);
   const title = product.displayName || product.item;
   const assortment = getAssortment(product);
-  const details = productDescription(product);
+  const details = productDescription(product, { t, market });
   const showPicker = hasVisibleSizePicker(product);
-  const unitLabel = sizeDisplayLabel(size);
+  const unitLabel = sizeDisplayLabel(size, t);
+  const symbol = currencySymbol(market);
 
   function addToBag() {
     if (soldOut || stock <= 0) {
-      toast.error("This piece is sold out.");
+      toast.error(t("product.soldOutPiece"));
       return;
     }
     const result = add(product.code, size, qty);
-    if (result.ok) toast.success(result.message);
-    else toast.error(result.message);
+    if (result.ok) toast.success(t(result.messageKey, result.values));
+    else toast.error(t(result.messageKey, result.values));
   }
 
   return (
@@ -54,9 +57,9 @@ export function ProductDetail({ product }: { product: Product }) {
       <ProductGallery product={product} />
       <div className="lg:sticky lg:top-28 lg:pt-2">
         <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--accent)]">
-          {cat?.name}
+          {catName}
           <span className="text-ink/25"> / </span>
-          {SUBCATEGORY_LABELS[product.subcategory] ?? product.subcategory}
+          {subName(product.subcategory, t)}
         </p>
         <h1 className="mt-4 font-[family-name:var(--font-oswald)] text-3xl uppercase leading-[0.95] tracking-wide text-ink sm:text-4xl">
           {title}
@@ -66,18 +69,18 @@ export function ProductDetail({ product }: { product: Product }) {
         </p>
         <div className="mt-6">
           <p className="price text-2xl font-semibold tracking-tight text-ink sm:text-[1.75rem]">
-            {formatPrice(product.price)}
+            {format(product.price)}
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <AssortmentBadge product={product} className="bg-[var(--text)] text-[var(--bg)]" />
             <AssortmentHint product={product} />
           </div>
-          <p className="mt-2 text-sm text-[var(--muted)]">{stockLabel(product)}</p>
+          <p className="mt-2 text-sm text-[var(--muted)]">{stockLabel(product, t)}</p>
           {assortment?.isAssortment ? (
             <p className="mt-1 text-[12px] text-[var(--muted-2)]">
               {assortment.preserveSizes
-                ? "Sold as a pack of 10. The N$ price is for the full pack. Choose a size — S01–S04 follow the Joma grid (3XS, XS, M, XL)."
-                : "Sold as a wholesale assortment pack, not a single pair. The N$ price is the pack price. Mixed sizes ship as packed by the supplier — we do not invent a single-pair size."}
+                ? t("product.pack10", { symbol })
+                : t("product.packAssortment", { symbol })}
             </p>
           ) : null}
         </div>
@@ -85,7 +88,7 @@ export function ProductDetail({ product }: { product: Product }) {
         {showPicker ? (
           <div className="mt-8">
             <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--muted)]">
-              Size
+              {t("product.size")}
             </p>
             <div className="flex flex-wrap gap-2">
               {visible.map((row) => (
@@ -112,26 +115,26 @@ export function ProductDetail({ product }: { product: Product }) {
             {selected ? (
               <p className="mt-3 text-sm text-[var(--muted)]">
                 {stock === 0
-                  ? "Sold out in this size"
+                  ? t("product.soldOutSize")
                   : isLowStock(stock)
-                    ? `Limited — ${stock} left`
-                    : stockLabel(product)}
+                    ? t("product.limited", { stock })
+                    : stockLabel(product, t)}
               </p>
             ) : null}
           </div>
         ) : (
           <p className="mt-8 text-sm text-[var(--muted)]">
             {assortment?.packSize === 10
-              ? "Order unit: pack of 10."
+              ? t("product.orderPack10")
               : assortment?.isAssortment
-                ? "Order unit: assortment pack."
-                : "Order unit: SKU. A per-size run is attached when the Joma B2B export lists one."}
+                ? t("product.orderAssortment")
+                : t("product.orderSku")}
           </p>
         )}
 
         <div className="mt-8 max-w-xl">
           <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--muted)]">
-            Details
+            {t("product.details")}
           </p>
           <p className="mt-3 text-sm leading-7 text-[var(--muted)]">{details}</p>
         </div>
@@ -148,20 +151,20 @@ export function ProductDetail({ product }: { product: Product }) {
             disabled={soldOut || stock === 0}
             className="min-w-48 flex-1"
           >
-            {soldOut ? "Sold out" : "Add to bag"}
+            {soldOut ? t("product.soldOut") : t("common.addToBag")}
           </Button>
         </div>
         <p className="mt-8 hidden max-w-md text-sm leading-7 text-[var(--muted)] md:block">
-          Priced in Namibian dollars. Guest checkout is available — no account required.
+          {market === "eu" ? t("product.pricedEur") : t("product.pricedNad")}
         </p>
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-[var(--border)] bg-[var(--header-bg-scrolled)] px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-xl md:hidden">
         <div className="mx-auto flex max-w-[1440px] items-center gap-3">
           <div className="min-w-0">
-            <p className="price text-sm font-semibold">{formatPrice(product.price)}</p>
+            <p className="price text-sm font-semibold">{format(product.price)}</p>
             <p className="truncate text-[11px] uppercase tracking-wider text-[var(--muted)]">
-              {soldOut ? "Sold out" : unitLabel}
+              {soldOut ? t("product.soldOut") : unitLabel}
             </p>
           </div>
           <QtyStepper
@@ -176,7 +179,7 @@ export function ProductDetail({ product }: { product: Product }) {
             disabled={soldOut || stock === 0}
             className="min-w-0 flex-1"
           >
-            {soldOut ? "Sold out" : "Add to bag"}
+            {soldOut ? t("product.soldOut") : t("common.addToBag")}
           </Button>
         </div>
       </div>

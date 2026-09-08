@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { AUDIENCES, CATEGORIES } from "@/lib/catalog";
 import { buildListing } from "@/lib/listing";
 import { getCatalog } from "@/lib/supabase/catalog";
+import { getT } from "@/lib/i18n/server";
+import { audienceName, hubName } from "@/lib/i18n/labels";
 
 export default async function SearchPage({
   searchParams,
@@ -23,26 +25,27 @@ export default async function SearchPage({
   const q = (sp.q ?? "").trim();
   const catalog = await getCatalog();
   const listing = buildListing(catalog, sp, { requireQuery: true });
+  const t = await getT();
 
   return (
     <div>
       <PageHeader
-        crumbs={[{ href: "/", label: "Home" }, { label: "Search" }]}
+        crumbs={[{ href: "/", label: t("common.home") }, { label: t("search.crumb") }]}
         eyebrow={
           q
-            ? `${listing.total} result${listing.total === 1 ? "" : "s"}`
-            : `${catalog.length} pieces`
+            ? t.plural("count.results", listing.total)
+            : t.plural("count.pieces", catalog.length)
         }
-        title="Search"
+        title={t("search.title")}
         description={
           q
-            ? `Results for “${q}”.`
-            : "Find a piece by code, name, or category."
+            ? t("search.descriptionQuery", { q })
+            : t("search.descriptionEmpty")
         }
       />
       <div className="page-shell py-8 sm:py-10">
         {!q ? (
-          <EmptySearch />
+          <EmptySearch t={t} />
         ) : (
           <CatalogFilters
             listing={listing}
@@ -50,8 +53,8 @@ export default async function SearchPage({
             basePath="/search"
             grouped={false}
             showCategoryFilter
-            emptyTitle="No matches"
-            emptyBody="Nothing in the catalog matched that code, name, or category."
+            emptyTitle={t("search.emptyTitle")}
+            emptyBody={t("search.emptyBody")}
           />
         )}
       </div>
@@ -59,29 +62,29 @@ export default async function SearchPage({
   );
 }
 
-function EmptySearch() {
+function EmptySearch({ t }: { t: Awaited<ReturnType<typeof getT>> }) {
   return (
     <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-6 py-12">
       <form action="/search" className="mx-auto max-w-xl">
         <label htmlFor="search-q" className="sr-only">
-          Search the catalog
+          {t("nav.searchAria")}
         </label>
         <input
           id="search-q"
           name="q"
           type="search"
           autoFocus
-          placeholder="Search by name, code, or category"
+          placeholder={t("nav.searchPlaceholderLong")}
           className="h-12 w-full rounded-full border border-[var(--border)] bg-[var(--bg-elevated)] px-5 text-sm text-ink placeholder:text-[var(--muted-2)] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20"
         />
         <div className="mt-4 flex justify-center">
           <Button type="submit" size="lg">
-            Search
+            {t("nav.search")}
           </Button>
         </div>
       </form>
       <p className="mx-auto mt-8 max-w-xl text-center text-sm text-[var(--muted)]">
-        Type a product name, SKU, or category. We only load matching pages — never the full catalog at once.
+        {t("search.hint")}
       </p>
       <ul className="mx-auto mt-8 flex max-w-2xl flex-wrap justify-center gap-2">
         {AUDIENCES.map((a) => (
@@ -90,7 +93,7 @@ function EmptySearch() {
               href={`/shop/${a.slug}`}
               className="inline-flex h-10 items-center rounded-full border border-[var(--border-strong)] px-4 text-[11px] font-semibold uppercase tracking-wider text-ink hover:border-[var(--accent)] hover:text-[var(--accent)]"
             >
-              {a.name}
+              {audienceName(a.slug, t)}
             </Link>
           </li>
         ))}
@@ -102,7 +105,7 @@ function EmptySearch() {
               href={`/shop/${c.slug}`}
               className="inline-flex h-10 items-center rounded-full border border-[var(--border-strong)] px-4 text-[11px] font-semibold uppercase tracking-wider text-ink hover:border-[var(--accent)] hover:text-[var(--accent)]"
             >
-              {c.name}
+              {hubName(c.slug, t)}
             </Link>
           </li>
         ))}

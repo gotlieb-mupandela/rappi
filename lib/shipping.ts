@@ -5,7 +5,7 @@ export type ShippingMethod = {
   sort_order: number;
 };
 
-/** Source of truth for storefront shipping rates (NAD). */
+/** Source of truth for storefront shipping rates (NAD). Display converts to EUR in EU market. */
 export const SHIPPING_METHODS: ShippingMethod[] = [
   { id: "standard", name: "Standard (5–8 days)", cost: 100, sort_order: 1 },
   { id: "express", name: "Express (2–3 days)", cost: 150, sort_order: 2 },

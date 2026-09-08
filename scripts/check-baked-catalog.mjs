@@ -11,6 +11,27 @@ function fail(msg) {
   process.exitCode = 1;
 }
 
+const smoke = catalog.find((p) => p.code === "100807.040");
+const smokePrimary =
+  "https://v1.joma-sport.net/files/0001/h1bk2b91212b127y123ydhe783737371/web.system/products/20250730091158.100807.040.jpg";
+const smokeAi = [
+  "https://wzmzwerzbyudcvoiiege.supabase.co/storage/v1/object/public/product-images/100807-040/ai-02-back.webp",
+  "https://wzmzwerzbyudcvoiiege.supabase.co/storage/v1/object/public/product-images/100807-040/ai-03-threequarter.webp",
+];
+if (!smoke) fail("missing 100807.040");
+else {
+  if (smoke.imageUrl !== smokePrimary) fail(`100807.040 imageUrl changed: ${smoke.imageUrl}`);
+  if (!Array.isArray(smoke.images) || smoke.images[0] !== smokePrimary) {
+    fail("100807.040 primary is not images[0]");
+  }
+  if (smoke.images.length !== 3) fail(`100807.040 expected 3 gallery images, got ${smoke.images.length}`);
+  for (const url of smokeAi) {
+    if (!smoke.images.includes(url)) fail(`100807.040 missing ${url}`);
+  }
+  if (smoke.price !== 2555 || smoke.unitPrice !== 2555) fail(`100807.040 price ${smoke.price}/${smoke.unitPrice}`);
+  if (smoke.stockQty !== 463 || smoke.totalQty !== 463) fail(`100807.040 stock ${smoke.stockQty}/${smoke.totalQty}`);
+}
+
 const bib = catalog.find((p) => p.code === "101686.010");
 if (!bib) fail("missing 101686.010");
 else {
@@ -84,6 +105,9 @@ if (!/cost:\s*100/.test(shippingLib) || !/cost:\s*150/.test(shippingLib) || !/co
 }
 
 const nextConfig = readFileSync(new URL("../next.config.ts", import.meta.url), "utf8");
+if (!/wzmzwerzbyudcvoiiege\.supabase\.co/.test(nextConfig)) {
+  fail("next.config missing AI gallery supabase remotePattern");
+}
 if (!/source:\s*"\/shop\/teampro"/.test(nextConfig) || !/destination:\s*"\/shop\/teampro-2026"/.test(nextConfig)) {
   fail("missing /shop/teampro redirect");
 }

@@ -1,9 +1,36 @@
+import extraGalleryByCode from "@/data/ai-gallery-urls.json";
+
 const STORAGE_ROOT = process.env.NEXT_PUBLIC_SUPABASE_URL
   ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/product-images`
   : "";
 
+const EXTRA_GALLERY = extraGalleryByCode as Record<string, string[]>;
+
 function isRemoteUrl(url: string | undefined | null) {
   return Boolean(url && /^https?:\/\//i.test(url));
+}
+
+function extraGalleryUrls(product: { id: string; code?: string }) {
+  const fromCode = product.code ? EXTRA_GALLERY[product.code] : undefined;
+  const fromId = EXTRA_GALLERY[product.id];
+  return [...(fromCode ?? []), ...(fromId ?? [])].filter(isRemoteUrl);
+}
+
+function mergeGallery(
+  product: { id: string; code?: string },
+  primary: string | undefined,
+  images: string[],
+) {
+  const extras = extraGalleryUrls(product);
+  const upgraded = [...images, ...extras]
+    .filter(Boolean)
+    .map(upgradeProductImageUrl);
+  const first = primary ? upgradeProductImageUrl(primary) : upgraded[0];
+  const merged = [...new Set([...(first ? [first] : []), ...upgraded])];
+  if (first && merged[0] !== first) {
+    return { imageUrl: first, images: [first, ...merged.filter((url) => url !== first)] };
+  }
+  return { imageUrl: first ?? "", images: merged };
 }
 
 /** Joma `_large.jpg` thumbs are ~30KB; the same path without `_large` is full-res. */
@@ -28,7 +55,7 @@ export function productStorageUrls(id: string) {
 
 /** Prefer real CDN/remote URLs already on the product; only invent local/storage paths as fallback. */
 export function withProductImages<
-  T extends { id: string; imageUrl: string; images: string[] },
+  T extends { id: string; imageUrl: string; images: string[]; code?: string },
 >(product: T): T {
   const remoteImages = (product.images ?? []).filter(isRemoteUrl);
   const remotePrimary = isRemoteUrl(product.imageUrl)
@@ -36,21 +63,22 @@ export function withProductImages<
     : remoteImages[0];
 
   if (remotePrimary) {
-    const imageUrl = upgradeProductImageUrl(remotePrimary);
-    const images = (remoteImages.length ? remoteImages : [remotePrimary]).map(
-      upgradeProductImageUrl,
-    );
     return {
       ...product,
-      imageUrl,
-      images: [...new Set(images)],
+      ...mergeGallery(
+        product,
+        remotePrimary,
+        remoteImages.length ? remoteImages : [remotePrimary],
+      ),
     };
   }
 
-  const local = productPublicUrls(product.id);
-  if (process.env.NODE_ENV !== "production") {
-    return { ...product, ...local };
-  }
-  if (!STORAGE_ROOT) return { ...product, ...local };
-  return { ...product, ...productStorageUrls(product.id) };
+  const local =
+    process.env.NODE_ENV !== "production" || !STORAGE_ROOT
+      ? productPublicUrls(product.id)
+      : productStorageUrls(product.id);
+  return {
+    ...product,
+    ...mergeGallery(product, local.imageUrl, local.images),
+  };
 }

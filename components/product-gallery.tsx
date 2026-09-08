@@ -45,7 +45,7 @@ export function ProductGallery({ product }: { product: Product }) {
               type="button"
               onClick={() => setActive(i)}
               className={cn(
-                "media-frame overflow-hidden rounded-md border transition-[border-color,opacity] duration-300",
+                "media-frame relative aspect-square overflow-hidden rounded-md border transition-[border-color,opacity] duration-300",
                 i === active
                   ? "border-[var(--accent)] opacity-100"
                   : "border-transparent opacity-55 hover:opacity-100",
@@ -57,9 +57,10 @@ export function ProductGallery({ product }: { product: Product }) {
                 product={product}
                 src={src}
                 alt=""
-                className="aspect-square w-full object-cover"
-                fallbackClassName="aspect-square"
-                sizes="80px"
+                fill
+                className="object-cover"
+                fallbackClassName="absolute inset-0"
+                sizes="160px"
               />
             </button>
           ))}

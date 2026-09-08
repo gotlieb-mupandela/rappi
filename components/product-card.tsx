@@ -43,12 +43,14 @@ export function ProductCard({
   if (layout === "list") {
     return (
       <article className="grid grid-cols-[80px_minmax(0,1fr)] items-center gap-4 border-b border-[var(--border)] py-4 sm:grid-cols-[96px_minmax(0,1fr)_auto] sm:gap-5">
-        <Link href={productPath(product.code)} className="media-frame block w-20 overflow-hidden rounded-lg sm:w-24">
+        <Link href={productPath(product.code)} className="media-frame relative block aspect-square w-20 overflow-hidden rounded-lg sm:w-24">
           <ProductImage
             product={product}
             src={product.imageUrl}
-            className="aspect-square w-full object-cover"
-            fallbackClassName="aspect-square"
+            fill
+            sizes="96px"
+            className="object-cover"
+            fallbackClassName="absolute inset-0"
           />
         </Link>
         <Link href={productPath(product.code)} className="min-w-0">

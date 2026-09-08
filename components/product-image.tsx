@@ -23,6 +23,7 @@ export function ProductImage({
   fallbackClassName,
   priority = false,
   sizes,
+  fill = false,
 }: {
   product: Product;
   src?: string | null;
@@ -31,6 +32,7 @@ export function ProductImage({
   fallbackClassName?: string;
   priority?: boolean;
   sizes?: string;
+  fill?: boolean;
 }) {
   const candidates = productImageCandidates(product, src);
   const sourceKey = candidates[0] ?? "";
@@ -52,34 +54,42 @@ export function ProductImage({
     );
   }
 
+  const altText = alt ?? productImageAlt(product);
+  const common = {
+    src: current,
+    className,
+    sizes:
+      sizes ??
+      (priority
+        ? "(max-width: 768px) 100vw, 42vw"
+        : "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"),
+    priority,
+    loading: (priority ? "eager" : "lazy") as "eager" | "lazy",
+    referrerPolicy: "no-referrer" as const,
+    onError: () => {
+      setLoad((prev) => {
+        if (prev.key !== sourceKey) {
+          return { key: sourceKey, index: 0, attempt: 0 };
+        }
+        if (prev.attempt < RETRIES_PER_URL) {
+          return { ...prev, attempt: prev.attempt + 1 };
+        }
+        return { ...prev, index: prev.index + 1, attempt: 0 };
+      });
+    },
+  };
+
+  if (fill) {
+    return <Image key={`${current}:${load.attempt}`} fill alt={altText} {...common} />;
+  }
+
   return (
     <Image
       key={`${current}:${load.attempt}`}
-      src={current}
-      alt={alt ?? productImageAlt(product)}
       width={900}
       height={1200}
-      className={className}
-      sizes={
-        sizes ??
-        (priority
-          ? "(max-width: 768px) 100vw, 42vw"
-          : "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw")
-      }
-      priority={priority}
-      loading={priority ? "eager" : "lazy"}
-      referrerPolicy="no-referrer"
-      onError={() => {
-        setLoad((prev) => {
-          if (prev.key !== sourceKey) {
-            return { key: sourceKey, index: 0, attempt: 0 };
-          }
-          if (prev.attempt < RETRIES_PER_URL) {
-            return { ...prev, attempt: prev.attempt + 1 };
-          }
-          return { ...prev, index: prev.index + 1, attempt: 0 };
-        });
-      }}
+      alt={altText}
+      {...common}
     />
   );
 }

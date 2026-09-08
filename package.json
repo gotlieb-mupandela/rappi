@@ -12,6 +12,7 @@
     "check:merch": "node scripts/check-baked-catalog.mjs",
     "bake:catalog": "npx tsx scripts/bake-catalog.ts",
     "sync:joma": "node scripts/sync-joma-catalog.mjs",
+    "images:demandware": "node scripts/enrich-demandware-images.mjs --write",
     "images": "python scripts/expand-product-images.py",
     "images:upload": "node scripts/upload-product-images.mjs"
   },

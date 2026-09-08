@@ -53,11 +53,25 @@ const large = catalog.filter(
 const emptyDesc = catalog.filter((p) => !String(p.description || "").trim());
 const bibs = catalog.filter((p) => String(p.code).startsWith("101686."));
 const badBibs = bibs.filter((p) => p.price !== 900 || p.unitPrice !== 900);
+const multi = catalog.filter((p) => (p.images || []).length >= 2);
+const dwMulti = catalog.filter(
+  (p) => (p.images || []).filter((u) => /joma-sport\.com\/on\/demandware/i.test(u)).length >= 2,
+);
+const imageUrlMismatch = catalog.filter(
+  (p) => p.images?.length && p.imageUrl !== p.images[0],
+);
 
 if (cents.length) fail(`catalog cents left: ${cents.length}`);
 if (large.length) fail(`catalog _large left: ${large.length}`);
 if (emptyDesc.length) fail(`catalog empty descriptions: ${emptyDesc.length}`);
 if (badBibs.length) fail(`101686 family not 900: ${badBibs.map((p) => p.code).join(",")}`);
+if (imageUrlMismatch.length) fail(`imageUrl not first gallery image: ${imageUrlMismatch.length}`);
+if (multi.length < catalog.length * 0.5) {
+  fail(`too few multi-image SKUs: ${multi.length}/${catalog.length}`);
+}
+if (dwMulti.length < catalog.length * 0.4) {
+  fail(`too few Demandware multi-angle SKUs: ${dwMulti.length}/${catalog.length}`);
+}
 
 if (!checkout.includes("@/lib/shipping")) {
   fail("checkout is not wired to lib/shipping");
@@ -142,4 +156,10 @@ console.log("ok", {
   bib: bib && { price: bib.price, image: bib.imageUrl, descLen: bib.description.length },
   sample: sample.length,
   shipping: "100/150/0",
+  galleries: {
+    multi: multi.length,
+    pct2plus: Number(((multi.length / catalog.length) * 100).toFixed(1)),
+    demandware2plus: dwMulti.length,
+    pctDw2plus: Number(((dwMulti.length / catalog.length) * 100).toFixed(1)),
+  },
 });

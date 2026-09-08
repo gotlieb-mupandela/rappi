@@ -8,6 +8,20 @@ const nextConfig: NextConfig = {
       { source: "/category/teampro", destination: "/category/teampro-2026", permanent: true },
     ];
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "www.joma-sport.com",
+        pathname: "/on/demandware.static/**",
+      },
+      {
+        protocol: "https",
+        hostname: "v1.joma-sport.net",
+        pathname: "/files/**",
+      },
+    ],
+  },
 };
 
 export default nextConfig;

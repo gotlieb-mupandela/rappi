@@ -168,6 +168,7 @@ export function resolveCategorySlug(slug: string) {
 export const CAMPAIGN_COLLECTIONS = [
   "padel",
   "hiking",
+  "brama",
   "resort",
   "lifestyle",
   "teampro-2026",

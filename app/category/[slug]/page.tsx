@@ -90,7 +90,8 @@ export default async function CategoryHubPage({
               <ProductImage
                 product={sample}
                 src={sample.imageUrl}
-                alt=""
+                alt={sample.displayName}
+                priority
                 className="aspect-[4/5] w-full object-cover transition-transform duration-700 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                 fallbackClassName="aspect-[4/5] w-full"
               />
@@ -120,6 +121,7 @@ export default async function CategoryHubPage({
                   href={g.href}
                   product={g.sample}
                   shape="square"
+                  priority
                 />
               ))}
             </div>

@@ -269,7 +269,16 @@ export function CatalogFilters({
           </div>
         ) : (
           <>
-            {children ?? <ProductGrid products={listing.products} grouped={grouped} layout={layout} />}
+            {children ?? (
+              <ProductGrid
+                products={listing.products}
+                grouped={grouped}
+                layout={layout}
+                groupCounts={Object.fromEntries(
+                  listing.facets.subs.map((s) => [s.slug, s.count]),
+                )}
+              />
+            )}
             <ListingPagination
               page={listing.page}
               pageCount={listing.pageCount}

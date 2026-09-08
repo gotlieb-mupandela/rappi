@@ -164,22 +164,13 @@ export function kidsHubGroups(catalog: Product[] = bundled) {
   ].filter((g) => g.count > 0);
 }
 
-function rugbyKind(product: Product) {
-  const n = `${product.displayName} ${product.name}`.toLowerCase();
-  if (/\b(helmet|protection|protec|scrum cap|skrum cap)\b/.test(n)) return "protection";
-  if (/\bball\b/.test(n)) return "balls";
-  if ((/\bshorts?\b/.test(n) || /\bbermuda\b/.test(n)) && !/\b(shirt|jersey|tee)\b/.test(n)) {
-    return "shorts";
-  }
-  return "jerseys";
-}
-
 export function rugbyHubGroups(catalog: Product[] = bundled) {
   const items = productsByCategory("rugby", catalog);
-  const jerseys = items.filter((p) => rugbyKind(p) === "jerseys");
-  const shorts = items.filter((p) => rugbyKind(p) === "shorts");
-  const protection = items.filter((p) => rugbyKind(p) === "protection");
-  const balls = items.filter((p) => rugbyKind(p) === "balls");
+  const of = (sub: string) => items.filter((p) => p.subcategory === sub);
+  const jerseys = of("jerseys");
+  const shorts = of("shorts");
+  const protection = of("protection");
+  const balls = of("balls");
   return [
     {
       key: "jerseys",

@@ -101,6 +101,7 @@ export default async function HomePage() {
               href={a.href}
               product={a.sample}
               shape="square"
+              priority
             />
           ))}
         </div>
@@ -119,6 +120,7 @@ export default async function HomePage() {
                 fill={i === 0}
                 shape={i === 0 ? "portrait" : "square"}
                 compact={i !== 0}
+                priority={i < 5}
               />
             </div>
           ))}
@@ -142,6 +144,7 @@ export default async function HomePage() {
               href={c.href}
               product={c.sample}
               shape="square"
+              priority={false}
             />
           ))}
         </div>

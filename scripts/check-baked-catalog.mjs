@@ -116,6 +116,21 @@ if (/Loading products/.test(shopPage) || /useSearchParams/.test(shopPage)) {
 const filters = readFileSync(new URL("../components/catalog-filters.tsx", import.meta.url), "utf8");
 if (/useSearchParams/.test(filters)) fail("CatalogFilters still uses useSearchParams (blocks SSR grid)");
 
+const catalogLib = readFileSync(new URL("../lib/catalog.ts", import.meta.url), "utf8");
+if (!/CAMPAIGN_COLLECTIONS[\s\S]*"brama"/.test(catalogLib)) {
+  fail("Brama is not in CAMPAIGN_COLLECTIONS");
+}
+
+const hubTile = readFileSync(new URL("../components/hub-tile.tsx", import.meta.url), "utf8");
+if (!/priority/.test(hubTile) || !/absolute inset-0/.test(hubTile)) {
+  fail("hub tiles missing eager/fill image wiring");
+}
+
+const productGrid = readFileSync(new URL("../components/product-grid.tsx", import.meta.url), "utf8");
+if (!/groupCounts/.test(productGrid)) {
+  fail("product grid headings are not using shared groupCounts");
+}
+
 const shoeSample = catalog.find((p) => p.code === "BF1448W2503");
 if (!shoeSample || shoeSample.category !== "shoes") fail("BF1448W2503 is not in shoes");
 if (/\b(vest|shirt|tee)\b/i.test(`${shoeSample.displayName} ${shoeSample.name}`)) {

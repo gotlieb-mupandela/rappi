@@ -89,7 +89,13 @@ export default async function ShopListingPage({
           }
           emptyBody="Clear filters or try another type."
         >
-          <ProductGrid products={listing.products} grouped />
+          <ProductGrid
+            products={listing.products}
+            grouped
+            groupCounts={Object.fromEntries(
+              listing.facets.subs.map((s) => [s.slug, s.count]),
+            )}
+          />
         </CatalogFilters>
       </div>
     </div>

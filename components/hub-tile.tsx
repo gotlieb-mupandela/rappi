@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CATEGORIES } from "@/lib/catalog";
 import { ProductImage } from "@/components/product-image";
+import { productImageAlt } from "@/lib/copy";
 import { categoryCounts } from "@/lib/products";
 import type { Product } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -24,6 +25,7 @@ export function HubTile({
   banner,
   shape = "portrait",
   fill = false,
+  priority = false,
   className,
 }: {
   slug: string;
@@ -35,6 +37,7 @@ export function HubTile({
   banner?: string;
   shape?: "portrait" | "square";
   fill?: boolean;
+  priority?: boolean;
   className?: string;
 }) {
   const idx = Math.max(
@@ -68,9 +71,10 @@ export function HubTile({
           <ProductImage
             product={product}
             src={product.imageUrl}
-            alt=""
-            className="h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
-            fallbackClassName="aspect-auto h-full w-full"
+            alt={productImageAlt(product)}
+            priority={priority}
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+            fallbackClassName="absolute inset-0 h-full w-full"
           />
         ) : (
           <div className="absolute inset-0 opacity-40 mix-blend-overlay [background-image:repeating-linear-gradient(90deg,transparent,transparent_18px,rgba(255,255,255,0.04)_19px)]" />

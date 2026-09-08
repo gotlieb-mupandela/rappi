@@ -28,6 +28,7 @@
 # generated catalog shots (uploaded to Supabase Storage)
 /public/products/
 /data/catalog-bases/
+/data/demandware-image-cache.json
 
 # debug
 npm-debug.log*

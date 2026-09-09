@@ -68,13 +68,15 @@ export function shoeHubGroups(catalog: Product[] = bundled) {
   );
   const kids = shoes.filter((p) => isKidsShoe(p) && p.subcategory !== "running-shoes");
   const sandals = shoes.filter((p) => p.subcategory === "sandals" || p.subcategory === "barefoot");
+  const boots = shoes.filter((p) => p.subcategory === "boots");
   const adult = shoes.filter(
     (p) =>
       !isKidsShoe(p) &&
       p.subcategory !== "running-shoes" &&
       p.subcategory !== "training-shoes" &&
       p.subcategory !== "sandals" &&
-      p.subcategory !== "barefoot",
+      p.subcategory !== "barefoot" &&
+      p.subcategory !== "boots",
   );
   const offers = shoes.filter((p) => p.badge === "offer" || p.badge === "new");
   return [
@@ -84,6 +86,13 @@ export function shoeHubGroups(catalog: Product[] = bundled) {
       count: adult.length,
       href: "/shop/shoes?sub=sneakers",
       sample: sampleFromList(adult, "shoes") ?? firstImagedProduct(adult),
+    },
+    {
+      key: "boots",
+      name: "Boots",
+      count: boots.length,
+      href: "/shop/shoes?sub=boots",
+      sample: sampleFromList(boots, "shoes") ?? firstImagedProduct(boots),
     },
     {
       key: "kids",

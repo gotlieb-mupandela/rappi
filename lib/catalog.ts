@@ -96,7 +96,7 @@ export const CATEGORIES: CategoryDef[] = [
     slug: "shoes",
     name: "Shoes",
     featured: true,
-    blurb: "Sneakers, running, court, kids, sandals, and barefoot.",
+    blurb: "Sneakers, running, court, boots, kids, sandals, and barefoot.",
   },
   {
     slug: "balls-bags",

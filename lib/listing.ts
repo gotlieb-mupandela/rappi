@@ -2,7 +2,7 @@ import "server-only";
 
 import { AUDIENCES, CATEGORIES, SUBCATEGORY_LABELS } from "@/lib/catalog";
 import { matchesAudience, productAudience } from "@/lib/hubs";
-import { productInHub } from "@/lib/hub-membership";
+import { productHubs, productInHub } from "@/lib/hub-membership";
 import {
   LISTING_PAGE_SIZE,
   type ListingFacet,
@@ -63,7 +63,9 @@ export function filterListing(
 
 function facetCategories(list: Product[]): ListingFacet[] {
   const counts = new Map<string, number>();
-  for (const p of list) counts.set(p.category, (counts.get(p.category) ?? 0) + 1);
+  for (const p of list) {
+    for (const hub of productHubs(p)) counts.set(hub, (counts.get(hub) ?? 0) + 1);
+  }
   return CATEGORIES.map((c) => ({
     slug: c.slug,
     name: c.name,

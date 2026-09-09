@@ -253,6 +253,22 @@ if (!Array.isArray(rugbyBall.hubs) || !rugbyBall.hubs.includes("balls-bags")) {
   fail("400680.209 should also list on balls-bags");
 }
 
+function inHub(row, slug) {
+  return row && (row.category === slug || (row.hubs || []).includes(slug));
+}
+const soccerBall = catalog.find((p) => p.code === "400356.308");
+if (!inHub(soccerBall, "football") || !inHub(soccerBall, "balls-bags")) {
+  fail("400356.308 soccer ball should be on football AND balls-bags");
+}
+const footballBoot = catalog.find((p) => p.code === "TOJS2604TF");
+if (!inHub(footballBoot, "football") || !inHub(footballBoot, "shoes")) {
+  fail("TOJS2604TF football boot should be on football AND shoes");
+}
+const nationTee = catalog.find((p) => p.code === "104384.200");
+if (!inHub(nationTee, "rugby") || !inHub(nationTee, "sportswear")) {
+  fail("104384.200 NATION tee should be on rugby AND sportswear");
+}
+
 const jomaCopy = require("../data/joma-descriptions.json");
 const nationCopy = jomaCopy["104384.200"]?.en || "";
 if (!/developed for rugby/i.test(nationCopy)) {

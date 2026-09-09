@@ -387,7 +387,7 @@ export const en = {
     shoes: {
       name: "Shoes",
       nav: "Shoes",
-      blurb: "Sneakers, running, court, kids, sandals, and barefoot.",
+      blurb: "Sneakers, running, court, boots, kids, sandals, and barefoot.",
     },
     "balls-bags": {
       name: "Balls & Bags",
@@ -462,6 +462,7 @@ export const en = {
   group: {
     shoes: {
       adult: "Sneakers",
+      boots: "Boots",
       kids: "Kids",
       running: "Running",
       sandals: "Sandals & barefoot",
@@ -888,7 +889,7 @@ export const fr: Messages = {
     shoes: {
       name: "Chaussures",
       nav: "Chaussures",
-      blurb: "Sneakers, running, indoor, enfants, sandales et barefoot.",
+      blurb: "Sneakers, running, indoor, crampons, enfants, sandales et barefoot.",
     },
     "balls-bags": {
       name: "Ballons & Sacs",
@@ -963,6 +964,7 @@ export const fr: Messages = {
   group: {
     shoes: {
       adult: "Sneakers",
+      boots: "Crampons",
       kids: "Enfants",
       running: "Running",
       sandals: "Sandales & barefoot",

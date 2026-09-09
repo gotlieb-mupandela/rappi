@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { revalidateStorefront } from "@/app/admin/actions";
 import { createClient } from "@/lib/supabase/client";
 import { safeProductCode } from "@/lib/utils";
 
@@ -46,7 +47,6 @@ export function ProductEditor({ productId }: { productId: string | null }) {
       .then(({ data }) => setCategories(data ?? []));
 
     if (isNew) {
-      setLoading(false);
       return;
     }
 
@@ -165,6 +165,7 @@ export function ProductEditor({ productId }: { productId: string | null }) {
       }
     }
 
+    await revalidateStorefront();
     toast.success("Product saved");
     setSaving(false);
     router.push(`/admin/products/${productIdFinal}`);

@@ -41,7 +41,7 @@ With Supabase configured, login prefers Auth; orders from `place_order` are also
 2. Promote: `select public.promote_admin('staff@example.com');` (SQL editor / service role).
 3. Sign in at `/admin/login`.
 
-Routes: dashboard, products, orders, customers, content (`site_settings`), shipping. Never ship the service role key to the browser.
+Routes: dashboard, products, orders, customers, promotions (New/Offer badges), content (`site_settings` + categories), shipping. Never ship the service role key to the browser.
 
 Schema source of truth: `supabase/migrations/` (shared with mobile).
 

@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/page-header";
 import { SectionHeading } from "@/components/section-heading";
 import { collectionTiles } from "@/lib/hubs";
 import { paginateListing } from "@/lib/listing";
-import { getCatalog } from "@/lib/supabase/catalog";
+import { getCatalog, withLiveBadges } from "@/lib/supabase/catalog";
 import { getT } from "@/lib/i18n/server";
 import { hubName } from "@/lib/i18n/labels";
 
@@ -23,7 +23,7 @@ export default async function PromotionsPage({
   }>;
 }) {
   const sp = await searchParams;
-  const catalog = await getCatalog();
+  const catalog = await withLiveBadges(await getCatalog());
   const t = await getT();
   const highlighted = catalog.filter(
     (p) => p.badge === "offer" || p.badge === "new",

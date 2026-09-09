@@ -29,7 +29,7 @@ export default async function AdminCustomersPage() {
         Customers
       </h1>
       <p className="mt-2 text-sm text-[var(--muted)]">
-        Read-only profiles. Promote admins via SQL{" "}
+        Read-only profiles and order history. Promote admins via SQL{" "}
         <code className="text-[var(--accent)]">select promote_admin(&apos;email&apos;)</code>.
       </p>
 
@@ -54,8 +54,10 @@ export default async function AdminCustomersPage() {
               (profiles ?? []).map((p) => (
                 <tr key={p.id} className="border-t border-[var(--border)]">
                   <td className="px-4 py-3">
-                    <p className="font-semibold">{p.full_name || "—"}</p>
-                    <p className="text-xs text-[var(--muted)]">{p.email}</p>
+                    <Link href={`/admin/customers/${p.id}`} className="hover:text-[var(--accent)]">
+                      <p className="font-semibold">{p.full_name || "—"}</p>
+                      <p className="text-xs text-[var(--muted)]">{p.email}</p>
+                    </Link>
                   </td>
                   <td className="px-4 py-3">
                     <Badge variant={p.role === "admin" ? "new" : "muted"}>
@@ -63,10 +65,7 @@ export default async function AdminCustomersPage() {
                     </Badge>
                   </td>
                   <td className="px-4 py-3">
-                    <Link
-                      href={`/admin/orders`}
-                      className="hover:text-[var(--accent)]"
-                    >
+                    <Link href={`/admin/customers/${p.id}`} className="hover:text-[var(--accent)]">
                       {orderCount.get(p.email) ?? 0}
                     </Link>
                   </td>

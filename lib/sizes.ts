@@ -1,5 +1,3 @@
-import "server-only";
-
 import source from "@/data/products-source.json";
 import sizeMaster from "@/data/size-master.json";
 import { getAssortment } from "@/lib/assortment";

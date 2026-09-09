@@ -11,6 +11,8 @@ export type Product = {
   name: string;
   displayName: string;
   category: string;
+  /** Extra hubs this SKU should appear in (primary hub stays `category`). */
+  hubs?: string[];
   subcategory: string;
   gender: "men" | "women" | "kids" | "unisex";
   price: number;

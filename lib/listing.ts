@@ -2,6 +2,7 @@ import "server-only";
 
 import { AUDIENCES, CATEGORIES, SUBCATEGORY_LABELS } from "@/lib/catalog";
 import { matchesAudience, productAudience } from "@/lib/hubs";
+import { productInHub } from "@/lib/hub-membership";
 import {
   LISTING_PAGE_SIZE,
   type ListingFacet,
@@ -43,7 +44,7 @@ export function filterListing(
   const scopedCat = opts?.categorySlug || query.cat;
   let list = q ? searchProducts(q, scopedCat, catalog) : catalog;
   if (!q && scopedCat && scopedCat !== "all") {
-    list = list.filter((p) => p.category === scopedCat);
+    list = list.filter((p) => productInHub(p, scopedCat));
   }
 
   const sub = query.sub && query.sub !== "all" ? query.sub : "";

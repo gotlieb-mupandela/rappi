@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { CATEGORIES, TAGLINE } from "@/lib/catalog";
 import { sampleForCategory } from "@/lib/classify";
 import { audienceTiles, collectionTiles, HUB_COVERS } from "@/lib/hubs";
+import { productInHub } from "@/lib/hub-membership";
 import { audienceName, hubName } from "@/lib/i18n/labels";
 import { currencyCode } from "@/lib/i18n/currency";
 import { getMarket, getT } from "@/lib/i18n/server";
@@ -25,7 +26,7 @@ export default async function HomePage() {
     getMarket(),
   ]);
   const byCode = (code: string) => catalog.find((p) => p.code === code);
-  const byCategory = (slug: string) => catalog.filter((p) => p.category === slug);
+  const byCategory = (slug: string) => catalog.filter((p) => productInHub(p, slug));
 
   const counts = categoryCountsFrom(catalog);
   const hubs = CATEGORIES.filter((c) => sampleForCategory(catalog, c.slug));

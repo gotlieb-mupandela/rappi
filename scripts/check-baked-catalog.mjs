@@ -221,49 +221,11 @@ if (/\b(vest|shirt|tee)\b/i.test(`${shoeSample.displayName} ${shoeSample.name}`)
   fail("shoes sample SKU looks like apparel");
 }
 
-const jomaRugbyLeafMissingFromHub = [
-  "104253.100",
-  "104253.150",
-  "104253.331",
-  "104253.480",
-  "104253.600",
-  "104253.700",
-  "104315.100",
-  "104315.150",
-  "104315.331",
-  "104316.100",
-  "104316.331",
-  "104384.100",
-  "104384.200",
-  "104384.331",
-  "104384.482",
-  "104384.600",
-  "104384.700",
-  "104385.100",
-  "104385.200",
-  "104385.331",
-  "104385.482",
-  "104385.600",
-  "104385.700",
-  "104511.109",
-  "104511.110",
-  "104511.312",
-  "104511.452",
-  "104511.601",
-  "104511.703",
-  "104511.709",
-  "105198.102",
-  "105198.201",
-  "105198.383",
-  "105198.451",
-  "105198.601",
-  "105198.703",
-  "400679.206",
-  "400680.209",
-  "400680.217",
-  "400742.201",
-];
-const rugbyOffHub = jomaRugbyLeafMissingFromHub.filter((code) => {
+const jomaRugbyLeaf = require("../data/joma-hub-leaves.json").rugby;
+if (!Array.isArray(jomaRugbyLeaf) || jomaRugbyLeaf.length !== 67) {
+  fail(`joma rugby leaf should be 67 SKUs, got ${jomaRugbyLeaf?.length}`);
+}
+const rugbyOffHub = jomaRugbyLeaf.filter((code) => {
   const row = catalog.find((p) => p.code === code);
   return !row || row.category !== "rugby";
 });
@@ -283,6 +245,22 @@ if (catalog.find((p) => p.code === "104245.100")?.category === "rugby") {
 }
 if (catalog.find((p) => p.code === "105113.102")?.category === "rugby") {
   fail("105113.102 Phoenix III tracksuit should stay off rugby");
+}
+
+const rugbyBall = catalog.find((p) => p.code === "400680.209");
+if (!rugbyBall || rugbyBall.category !== "rugby") fail("400680.209 not in rugby");
+if (!Array.isArray(rugbyBall.hubs) || !rugbyBall.hubs.includes("balls-bags")) {
+  fail("400680.209 should also list on balls-bags");
+}
+
+const jomaCopy = require("../data/joma-descriptions.json");
+const nationCopy = jomaCopy["104384.200"]?.en || "";
+if (!/developed for rugby/i.test(nationCopy)) {
+  fail("missing official Joma description for 104384.200");
+}
+const nationRow = catalog.find((p) => p.code === "104384.200");
+if (!nationRow || !/developed for rugby/i.test(nationRow.description || "")) {
+  fail("104384.200 baked description is not Joma PDP text");
 }
 
 console.log("ok", {

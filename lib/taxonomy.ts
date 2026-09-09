@@ -1,11 +1,12 @@
 import { CATEGORIES, SUBCATEGORY_LABELS } from "@/lib/catalog";
 import type { StorefrontTaxonomy } from "@/lib/listing-types";
+import { productInHub } from "@/lib/hub-membership";
 import type { Product } from "@/lib/types";
 
 export function buildTaxonomy(catalog: Product[]): StorefrontTaxonomy {
   const out: StorefrontTaxonomy = {};
   for (const c of CATEGORIES) {
-    const items = catalog.filter((p) => p.category === c.slug);
+    const items = catalog.filter((p) => productInHub(p, c.slug));
     const counts = new Map<string, number>();
     for (const p of items) counts.set(p.subcategory, (counts.get(p.subcategory) ?? 0) + 1);
     out[c.slug] = [...counts.entries()]

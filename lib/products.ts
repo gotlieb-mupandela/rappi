@@ -3,6 +3,7 @@ import "server-only";
 import type { Product } from "@/lib/types";
 import { CATEGORIES, SUBCATEGORY_LABELS } from "@/lib/catalog";
 import { withStorefrontCategories, withStorefrontMerchandising } from "@/lib/classify";
+import { productInHub } from "@/lib/hub-membership";
 import { withProductImages } from "@/lib/media";
 import raw from "@/data/products.json";
 
@@ -23,7 +24,7 @@ export function getProduct(code: string, catalog: Product[] = products) {
 }
 
 export function productsByCategory(slug: string, catalog: Product[] = products) {
-  return catalog.filter((p) => p.category === slug);
+  return catalog.filter((p) => productInHub(p, slug));
 }
 
 export function productsBySubcategory(
@@ -31,7 +32,7 @@ export function productsBySubcategory(
   sub: string,
   catalog: Product[] = products,
 ) {
-  return catalog.filter((p) => p.category === slug && p.subcategory === sub);
+  return catalog.filter((p) => productInHub(p, slug) && p.subcategory === sub);
 }
 
 export function subcategoriesFor(slug: string, catalog: Product[] = products) {
@@ -54,7 +55,7 @@ export function searchProducts(
   const q = query.trim().toLowerCase();
   let list = catalog;
   if (category && category !== "all") {
-    list = list.filter((p) => p.category === category);
+    list = list.filter((p) => productInHub(p, category));
   }
   if (!q) return list;
   return list.filter((p) => {

@@ -24,6 +24,7 @@ const baked = (raw as Product[]).map((product) => {
     displayName: next.displayName,
     category: next.category,
     subcategory: next.subcategory,
+    ...(next.hubs?.length ? { hubs: next.hubs } : {}),
   };
 });
 

@@ -1,6 +1,7 @@
 import { BIB_PACK_PRICE_NAD, isFixedBibPack, isTrainingBibPack } from "@/lib/assortment";
 import { productDescription } from "@/lib/copy";
 import { roundNad } from "@/lib/format";
+import { jomaLeafHub, productInHub } from "@/lib/hub-membership";
 import { withProductImages } from "@/lib/media";
 import { withCatalogSizes } from "@/lib/sizes";
 import type { Product } from "@/lib/types";
@@ -93,66 +94,6 @@ function isRugbyHookShort(name: string) {
   return word(name, "short", "shorts", "bermuda");
 }
 
-/**
- * Joma B2B Rugby leaf (collection 4371) SKUs whose titles omit "rugby".
- * Without this, classifyStorefrontCategory parks them in sportswear / balls-bags.
- * Do not key off family names like Phoenix III — those collide with other sports.
- */
-const JOMA_RUGBY_LEAF_CODES = new Set([
-  // STIMULUS sweatshirts
-  "104253.100",
-  "104253.150",
-  "104253.331",
-  "104253.480",
-  "104253.600",
-  "104253.700",
-  // STIMULUS rain jackets
-  "104315.100",
-  "104315.150",
-  "104315.331",
-  // STIMULUS long pants
-  "104316.100",
-  "104316.331",
-  // NATION tees
-  "104384.100",
-  "104384.200",
-  "104384.331",
-  "104384.482",
-  "104384.600",
-  "104384.700",
-  // SHORT TRY
-  "104385.100",
-  "104385.200",
-  "104385.331",
-  "104385.482",
-  "104385.600",
-  "104385.700",
-  // MYSKIN III
-  "104511.109",
-  "104511.110",
-  "104511.312",
-  "104511.452",
-  "104511.601",
-  "104511.703",
-  "104511.709",
-  // PHOENIX III rugby shirts
-  "105198.102",
-  "105198.201",
-  "105198.383",
-  "105198.451",
-  "105198.601",
-  "105198.703",
-  // Rugby balls (J-TRAINING / J-MAX / J-MATCH)
-  "400679.206",
-  "400680.209",
-  "400680.217",
-  "400742.201",
-]);
-
-function isJomaRugbyLeafSku(product: Product) {
-  return JOMA_RUGBY_LEAF_CODES.has(product.code);
-}
-
 function isFootballBootName(name: string) {
   if (isApparelName(name) && !/\bboot\b/.test(name)) return false;
   return /\b(turf|firm ground|soft ground|artificial grass|futsal| fg\b| ag\b| sg\b|indoor)\b/.test(
@@ -212,12 +153,13 @@ export function classifyStorefrontCategory(product: Product): string {
 
   if (word(blob, "cricket") || family === "cricket") return "cricket";
   if (word(blob, "hockey") || family === "hockey") return "hockey";
+  const leafHub = jomaLeafHub(product.code);
+  if (leafHub) return leafHub;
   if (
     word(blob, "rugby", "skrum", "scrum") ||
     family === "rugby" ||
     family === "skrum" ||
-    isRugbyHookShort(name) ||
-    isJomaRugbyLeafSku(product)
+    isRugbyHookShort(name)
   ) {
     return "rugby";
   }
@@ -530,6 +472,14 @@ export function classifyStorefrontSubcategory(
   return "general";
 }
 
+/** Secondary hubs so a rugby match ball still lists under Balls & Bags. */
+export function classifyExtraHubs(product: Product, category = product.category): string[] {
+  const name = `${product.displayName} ${product.name}`.toLowerCase();
+  const extra: string[] = [];
+  if (category === "rugby" && BALL_RE.test(name)) extra.push("balls-bags");
+  return extra;
+}
+
 export function hasUsableProductImage(product: Product) {
   const url = product.imageUrl || product.images?.[0];
   return Boolean(url && (/^https?:\/\//i.test(url) || url.startsWith("/")));
@@ -564,14 +514,17 @@ function applyBibTitle<T extends Product>(product: T): T {
 
 export function withStorefrontMerchandising<T extends Product>(product: T): T {
   const category = classifyStorefrontCategory(product);
-  const subcategory = classifyStorefrontSubcategory(
-    category === product.category ? product : { ...product, category },
+  const classified = category === product.category ? product : { ...product, category };
+  const subcategory = classifyStorefrontSubcategory(classified, category);
+  const hubs = classifyExtraHubs(classified, category);
+  const withoutHubs = { ...product };
+  delete withoutHubs.hubs;
+  let next = {
+    ...withoutHubs,
     category,
-  );
-  let next =
-    category === product.category && subcategory === product.subcategory
-      ? product
-      : { ...product, category, subcategory };
+    subcategory,
+    ...(hubs.length ? { hubs } : {}),
+  } as T;
   next = applyRetailPrice(next);
   next = applyBibTitle(next);
   next = withCatalogSizes(next);
@@ -664,12 +617,12 @@ export function sampleForCategory(
   catalog: Product[],
   slug: string,
 ): Product | undefined {
-  let inHub = catalog.filter((p) => p.category === slug && hasUsableProductImage(p));
+  let inHub = catalog.filter((p) => productInHub(p, slug) && hasUsableProductImage(p));
   if (slug === "shoes") {
     inHub = inHub.filter(isStorefrontFootwear);
   }
   if (!inHub.length) {
-    const fallback = catalog.filter((p) => p.category === slug);
+    const fallback = catalog.filter((p) => productInHub(p, slug));
     return slug === "shoes" ? fallback.find(isStorefrontFootwear) : fallback[0];
   }
   return sampleFromList(inHub, slug);

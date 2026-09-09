@@ -15,12 +15,12 @@ import { hubName, subName } from "@/lib/i18n/labels";
 import {
   buyableSizes,
   hasVisibleSizePicker,
+  isLowStock,
   isSoldOut,
   pickerSizes,
   sizeDisplayLabel,
   stockLabel,
-} from "@/lib/sizes";
-import { isLowStock } from "@/lib/products";
+} from "@/lib/product-stock";
 import { useCart } from "@/lib/stores/cart";
 import { cn } from "@/lib/utils";
 
@@ -47,7 +47,7 @@ export function ProductDetail({ product }: { product: Product }) {
       toast.error(t("product.soldOutPiece"));
       return;
     }
-    const result = add(product.code, size, qty);
+    const result = add(product, size, qty);
     if (result.ok) toast.success(t(result.messageKey, result.values));
     else toast.error(t(result.messageKey, result.values));
   }

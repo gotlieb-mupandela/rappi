@@ -1,10 +1,18 @@
+import "server-only";
+
 import type { Product } from "@/lib/types";
 import { CATEGORIES, SUBCATEGORY_LABELS } from "@/lib/catalog";
 import { withStorefrontCategories, withStorefrontMerchandising } from "@/lib/classify";
 import { withProductImages } from "@/lib/media";
 import raw from "@/data/products.json";
 
-/** Bundled catalog — merchandised so cart/PDP/client prices and copy stay in sync. */
+export {
+  inStockSizes,
+  isLowStock,
+  totalStock,
+} from "@/lib/product-stock";
+
+/** Bundled catalog — merchandised so server cart/PDP prices and copy stay in sync. */
 export const products = withStorefrontCategories(
   (raw as Product[]).map(withProductImages),
 );
@@ -64,18 +72,6 @@ export function searchProducts(
       p.category.includes(q)
     );
   });
-}
-
-export function totalStock(product: Product) {
-  return product.sizes.reduce((sum, s) => sum + s.stock, 0);
-}
-
-export function isLowStock(stock: number) {
-  return stock > 0 && stock < 5;
-}
-
-export function inStockSizes(product: Product) {
-  return product.sizes.filter((s) => s.stock > 0);
 }
 
 export function categoryCountsFrom(catalog: Product[]) {

@@ -9,8 +9,8 @@ import { AssortmentBadge, AssortmentHint } from "@/components/assortment-label";
 import { Badge } from "@/components/ui/badge";
 import { ProductImage } from "@/components/product-image";
 import { useLocale } from "@/components/locale-provider";
-import { totalStock } from "@/lib/products";
-import { buyableSizes, isSoldOut, stockLabel } from "@/lib/sizes";
+import { buyableSizes, isSoldOut, stockLabel, totalStock } from "@/lib/product-stock";
+import { productCardImageUrl } from "@/lib/media";
 import { useCart } from "@/lib/stores/cart";
 import { productPath } from "@/lib/utils";
 
@@ -27,6 +27,7 @@ export function ProductCard({
   const first = buyableSizes(product)[0];
   const soldOut = isSoldOut(product);
   const title = product.displayName || product.item;
+  const cardSrc = productCardImageUrl(product);
 
   function quickAdd(e: MouseEvent) {
     e.preventDefault();
@@ -35,7 +36,7 @@ export function ProductCard({
       toast.error(t("product.soldOutPiece"));
       return;
     }
-    const result = add(product.code, first.size, 1);
+    const result = add(product, first.size, 1);
     if (result.ok) toast.success(t(result.messageKey, result.values));
     else toast.error(t(result.messageKey, result.values));
   }
@@ -46,7 +47,7 @@ export function ProductCard({
         <Link href={productPath(product.code)} className="media-frame block w-20 overflow-hidden rounded-lg sm:w-24">
           <ProductImage
             product={product}
-            src={product.imageUrl}
+            src={cardSrc}
             className="aspect-square w-full object-cover"
             fallbackClassName="aspect-square"
           />
@@ -100,7 +101,7 @@ export function ProductCard({
           ) : null}
           <ProductImage
             product={product}
-            src={product.imageUrl}
+            src={cardSrc}
             className="aspect-[3/4] w-full bg-[var(--bg-elevated)] object-cover object-center transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.035] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
           />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />

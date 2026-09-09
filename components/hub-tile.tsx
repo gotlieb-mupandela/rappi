@@ -5,7 +5,7 @@ import { CATEGORIES } from "@/lib/catalog";
 import { ProductImage } from "@/components/product-image";
 import { useT } from "@/components/locale-provider";
 import { productImageAlt } from "@/lib/copy";
-import { categoryCounts } from "@/lib/products";
+import { productCardImageUrl } from "@/lib/media";
 import type { Product } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -48,7 +48,7 @@ export function HubTile({
     CATEGORIES.findIndex((c) => c.slug === slug),
   );
   const accent = ACCENTS[idx % ACCENTS.length];
-  const n = count ?? categoryCounts[slug] ?? 0;
+  const n = count ?? 0;
   const to = href ?? `/category/${slug}`;
   const t = useT();
 
@@ -74,7 +74,7 @@ export function HubTile({
         {product ? (
           <ProductImage
             product={product}
-            src={product.imageUrl}
+            src={productCardImageUrl(product)}
             alt={productImageAlt(product)}
             priority={priority}
             className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100"

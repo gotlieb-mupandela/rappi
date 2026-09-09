@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLocale } from "@/components/locale-provider";
 import { placeOrder } from "@/lib/place-order";
-import { getProduct } from "@/lib/products";
 import { shippingMethodsSnapshot } from "@/lib/shipping";
 import { shippingName } from "@/lib/i18n/labels";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
@@ -64,19 +63,13 @@ export default function CheckoutPage() {
 
   const rows = useMemo(
     () =>
-      lines
-        .map((line) => {
-          const product = getProduct(line.code);
-          if (!product) return null;
-          return {
-            code: line.code,
-            name: product.name,
-            size: line.size,
-            qty: line.qty,
-            price: product.price,
-          };
-        })
-        .filter(Boolean) as Order["items"],
+      lines.map((line) => ({
+        code: line.code,
+        name: line.name,
+        size: line.size,
+        qty: line.qty,
+        price: line.price,
+      })) as Order["items"],
     [lines],
   );
 

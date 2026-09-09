@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { HubTile } from "@/components/hub-tile";
 import { ProductCard } from "@/components/product-card";
@@ -96,10 +97,12 @@ export default async function HomePage() {
               aria-hidden
               className="pointer-events-none absolute inset-x-[6%] bottom-[4%] top-[14%] rounded-[100%] bg-[radial-gradient(ellipse_at_center,var(--hero-glow),transparent_70%)] blur-3xl"
             />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/brand/hero-athlete.png?v=3"
+            <Image
+              src="/brand/hero-athlete.png"
               alt={t("home.heroAlt")}
+              width={900}
+              height={1100}
+              priority
               className="absolute inset-x-0 bottom-0 mx-auto h-full w-auto max-w-none object-contain object-bottom [mask-image:linear-gradient(to_top,transparent_0%,#000_8%,#000_100%)] [-webkit-mask-image:linear-gradient(to_top,transparent_0%,#000_8%,#000_100%)]"
             />
           </div>

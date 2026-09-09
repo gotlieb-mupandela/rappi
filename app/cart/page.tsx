@@ -7,8 +7,7 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ProductImage } from "@/components/product-image";
 import { Button } from "@/components/ui/button";
 import { useLocale } from "@/components/locale-provider";
-import { getProduct } from "@/lib/products";
-import { cartCount, useCart } from "@/lib/stores/cart";
+import { cartCount, cartLineAsProduct, useCart } from "@/lib/stores/cart";
 import { productPath } from "@/lib/utils";
 
 export default function CartPage() {
@@ -21,17 +20,11 @@ export default function CartPage() {
 
   const rows = useMemo(
     () =>
-      lines
-        .map((line) => {
-          const product = getProduct(line.code);
-          if (!product) return null;
-          return { line, product, lineTotal: product.price * line.qty };
-        })
-        .filter(Boolean) as Array<{
-        line: (typeof lines)[number];
-        product: NonNullable<ReturnType<typeof getProduct>>;
-        lineTotal: number;
-      }>,
+      lines.map((line) => ({
+        line,
+        product: cartLineAsProduct(line),
+        lineTotal: line.price * line.qty,
+      })),
     [lines],
   );
 
@@ -86,7 +79,7 @@ export default function CartPage() {
               <Link href={productPath(product.code)} className="media-frame block w-24 overflow-hidden rounded-lg">
                 <ProductImage
                   product={product}
-                  src={product.imageUrl}
+                  src={line.imageUrl}
                   className="aspect-square w-full object-cover"
                   fallbackClassName="aspect-square"
                 />
@@ -111,12 +104,12 @@ export default function CartPage() {
                     <tbody>
                       <tr>
                         <td className="pr-6 py-1 font-semibold">{line.size}</td>
-                        <td className="pr-6 py-1">{format(product.price)}</td>
+                        <td className="pr-6 py-1">{format(line.price)}</td>
                         <td className="pr-6 py-1">
                           <input
                             type="number"
                             min={0}
-                            max={product.sizes.find((s) => s.size === line.size)?.stock ?? line.qty}
+                            max={line.sizeStock}
                             value={line.qty}
                             onChange={(e) =>
                               setQty(line.code, line.size, Number(e.target.value))

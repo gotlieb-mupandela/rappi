@@ -1,4 +1,5 @@
 import extraGalleryByCode from "@/data/ai-gallery-urls.json";
+import type { Product } from "@/lib/types";
 
 const STORAGE_ROOT = process.env.NEXT_PUBLIC_SUPABASE_URL
   ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/product-images`
@@ -20,20 +21,43 @@ function mergeGallery(
   product: { id: string; code?: string },
   primary: string | undefined,
   images: string[],
+  upgrade: boolean,
 ) {
   const extras = extraGalleryUrls(product);
-  const upgraded = [...images, ...extras]
+  const mapped = [...images, ...extras]
     .filter(Boolean)
-    .map(upgradeProductImageUrl);
-  const first = primary ? upgradeProductImageUrl(primary) : upgraded[0];
-  const merged = [...new Set([...(first ? [first] : []), ...upgraded])];
+    .map((url) => (upgrade ? upgradeProductImageUrl(url) : url));
+  const first = primary
+    ? upgrade
+      ? upgradeProductImageUrl(primary)
+      : primary
+    : mapped[0];
+  const merged = [...new Set([...(first ? [first] : []), ...mapped])];
   if (first && merged[0] !== first) {
     return { imageUrl: first, images: [first, ...merged.filter((url) => url !== first)] };
   }
   return { imageUrl: first ?? "", images: merged };
 }
 
-/** Joma `_large.jpg` thumbs are ~30KB; the same path without `_large` is full-res. */
+/**
+ * Prefer Demandware `medium` gallery shots for cards (~small CDN thumbs).
+ * Falls back to primary imageUrl. Preserves any leftover `_large` thumbs.
+ */
+export function productCardImageUrl(product: {
+  imageUrl?: string | null;
+  images?: string[] | null;
+}) {
+  const medium = (product.images ?? []).find((url) =>
+    /\/images\/medium\//i.test(url),
+  );
+  if (medium) return medium;
+  return product.imageUrl ?? "";
+}
+
+/**
+ * Joma `_large.jpg` thumbs are ~30KB; the same path without `_large` is full-res.
+ * Catalog bake strips `_large`; PDP still upgrades defensively.
+ */
 export function upgradeProductImageUrl(url: string) {
   return url.replace(/_large(?=\.(jpe?g|png|webp)(\?|$))/i, "");
 }
@@ -53,7 +77,7 @@ export function productStorageUrls(id: string) {
   return { imageUrl: images[0], images };
 }
 
-/** Prefer real CDN/remote URLs already on the product; only invent local/storage paths as fallback. */
+/** Prefer real CDN/remote URLs already on the product; keep `_large` thumbs for listings. */
 export function withProductImages<
   T extends { id: string; imageUrl: string; images: string[]; code?: string },
 >(product: T): T {
@@ -69,6 +93,7 @@ export function withProductImages<
         product,
         remotePrimary,
         remoteImages.length ? remoteImages : [remotePrimary],
+        false,
       ),
     };
   }
@@ -79,6 +104,15 @@ export function withProductImages<
       : productStorageUrls(product.id);
   return {
     ...product,
-    ...mergeGallery(product, local.imageUrl, local.images),
+    ...mergeGallery(product, local.imageUrl, local.images, false),
+  };
+}
+
+/** Full-resolution gallery for PDP — strips Joma `_large` thumb suffix. */
+export function withFullResProductImages<T extends Product>(product: T): T {
+  return {
+    ...product,
+    imageUrl: product.imageUrl ? upgradeProductImageUrl(product.imageUrl) : product.imageUrl,
+    images: (product.images ?? []).map(upgradeProductImageUrl),
   };
 }

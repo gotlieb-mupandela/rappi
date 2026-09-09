@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAssortment } from "@/lib/assortment";
 import { buildListing, LISTING_PAGE_SIZE } from "@/lib/listing";
-import { isSoldOut } from "@/lib/sizes";
+import { isSoldOut } from "@/lib/product-stock";
 import { getCatalog } from "@/lib/supabase/catalog";
 
 export async function GET(request: Request) {

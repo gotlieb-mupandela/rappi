@@ -1,8 +1,21 @@
+import "server-only";
+
 import source from "@/data/products-source.json";
 import sizeMaster from "@/data/size-master.json";
 import { getAssortment } from "@/lib/assortment";
 import type { Product, SizeStock } from "@/lib/types";
-import type { TFunction } from "@/lib/i18n/translate";
+
+export {
+  buyableSizes,
+  hasVisibleSizePicker,
+  isSoldOut,
+  pickerSizes,
+  sizeDisplayLabel,
+  skuStock,
+  stockLabel,
+} from "@/lib/product-stock";
+
+import { skuStock } from "@/lib/product-stock";
 
 type SourceRow = { code: string; sizes?: string | null; qty?: number };
 type MasterRow = {
@@ -37,11 +50,6 @@ function parseSizeList(raw: string | null | undefined): string[] {
     .split(/[\/|,]/)
     .map((s) => s.trim())
     .filter(Boolean);
-}
-
-function skuStock(product: Product, overlayQty?: number) {
-  const n = overlayQty ?? product.stockQty ?? product.totalQty ?? 0;
-  return Number.isFinite(n) ? Math.max(0, n) : 0;
 }
 
 function isTrueOneSize(product: Product) {
@@ -81,7 +89,11 @@ export function withCatalogSizes<T extends Product>(product: T): T {
   const master = MASTER_BY_CODE.get(product.code);
   const sheet = SOURCE_BY_CODE.get(product.code);
   const recorded = hasRecordedSizeRun(product);
-  const total = skuStock(product, master?.qty ?? sheet?.qty);
+  const overlayQty = master?.qty ?? sheet?.qty;
+  const total = skuStock({
+    stockQty: overlayQty ?? product.stockQty,
+    totalQty: product.totalQty,
+  });
 
   if (master?.sizes?.length) {
     const rows = rowsFromSizes(master.sizes, total, master.perSize);
@@ -141,41 +153,4 @@ export function withCatalogSizes<T extends Product>(product: T): T {
     stockQty: total,
     totalQty: total,
   };
-}
-
-export function buyableSizes(product: Product): SizeStock[] {
-  return (product.sizes ?? []).filter((s) => s.stock > 0);
-}
-
-export function isSoldOut(product: Product) {
-  return buyableSizes(product).length === 0 || skuStock(product) <= 0;
-}
-
-export function pickerSizes(product: Product): SizeStock[] {
-  return (product.sizes ?? []).filter((s) => !/^(SKU|PACK|ONE)$/i.test(s.size));
-}
-
-export function hasVisibleSizePicker(product: Product) {
-  return pickerSizes(product).length > 0;
-}
-
-export function sizeDisplayLabel(size: string, t?: TFunction) {
-  if (size === "PACK") return t ? t("product.assortmentPack") : "Assortment pack";
-  if (size === "SKU") return "SKU";
-  if (size === "ONE") return t ? t("product.oneSize") : "One size";
-  const bib: Record<string, string> = {
-    S01: "3XS",
-    S02: "XS",
-    S03: "M",
-    S04: "XL",
-  };
-  const mapped = bib[size.toUpperCase()];
-  return mapped ? `${size} · ${mapped}` : size;
-}
-
-export function stockLabel(product: Product, t?: TFunction) {
-  if (isSoldOut(product)) return t ? t("product.soldOut") : "Sold out";
-  const total = skuStock(product);
-  if (total < 5) return t ? t("product.left", { total }) : `${total} left`;
-  return t ? t("product.inStock", { total }) : `${total} in stock`;
 }

@@ -1,6 +1,5 @@
 import type { CartLine, Order } from "@/lib/types";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
-import { getProduct } from "@/lib/products";
 
 type PlaceInput = {
   email: string;
@@ -20,21 +19,21 @@ type PlaceResult = { ok: true; order: Order } | { ok: false; message: string };
 function localPlace(input: PlaceInput): PlaceResult {
   const items: Order["items"] = [];
   for (const line of input.lines) {
-    const product = getProduct(line.code);
-    if (!product) return { ok: false, message: `Product ${line.code} not found.` };
-    const sizeRow = product.sizes.find((s) => s.size === line.size);
-    if (!sizeRow || sizeRow.stock < line.qty) {
+    if (!line.code || !line.size || line.qty <= 0) {
+      return { ok: false, message: `Invalid cart line for ${line.code ?? "unknown"}.` };
+    }
+    if (line.sizeStock < line.qty) {
       return {
         ok: false,
-        message: `Only ${sizeRow?.stock ?? 0} in stock for ${line.code} size ${line.size}.`,
+        message: `Only ${line.sizeStock} in stock for ${line.code} size ${line.size}.`,
       };
     }
     items.push({
       code: line.code,
-      name: product.name,
+      name: line.name,
       size: line.size,
       qty: line.qty,
-      price: product.price,
+      price: line.price,
     });
   }
   if (!items.length) return { ok: false, message: "Cart is empty." };

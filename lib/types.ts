@@ -27,11 +27,29 @@ export type Product = {
   description?: string;
 };
 
+/** Product fields persisted on each cart line so the client never loads the catalog JSON. */
+export type CartLineSnapshot = {
+  id: string;
+  name: string;
+  displayName: string;
+  title: string;
+  item: string;
+  price: number;
+  unitPrice: number;
+  imageUrl: string;
+  sizeStock: number;
+  stockQty: number;
+  category: string;
+  subcategory: string;
+  gender: Product["gender"];
+  badge: Product["badge"];
+};
+
 export type CartLine = {
   code: string;
   size: string;
   qty: number;
-};
+} & CartLineSnapshot;
 
 export type Order = {
   id: string;

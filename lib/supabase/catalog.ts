@@ -1,11 +1,14 @@
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
+import { createClient } from "@supabase/supabase-js";
 import type { Product } from "@/lib/types";
 import bundled from "@/data/products.json";
-import { createClient } from "@/lib/supabase/server";
+import type { Database } from "@/lib/database.types";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { withStorefrontCategories } from "@/lib/classify";
 import { withProductImages } from "@/lib/media";
 import { shippingMethodsSnapshot } from "@/lib/shipping";
+import { createClient as createServerClient } from "@/lib/supabase/server";
 
 function mapRow(
   row: {
@@ -54,16 +57,21 @@ function mapRow(
   };
 }
 
-export const getCatalog = cache(async (): Promise<Product[]> => {
-  const offline = withStorefrontCategories(
-    (bundled as Product[]).map(withProductImages),
-  );
-  if (!isSupabaseConfigured()) {
-    return offline;
-  }
+/** Process-level memo of the offline bundled catalog (avoid re-mapping 11k rows per call). */
+const offlineCatalog: Product[] = withStorefrontCategories(
+  (bundled as Product[]).map(withProductImages),
+);
 
+function createPublicCatalogClient() {
+  return createClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  );
+}
+
+async function fetchLiveCatalog(): Promise<Product[] | null> {
   try {
-    const supabase = await createClient();
+    const supabase = createPublicCatalogClient();
     const { data: rows, error } = await supabase
       .from("products")
       .select(
@@ -71,8 +79,8 @@ export const getCatalog = cache(async (): Promise<Product[]> => {
       )
       .order("code");
     // Prefer the bundled Joma import when Supabase still has the old/small catalog.
-    if (error || !rows?.length || rows.length < Math.min(offline.length, 1000)) {
-      return offline;
+    if (error || !rows?.length || rows.length < Math.min(offlineCatalog.length, 1000)) {
+      return null;
     }
 
     const { data: sizeRows } = await supabase
@@ -95,14 +103,28 @@ export const getCatalog = cache(async (): Promise<Product[]> => {
       ),
     );
   } catch {
-    return offline;
+    return null;
   }
+}
+
+const getCachedLiveCatalog = unstable_cache(
+  async () => fetchLiveCatalog(),
+  ["storefront-catalog-v1"],
+  { revalidate: 60, tags: ["catalog"] },
+);
+
+export const getCatalog = cache(async (): Promise<Product[]> => {
+  if (!isSupabaseConfigured()) {
+    return offlineCatalog;
+  }
+  const live = await getCachedLiveCatalog();
+  return live ?? offlineCatalog;
 });
 
 export async function getSiteSettings() {
   if (!isSupabaseConfigured()) return null;
   try {
-    const supabase = await createClient();
+    const supabase = await createServerClient();
     const { data } = await supabase
       .from("site_settings")
       .select("*")
@@ -120,7 +142,7 @@ export async function getShippingMethods() {
     return locked;
   }
   try {
-    const supabase = await createClient();
+    const supabase = await createServerClient();
     const { data } = await supabase
       .from("shipping_methods")
       .select("*")

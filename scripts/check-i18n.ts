@@ -2,6 +2,7 @@ import { DEFAULT_EUR_PER_NAD } from "../lib/i18n/config";
 import { nadToEur, eurToNad, formatMoney } from "../lib/i18n/currency";
 import { detectMarketFromSignals, prefersFrench } from "../lib/i18n/detect";
 import { makeT } from "../lib/i18n/translate";
+import { productImageCandidates } from "../lib/media";
 import { SHIPPING_METHODS } from "../lib/shipping";
 
 function fail(msg: string) {
@@ -45,5 +46,20 @@ const tEn = makeT("na");
 if (tEn("nav.cart") === tFr("nav.cart")) fail("FR cart label matches EN");
 if (tFr("shipping.pickup") === tEn("shipping.pickup")) fail("FR pickup label matches EN");
 if (!tFr("checkout.emptyHint").includes("{standard}")) fail("FR empty checkout hint missing rate slots");
+
+const photoUrls = productImageCandidates(
+  {
+    imageUrl: "https://v1.joma-sport.net/files/primary.jpg",
+    images: [
+      "https://v1.joma-sport.net/files/primary.jpg",
+      "https://www.joma-sport.com/on/demandware.static/extra.jpg",
+    ],
+  },
+  "https://v1.joma-sport.net/files/primary.jpg",
+);
+if (photoUrls[0] !== "https://v1.joma-sport.net/files/primary.jpg") {
+  fail(`primary photo should stay first: ${photoUrls[0]}`);
+}
+if (photoUrls.length !== 2) fail(`expected 2 unique photo URLs, got ${photoUrls.length}`);
 
 if (!process.exitCode) console.log("i18n checks ok");

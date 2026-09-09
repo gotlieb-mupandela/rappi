@@ -3,6 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   images: {
+    // Display optimized photos inline (Next 15+ default is attachment).
+    contentDispositionType: "inline",
     remotePatterns: [
       {
         protocol: "https",

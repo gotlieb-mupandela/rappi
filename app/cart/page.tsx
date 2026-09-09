@@ -83,12 +83,14 @@ export default function CartPage() {
               key={`${line.code}-${line.size}`}
               className="grid gap-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 sm:grid-cols-[96px_minmax(0,1fr)_auto]"
             >
-              <Link href={productPath(product.code)} className="media-frame block w-24 overflow-hidden rounded-lg">
+              <Link href={productPath(product.code)} className="media-frame relative block aspect-square w-24 overflow-hidden rounded-lg">
                 <ProductImage
                   product={product}
                   src={product.imageUrl}
-                  className="aspect-square w-full object-cover"
-                  fallbackClassName="aspect-square"
+                  fill
+                  sizes="96px"
+                  className="object-cover"
+                  fallbackClassName="absolute inset-0"
                 />
               </Link>
               <div>

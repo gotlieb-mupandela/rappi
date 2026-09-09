@@ -1,0 +1,107 @@
+[
+  {
+    "i": 0,
+    "files": [
+      "products_0048.sql",
+      "products_0049.sql",
+      "products_0050.sql"
+    ],
+    "bytes": 398113
+  },
+  {
+    "i": 1,
+    "files": [
+      "products_0051.sql",
+      "products_0052.sql",
+      "products_0053.sql",
+      "products_0054.sql"
+    ],
+    "bytes": 437807
+  },
+  {
+    "i": 2,
+    "files": [
+      "products_0055.sql",
+      "products_0056.sql",
+      "products_0057.sql",
+      "products_0058.sql"
+    ],
+    "bytes": 366293
+  },
+  {
+    "i": 3,
+    "files": [
+      "products_0059.sql",
+      "products_0060.sql",
+      "products_0061.sql",
+      "products_0062.sql",
+      "products_0063.sql"
+    ],
+    "bytes": 387211
+  },
+  {
+    "i": 4,
+    "files": [
+      "products_0064.sql",
+      "products_0065.sql",
+      "products_0066.sql",
+      "products_0067.sql"
+    ],
+    "bytes": 394475
+  },
+  {
+    "i": 5,
+    "files": [
+      "products_0068.sql",
+      "products_0069.sql",
+      "products_0070.sql",
+      "products_0071.sql",
+      "products_0072.sql"
+    ],
+    "bytes": 382898
+  },
+  {
+    "i": 6,
+    "files": [
+      "products_0073.sql",
+      "products_0074.sql",
+      "products_0075.sql",
+      "products_0076.sql",
+      "products_0077.sql"
+    ],
+    "bytes": 395168
+  },
+  {
+    "i": 7,
+    "files": [
+      "products_0078.sql",
+      "products_0079.sql",
+      "products_0080.sql",
+      "products_0081.sql",
+      "products_0082.sql"
+    ],
+    "bytes": 407560
+  },
+  {
+    "i": 8,
+    "files": [
+      "products_0083.sql",
+      "products_0084.sql",
+      "products_0085.sql",
+      "products_0086.sql",
+      "products_0087.sql"
+    ],
+    "bytes": 420159
+  },
+  {
+    "i": 9,
+    "files": [
+      "products_0088.sql",
+      "products_0089.sql",
+      "products_0090.sql",
+      "products_0091.sql",
+      "products_0092.sql"
+    ],
+    "bytes": 424277
+  }
+]

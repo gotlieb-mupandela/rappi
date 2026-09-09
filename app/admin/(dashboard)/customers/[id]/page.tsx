@@ -2,28 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { OrderLineItems, OrderLinesPreview } from "@/components/admin/order-line-items";
 import { Badge } from "@/components/ui/badge";
-import {
-  fillMissingProducts,
-  mapOrderLine,
-  ORDER_LINE_SELECT,
-  type RawOrderLine,
-} from "@/lib/admin/order-lines";
+import { loadLinesByOrderId } from "@/lib/admin/order-lines";
 import { formatDate, formatPrice } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "Customer · Admin" };
-
-type OrderWithItems = {
-  id: string;
-  email: string;
-  full_name: string;
-  total: number;
-  status: string;
-  created_at: string;
-  city: string;
-  country: string;
-  order_items: RawOrderLine[] | null;
-};
 
 export default async function AdminCustomerPage({
   params,
@@ -42,26 +25,23 @@ export default async function AdminCustomerPage({
 
   const { data: orderRows } = await supabase
     .from("orders")
-    .select(
-      `id, email, full_name, total, status, created_at, city, country, order_items (${ORDER_LINE_SELECT})`,
-    )
+    .select("id, email, full_name, total, status, created_at, city, country")
     .or(`user_id.eq.${id},email.eq.${profile.email}`)
     .order("created_at", { ascending: false })
     .limit(50);
 
-  const orders = (orderRows ?? []) as OrderWithItems[];
-  const unique = new Map(orders.map((o) => [o.id, o]));
+  const unique = new Map((orderRows ?? []).map((o) => [o.id, o]));
   const list = [...unique.values()];
-
-  const hydrated = await Promise.all(
-    list.map(async (order) => ({
-      ...order,
-      lines: await fillMissingProducts(
-        supabase,
-        (order.order_items ?? []).map(mapOrderLine),
-      ),
-    })),
+  const linesByOrder = await loadLinesByOrderId(
+    supabase,
+    list.map((o) => o.id),
+    true,
   );
+
+  const hydrated = list.map((order) => ({
+    ...order,
+    lines: linesByOrder.get(order.id) ?? [],
+  }));
 
   const gmv = hydrated
     .filter((o) => o.status !== "cancelled")

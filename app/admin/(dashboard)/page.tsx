@@ -1,37 +1,12 @@
 import Link from "next/link";
 import { OrderLinesPreview } from "@/components/admin/order-line-items";
-import { ORDER_LINE_LIST_SELECT } from "@/lib/admin/order-lines";
+import { loadLinesByOrderId } from "@/lib/admin/order-lines";
 import { formatDate, formatPrice } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "Admin" };
 
 const STATUSES = ["reserved", "preparing", "shipped", "cancelled"] as const;
-
-type RecentOrder = {
-  id: string;
-  email: string;
-  full_name: string;
-  total: number;
-  status: (typeof STATUSES)[number];
-  created_at: string;
-  order_items: { id: string; code: string; name: string; size: string; qty: number }[] | null;
-};
-
-type SoldLine = {
-  code: string;
-  name: string;
-  qty: number;
-  unit_price: number;
-  product_id: string | null;
-  products: { id: string; image_url: string } | { id: string; image_url: string }[] | null;
-  orders: { status: (typeof STATUSES)[number] } | { status: (typeof STATUSES)[number] }[] | null;
-};
-
-function one<T>(value: T | T[] | null | undefined): T | null {
-  if (!value) return null;
-  return Array.isArray(value) ? (value[0] ?? null) : value;
-}
 
 export default async function AdminDashboardPage() {
   const supabase = await createClient();
@@ -49,20 +24,16 @@ export default async function AdminDashboardPage() {
       .select("*", { count: "exact", head: true })
       .gt("stock_qty", 0)
       .lt("stock_qty", 5),
-    supabase.from("orders").select("status, total"),
+    supabase.from("orders").select("id, status, total"),
     supabase
       .from("orders")
-      .select(
-        `id, email, full_name, total, status, created_at, order_items (${ORDER_LINE_LIST_SELECT})`,
-      )
+      .select("id, email, full_name, total, status, created_at")
       .order("created_at", { ascending: false })
       .limit(8),
-    supabase
-      .from("order_items")
-      .select("code, name, qty, unit_price, product_id, products (id, image_url), orders!inner (status)")
-      .limit(4000),
+    supabase.from("order_items").select("code, name, qty, unit_price, order_id").limit(4000),
   ]);
 
+  const statusById = new Map((orderRows ?? []).map((row) => [row.id, row.status]));
   const statusCounts = { reserved: 0, preparing: 0, shipped: 0, cancelled: 0 };
   let gmv = 0;
   let paidCount = 0;
@@ -76,28 +47,32 @@ export default async function AdminDashboardPage() {
   }
   const aov = paidCount ? gmv / paidCount : 0;
 
-  const sold = new Map<
-    string,
-    { code: string; name: string; qty: number; revenue: number; productId: string | null; image: string }
-  >();
-  for (const raw of (soldRows ?? []) as SoldLine[]) {
-    const order = one(raw.orders);
-    if (!order || order.status === "cancelled") continue;
-    const product = one(raw.products);
+  const sold = new Map<string, { code: string; name: string; qty: number; revenue: number }>();
+  for (const raw of soldRows ?? []) {
+    const status = statusById.get(raw.order_id);
+    if (status !== "reserved" && status !== "preparing" && status !== "shipped") continue;
     const current = sold.get(raw.code) ?? {
       code: raw.code,
       name: raw.name,
       qty: 0,
       revenue: 0,
-      productId: product?.id ?? raw.product_id,
-      image: product?.image_url || "/brand/rappi-logo.png",
     };
     current.qty += Number(raw.qty) || 0;
     current.revenue += (Number(raw.unit_price) || 0) * (Number(raw.qty) || 0);
     sold.set(raw.code, current);
   }
   const topProducts = [...sold.values()].sort((a, b) => b.qty - a.qty).slice(0, 8);
-  const recentOrders = (recentRows ?? []) as RecentOrder[];
+  const topCodes = topProducts.map((p) => p.code);
+  const { data: topProductRows } = topCodes.length
+    ? await supabase.from("products").select("id, code, image_url").in("code", topCodes)
+    : { data: [] as { id: string; code: string; image_url: string }[] };
+  const productMeta = new Map((topProductRows ?? []).map((row) => [row.code, row]));
+
+  const recentOrders = recentRows ?? [];
+  const recentLines = await loadLinesByOrderId(
+    supabase,
+    recentOrders.map((o) => o.id),
+  );
 
   const cards = [
     { label: "GMV", value: formatPrice(gmv), href: "/admin/orders" },
@@ -175,11 +150,12 @@ export default async function AdminDashboardPage() {
                   </tr>
                 ) : (
                   topProducts.map((p) => {
+                    const meta = productMeta.get(p.code);
                     const inner = (
                       <span className="flex items-center gap-3">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                          src={p.image}
+                          src={meta?.image_url || "/brand/rappi-logo.png"}
                           alt=""
                           className="h-10 w-10 rounded-lg bg-[var(--bg-elevated)] object-cover"
                         />
@@ -192,8 +168,8 @@ export default async function AdminDashboardPage() {
                     return (
                       <tr key={p.code} className="border-t border-[var(--border)]">
                         <td className="px-4 py-3">
-                          {p.productId ? (
-                            <Link href={`/admin/products/${p.productId}`} className="hover:text-[var(--accent)]">
+                          {meta?.id ? (
+                            <Link href={`/admin/products/${meta.id}`} className="hover:text-[var(--accent)]">
                               {inner}
                             </Link>
                           ) : (
@@ -257,7 +233,7 @@ export default async function AdminDashboardPage() {
                         </p>
                       </td>
                       <td className="px-4 py-3">
-                        <OrderLinesPreview items={o.order_items ?? []} />
+                        <OrderLinesPreview items={recentLines.get(o.id) ?? []} />
                       </td>
                       <td className="px-4 py-3">{formatPrice(Number(o.total))}</td>
                     </tr>

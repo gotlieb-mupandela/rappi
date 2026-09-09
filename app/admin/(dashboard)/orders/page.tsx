@@ -1,33 +1,13 @@
 import Link from "next/link";
 import { OrderLinesPreview } from "@/components/admin/order-line-items";
-import { Button } from "@/components/ui/button";
-import { ORDER_LINE_LIST_SELECT, sanitizeSearch } from "@/lib/admin/order-lines";
+import { loadLinesByOrderId, sanitizeSearch } from "@/lib/admin/order-lines";
 import { formatDate, formatPrice } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
+import { Button } from "@/components/ui/button";
 
 export const metadata = { title: "Orders · Admin" };
 
 const STATUSES = ["reserved", "preparing", "shipped", "cancelled"] as const;
-
-type OrderRow = {
-  id: string;
-  email: string;
-  full_name: string;
-  total: number;
-  status: (typeof STATUSES)[number];
-  created_at: string;
-  city: string;
-  country: string;
-  order_items: {
-    id: string;
-    code: string;
-    name: string;
-    size: string;
-    qty: number;
-    unit_price: number;
-    product_id: string | null;
-  }[] | null;
-};
 
 export default async function AdminOrdersPage({
   searchParams,
@@ -38,9 +18,7 @@ export default async function AdminOrdersPage({
   const supabase = await createClient();
   let query = supabase
     .from("orders")
-    .select(
-      `id, email, full_name, total, status, created_at, city, country, order_items (${ORDER_LINE_LIST_SELECT})`,
-    )
+    .select("id, email, full_name, total, status, created_at, city, country")
     .order("created_at", { ascending: false })
     .limit(100);
 
@@ -53,8 +31,12 @@ export default async function AdminOrdersPage({
     query = query.or(`id.ilike.%${q}%,email.ilike.%${q}%,full_name.ilike.%${q}%`);
   }
 
-  const { data } = await query;
-  const orders = (data ?? []) as OrderRow[];
+  const { data: orders } = await query;
+  const list = orders ?? [];
+  const linesByOrder = await loadLinesByOrderId(
+    supabase,
+    list.map((o) => o.id),
+  );
 
   return (
     <div>
@@ -117,14 +99,14 @@ export default async function AdminOrdersPage({
             </tr>
           </thead>
           <tbody>
-            {orders.length === 0 ? (
+            {list.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-4 py-12 text-center text-[var(--muted)]">
                   No orders in this queue.
                 </td>
               </tr>
             ) : (
-              orders.map((o) => (
+              list.map((o) => (
                 <tr key={o.id} className="border-t border-[var(--border)]">
                   <td className="px-4 py-3">
                     <Link
@@ -141,7 +123,7 @@ export default async function AdminOrdersPage({
                     {o.city}, {o.country}
                   </td>
                   <td className="px-4 py-3">
-                    <OrderLinesPreview items={o.order_items ?? []} />
+                    <OrderLinesPreview items={linesByOrder.get(o.id) ?? []} />
                   </td>
                   <td className="px-4 py-3">{formatPrice(Number(o.total))}</td>
                   <td className="px-4 py-3 text-[11px] uppercase tracking-wider">

@@ -26,15 +26,15 @@ export const PRODUCT_PREVIEW_SELECT =
   "id, image_url, category_slug, gender, badge, name, code" as const;
 
 export const ORDER_LINE_SELECT =
-  `id, code, name, size, qty, unit_price, product_id, products (${PRODUCT_PREVIEW_SELECT})` as const;
+  "id, order_id, code, name, size, qty, unit_price, product_id" as const;
 
-export const ORDER_LINE_LIST_SELECT =
-  "id, code, name, size, qty, unit_price, product_id" as const;
+export const ORDER_LINE_LIST_SELECT = ORDER_LINE_SELECT;
 
 type NestedProduct = ProductPreview | ProductPreview[] | null | undefined;
 
 export type RawOrderLine = {
   id: string;
+  order_id?: string;
   code: string;
   name: string;
   size: string;
@@ -95,6 +95,38 @@ export async function fillMissingProducts(
   return lines.map((line) =>
     line.product ? line : { ...line, product: byCode.get(line.code) ?? null },
   );
+}
+
+export async function loadLinesByOrderId(
+  supabase: Pick<SupabaseClient<Database>, "from">,
+  orderIds: string[],
+  hydrateProducts = false,
+): Promise<Map<string, OrderLine[]>> {
+  const grouped = new Map<string, OrderLine[]>();
+  if (!orderIds.length) return grouped;
+  const { data } = await supabase
+    .from("order_items")
+    .select(ORDER_LINE_SELECT)
+    .in("order_id", orderIds);
+  const rows = (data ?? []) as RawOrderLine[];
+  for (const row of rows) {
+    const orderId = row.order_id;
+    if (!orderId) continue;
+    const list = grouped.get(orderId) ?? [];
+    list.push(mapOrderLine(row));
+    grouped.set(orderId, list);
+  }
+  if (!hydrateProducts) return grouped;
+  const all = [...grouped.values()].flat();
+  const hydrated = await fillMissingProducts(supabase, all);
+  const byId = new Map(hydrated.map((line) => [line.id, line]));
+  for (const [orderId, lines] of grouped) {
+    grouped.set(
+      orderId,
+      lines.map((line) => byId.get(line.id) ?? line),
+    );
+  }
+  return grouped;
 }
 
 export function sanitizeSearch(raw: string) {

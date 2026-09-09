@@ -219,7 +219,7 @@ export function SiteHeader({
                     type="button"
                     role="menuitem"
                     onClick={() => {
-                      logout();
+                      void logout();
                       setAccountOpen(false);
                       router.push("/");
                     }}
@@ -397,9 +397,10 @@ export function SiteHeader({
                 variant="ghost"
                 className="w-full"
                 onClick={() => {
-                  logout();
-                  setOpen(false);
-                  router.push("/");
+                  void logout().then(() => {
+                    setOpen(false);
+                    router.push("/");
+                  });
                 }}
               >
                 {t("nav.logout")}

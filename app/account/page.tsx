@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/stores/auth";
@@ -12,8 +13,13 @@ export default function AccountPage() {
   const user = useAuth((s) => s.user);
   const logout = useAuth((s) => s.logout);
   const orders = useOrders((s) => s.orders);
+  const syncRemote = useOrders((s) => s.syncRemote);
   const router = useRouter();
   const t = useT();
+
+  useEffect(() => {
+    void syncRemote();
+  }, [syncRemote]);
 
   if (!user) {
     return (
@@ -50,8 +56,7 @@ export default function AccountPage() {
         <button
           type="button"
           onClick={() => {
-            logout();
-            router.push("/");
+            void logout().then(() => router.push("/"));
           }}
           className="surface-card p-6 text-left"
         >

@@ -5,6 +5,8 @@ import { Toaster } from "sonner";
 import { LocaleProvider } from "@/components/locale-provider";
 import { useTheme } from "@/components/theme-provider";
 import type { Market } from "@/lib/i18n/config";
+import { userFromAuth } from "@/lib/auth/session";
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { useAuth } from "@/lib/stores/auth";
 import { useCart } from "@/lib/stores/cart";
 import { useOrders } from "@/lib/stores/orders";
@@ -18,6 +20,8 @@ export function Providers({
   initialMarket: Market;
 }) {
   const { theme } = useTheme();
+  const setUser = useAuth((s) => s.setUser);
+  const syncFromSupabase = useAuth((s) => s.syncFromSupabase);
 
   useEffect(() => {
     useCart.persist.rehydrate();
@@ -25,6 +29,27 @@ export function Providers({
     useOrders.persist.rehydrate();
     useWishlist.persist.rehydrate();
   }, []);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured()) return;
+    void syncFromSupabase();
+    const supabase = createClient();
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        setUser(userFromAuth(session.user));
+        if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "USER_UPDATED") {
+          void syncFromSupabase();
+        }
+        return;
+      }
+      if (event === "SIGNED_OUT") {
+        setUser(null);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [setUser, syncFromSupabase]);
 
   return (
     <LocaleProvider initialMarket={initialMarket}>

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/format";
@@ -17,8 +18,27 @@ function statusKey(status: string) {
 export default function OrdersPage() {
   const user = useAuth((s) => s.user);
   const orders = useOrders((s) => s.orders);
-  const mine = user ? orders.filter((o) => o.email === user.email) : orders;
+  const syncRemote = useOrders((s) => s.syncRemote);
   const { t, format } = useLocale();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        await syncRemote();
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [syncRemote]);
+
+  // Show every order saved on this device, plus anything pulled from Supabase.
+  // Do not filter by login email — checkout email often differs from the demo account.
+  const mine = useMemo(() => orders, [orders]);
 
   if (!user) {
     return (
@@ -48,7 +68,11 @@ export default function OrdersPage() {
         {t("account.ordersIntro")}
       </p>
 
-      {!mine.length ? (
+      {loading && !mine.length ? (
+        <div className="mt-10 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-6 py-16 text-center">
+          <p className="text-sm text-[var(--muted)]">{t("account.ordersHint")}</p>
+        </div>
+      ) : !mine.length ? (
         <div className="mt-10 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-6 py-16 text-center">
           <p className="text-lg font-semibold">{t("account.noOrders")}</p>
           <p className="mt-2 text-sm text-[var(--muted)]">{t("account.noOrdersHint")}</p>

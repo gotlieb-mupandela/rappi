@@ -31,14 +31,25 @@ export default function CheckoutPage() {
   const { t, format, market } = useLocale();
   const [shippingOptions, setShippingOptions] = useState<ShippingRow[]>(FALLBACK_SHIPPING);
   const [submitting, setSubmitting] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
 
-  const [name, setName] = useState(user?.name ?? "");
-  const [email, setEmail] = useState(user?.email ?? "");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [country, setCountry] = useState("");
   const [method, setMethod] = useState(FALLBACK_SHIPPING[0].id);
   const [notes, setNotes] = useState("");
+
+  useEffect(() => {
+    setAuthReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    setName((prev) => prev || user.name || "");
+    setEmail((prev) => prev || user.email || "");
+  }, [user]);
 
   useEffect(() => {
     if (!isSupabaseConfigured()) return;
@@ -79,6 +90,11 @@ export default function CheckoutPage() {
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
+    if (!user) {
+      toast.error(t("checkout.signInRequired"));
+      router.push("/login?next=/checkout");
+      return;
+    }
     if (!rows.length) {
       toast.error(t("checkout.cartEmpty"));
       return;
@@ -151,6 +167,59 @@ export default function CheckoutPage() {
           <Button asChild variant="outline">
             <Link href="/">{t("common.continueShopping")}</Link>
           </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (authReady && !user) {
+    return (
+      <div className="page-shell py-8">
+        <Breadcrumbs
+          items={[
+            { href: "/", label: t("common.home") },
+            { href: "/cart", label: t("cart.crumb") },
+            { label: t("checkout.crumb") },
+          ]}
+        />
+        <h1 className="mt-4 font-[family-name:var(--font-oswald)] text-3xl uppercase sm:text-4xl">
+          {t("checkout.title")}
+        </h1>
+        <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+          <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-8">
+            <h2 className="font-[family-name:var(--font-oswald)] text-2xl uppercase">
+              {t("checkout.signInTitle")}
+            </h2>
+            <p className="mt-3 max-w-xl text-sm text-[var(--muted)]">
+              {t("checkout.signInBody")}
+            </p>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <Button asChild size="lg">
+                <Link href="/login?next=/checkout">{t("checkout.signInCta")}</Link>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <Link href="/login?next=/checkout">{t("checkout.createAccountCta")}</Link>
+              </Button>
+            </div>
+            <p className="mt-4 text-xs text-[var(--muted-2)]">{t("checkout.browseOk")}</p>
+          </section>
+          <aside className="h-fit rounded-xl border border-[var(--accent)]/25 bg-[var(--surface)] p-5">
+            <h2 className="text-sm font-bold uppercase tracking-wider">{t("checkout.summary")}</h2>
+            <ul className="mt-4 divide-y divide-[var(--border)] text-sm">
+              {rows.map((r) => (
+                <li key={`${r.code}-${r.size}`} className="flex flex-col gap-1 py-2 sm:flex-row sm:justify-between">
+                  <span className="break-all">
+                    {r.code} · {r.size} × {r.qty}
+                  </span>
+                  <span className="shrink-0">{format(r.price * r.qty)}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-4 flex justify-between text-lg font-semibold">
+              <span>{t("checkout.total")}</span>
+              <span>{format(total)}</span>
+            </p>
+          </aside>
         </div>
       </div>
     );
@@ -261,7 +330,7 @@ export default function CheckoutPage() {
               <span>{format(total)}</span>
             </p>
           </div>
-          <Button type="submit" size="lg" className="mt-6 w-full" disabled={submitting}>
+          <Button type="submit" size="lg" className="mt-6 w-full" disabled={submitting || !user}>
             {submitting ? t("checkout.placing") : t("checkout.placeOrder")}
           </Button>
           <p className="mt-3 text-center text-[11px] text-[var(--muted-2)]">

@@ -29,11 +29,24 @@ npm start
 
 ## Demo login (storefront)
 
+With Supabase configured, use **Google**, **Create account**, or email/password on `/login`.
+Checkout requires a signed-in account (guest browse is still allowed).
+
+Offline-only demo (no Supabase env):
+
 - Email: `shop@rappi.com`
 - Password: `rappi123`
-- Or use **Continue as guest** on `/login` to browse and check out without an account.
 
-With Supabase configured, login prefers Auth; orders from `place_order` are also mirrored to browser `localStorage` for Account → Orders.
+### Google sign-in setup
+
+1. Supabase Dashboard → Authentication → Providers → enable **Google** (Client ID + Secret from Google Cloud).
+2. Add redirect URLs to the allow list:
+   - `https://rappisportshub.com/auth/callback`
+   - `http://127.0.0.1:43123/auth/callback`
+3. In Google Cloud OAuth client, set Authorized redirect URI to:
+   `https://wzmzwerzbyudcvoiiege.supabase.co/auth/v1/callback`
+
+Orders from `place_order` are mirrored to browser `localStorage` and also stored in Supabase for Account → Orders.
 
 ## Admin panel
 

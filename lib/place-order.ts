@@ -67,6 +67,13 @@ export async function placeOrder(input: PlaceInput): Promise<PlaceResult> {
   if (isSupabaseConfigured()) {
     try {
       const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        return { ok: false, message: "Sign in to place an order." };
+      }
+
       const { data, error } = await supabase.rpc("place_order", {
         p_email: input.email,
         p_name: input.name,

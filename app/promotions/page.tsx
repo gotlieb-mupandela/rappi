@@ -8,6 +8,8 @@ import { getCatalog } from "@/lib/supabase/catalog";
 import { getT } from "@/lib/i18n/server";
 import { hubName } from "@/lib/i18n/labels";
 
+export const revalidate = 3600;
+
 export default async function PromotionsPage({
   searchParams,
 }: {

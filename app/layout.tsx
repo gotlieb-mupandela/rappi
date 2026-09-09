@@ -6,11 +6,14 @@ import { Providers } from "@/components/providers";
 import { StorefrontChrome } from "@/components/storefront-chrome";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TAGLINE } from "@/lib/catalog";
-import { MARKET_BOOTSTRAP, htmlLang } from "@/lib/i18n/config";
-import { getMarket } from "@/lib/i18n/server";
-import { buildTaxonomy, categoryCountsFromTaxonomy } from "@/lib/listing";
-import { getCatalog } from "@/lib/supabase/catalog";
+import {
+  DEFAULT_MARKET,
+  MARKET_BOOTSTRAP,
+  htmlLang,
+} from "@/lib/i18n/config";
+import type { StorefrontTaxonomy } from "@/lib/listing-types";
 import { THEME_BOOTSTRAP } from "@/lib/theme";
+import storefrontNav from "@/data/storefront-nav.json";
 import "./globals.css";
 import "./tokens.css";
 
@@ -51,11 +54,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const catalog = await getCatalog();
-  const taxonomy = buildTaxonomy(catalog);
-  const categoryCounts = categoryCountsFromTaxonomy(taxonomy);
-  const market = await getMarket();
+const nav = storefrontNav as {
+  taxonomy: StorefrontTaxonomy;
+  categoryCounts: Record<string, number>;
+};
+
+export default function RootLayout({ children }: LayoutProps<"/">) {
+  const market = DEFAULT_MARKET;
 
   return (
     <html
@@ -76,7 +81,10 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <div className="relative z-10 flex min-h-full flex-1 flex-col">
           <ThemeProvider>
             <Providers initialMarket={market}>
-              <StorefrontChrome taxonomy={taxonomy} categoryCounts={categoryCounts}>
+              <StorefrontChrome
+                taxonomy={nav.taxonomy}
+                categoryCounts={nav.categoryCounts}
+              >
                 {children}
               </StorefrontChrome>
             </Providers>

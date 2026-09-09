@@ -17,6 +17,8 @@ import { getCatalog } from "@/lib/supabase/catalog";
 import { getT } from "@/lib/i18n/server";
 import { audienceBlurb, audienceName, hubBlurb, hubName } from "@/lib/i18n/labels";
 
+export const revalidate = 3600;
+
 export function generateStaticParams() {
   return [
     ...CATEGORIES.map((c) => ({ slug: c.slug })),

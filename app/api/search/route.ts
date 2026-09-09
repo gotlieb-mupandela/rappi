@@ -22,23 +22,31 @@ export async function GET(request: Request) {
     { requireQuery: true },
   );
 
-  return NextResponse.json({
-    q,
-    total: listing.total,
-    page: listing.page,
-    pageSize: listing.pageSize ?? LISTING_PAGE_SIZE,
-    pageCount: listing.pageCount,
-    facets: listing.facets,
-    items: listing.products.map((p) => ({
-      code: p.code,
-      displayName: p.displayName,
-      name: p.name,
-      category: p.category,
-      subcategory: p.subcategory,
-      price: p.price,
-      imageUrl: p.imageUrl,
-      available: !isSoldOut(p),
-      assortment: getAssortment(p)?.label ?? null,
-    })),
-  });
+  return NextResponse.json(
+    {
+      q,
+      total: listing.total,
+      page: listing.page,
+      pageSize: listing.pageSize ?? LISTING_PAGE_SIZE,
+      pageCount: listing.pageCount,
+      facets: listing.facets,
+      items: listing.products.map((p) => ({
+        code: p.code,
+        displayName: p.displayName,
+        name: p.name,
+        category: p.category,
+        subcategory: p.subcategory,
+        price: p.price,
+        imageUrl: p.imageUrl,
+        available: !isSoldOut(p),
+        assortment: getAssortment(p)?.label ?? null,
+      })),
+    },
+    {
+      headers: {
+        // Short CDN/browser cache for repeated typeahead queries.
+        "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+      },
+    },
+  );
 }

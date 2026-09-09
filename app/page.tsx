@@ -15,6 +15,8 @@ import { getCatalog, getSiteSettings } from "@/lib/supabase/catalog";
 import type { Product } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
+export const revalidate = 3600;
+
 export default async function HomePage() {
   const [catalog, settings, t, market] = await Promise.all([
     getCatalog(),

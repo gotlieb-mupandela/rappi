@@ -25,9 +25,12 @@ export function HubTile({
   href,
   compact = false,
   product,
+  imageSrc,
   banner,
   shape = "portrait",
   fill = false,
+  /** Cover crops to fill (product tiles). Contain keeps full lifestyle subjects visible. */
+  imageFit = "cover",
   priority = false,
   className,
 }: {
@@ -37,9 +40,12 @@ export function HubTile({
   href?: string;
   compact?: boolean;
   product?: Product;
+  /** Optional local/override cover (e.g. audience lifestyle photos). */
+  imageSrc?: string;
   banner?: string;
   shape?: "portrait" | "square";
   fill?: boolean;
+  imageFit?: "cover" | "contain";
   priority?: boolean;
   className?: string;
 }) {
@@ -51,6 +57,12 @@ export function HubTile({
   const n = count ?? 0;
   const to = href ?? `/category/${slug}`;
   const t = useT();
+  const contain = imageFit === "contain";
+  const imageClassName = cn(
+    // max-w-none: global `img { max-width:100% }` breaks object-fit on absolute fill images
+    "absolute inset-0 h-full w-full max-w-none object-center transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100",
+    contain ? "object-contain" : "object-cover",
+  );
 
   return (
     <Link href={to} className={cn("group block h-full", className)}>
@@ -58,14 +70,19 @@ export function HubTile({
         className={cn(
           "media-frame relative overflow-hidden rounded-lg border border-[var(--border)] transition-[border-color,box-shadow] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:border-[var(--border-strong)] group-hover:shadow-[var(--shadow-lift)]",
           fill
-            ? "h-full min-h-[20rem] md:min-h-full"
+            ? contain
+              ? // Featured lifestyle (sportswear): tall enough for head-to-toe in a col-span-2 cell
+                "h-full min-h-[28rem] sm:min-h-[32rem] md:min-h-full"
+              : "h-full min-h-[20rem] md:min-h-full"
             : shape === "square" || compact
               ? "aspect-square"
               : "aspect-[3/4]",
         )}
         style={
-          product
-            ? undefined
+          product || imageSrc
+            ? contain
+              ? { backgroundColor: "#fff" }
+              : undefined
             : {
                 backgroundImage: `linear-gradient(160deg, ${accent}26 0%, var(--tile-mid) 58%, var(--tile-end) 100%)`,
               }
@@ -74,11 +91,21 @@ export function HubTile({
         {product ? (
           <ProductImage
             product={product}
-            src={productCardImageUrl(product)}
-            alt={productImageAlt(product)}
+            src={imageSrc ?? productCardImageUrl(product)}
+            alt={imageSrc ? name : productImageAlt(product)}
             priority={priority}
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+            className={imageClassName}
             fallbackClassName="absolute inset-0 h-full w-full"
+          />
+        ) : imageSrc ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={imageSrc}
+            alt={name}
+            className={imageClassName}
+            loading={priority ? "eager" : "lazy"}
+            decoding="async"
+            fetchPriority={priority ? "high" : "auto"}
           />
         ) : (
           <div className="absolute inset-0 opacity-40 mix-blend-overlay [background-image:repeating-linear-gradient(90deg,transparent,transparent_18px,rgba(255,255,255,0.04)_19px)]" />

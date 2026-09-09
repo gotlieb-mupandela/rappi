@@ -233,6 +233,21 @@ export function bramaHubGroups(catalog: Product[] = bundled) {
   ].filter((g) => g.count > 0);
 }
 
+/** Local lifestyle covers for homepage / hub audience tiles. */
+export const AUDIENCE_COVERS: Partial<Record<AudienceSlug, string>> = {
+  men: "/brand/audience-men.png?v=2",
+  women: "/brand/audience-women.png?v=2",
+};
+
+/** Local lifestyle covers for homepage SHOP hub tiles (by category slug). */
+export const HUB_COVERS: Partial<Record<string, string>> = {
+  sportswear: "/brand/hub-sportswear.png?v=4",
+  shoes: "/brand/hub-shoes.png",
+  lifestyle: "/brand/hub-lifestyle.png?v=3",
+  "teampro-2026": "/brand/hub-teampro-2026.png",
+  rugby: "/brand/hub-rugby.png?v=1",
+};
+
 function audienceSample(items: Product[], slug: AudienceSlug) {
   const preferred = items.filter((p) =>
     ["sportswear", "shoes", "running-fitness", "football", "rugby"].includes(p.category),
@@ -260,6 +275,7 @@ export function audienceTiles(
       count: items.length,
       href,
       sample: audienceSample(items, a.slug),
+      cover: AUDIENCE_COVERS[a.slug],
     };
   }).filter((g) => g.count > 0);
 }

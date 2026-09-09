@@ -6,7 +6,7 @@ import { SectionHeading } from "@/components/section-heading";
 import { Button } from "@/components/ui/button";
 import { CATEGORIES, TAGLINE } from "@/lib/catalog";
 import { sampleForCategory } from "@/lib/classify";
-import { audienceTiles, collectionTiles } from "@/lib/hubs";
+import { audienceTiles, collectionTiles, HUB_COVERS } from "@/lib/hubs";
 import { audienceName, hubName } from "@/lib/i18n/labels";
 import { currencyCode } from "@/lib/i18n/currency";
 import { getMarket, getT } from "@/lib/i18n/server";
@@ -122,7 +122,10 @@ export default async function HomePage() {
               count={a.count}
               href={a.href}
               product={a.sample}
+              imageSrc={a.cover}
               shape="square"
+              // Lifestyle covers: contain so full figure (head-to-toe) stays visible.
+              imageFit={a.cover ? "contain" : "cover"}
               priority
             />
           ))}
@@ -131,17 +134,38 @@ export default async function HomePage() {
 
       <section className="page-shell pb-12 lg:pb-16">
         <SectionHeading eyebrow="02" title={t("home.shopTitle")} href="/search" linkLabel={t("home.browseAll")} />
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:auto-rows-[minmax(15rem,auto)] md:gap-4">
           {hubs.map((c, i) => (
-            <div key={c.slug} className={cn(i === 0 && "col-span-2 md:row-span-2")}>
+            <div
+              key={c.slug}
+              className={cn(
+                i === 0 && "col-span-2 h-full md:row-span-2",
+                // Featured sportswear: portrait subject needs real height in the wide 2-col cell
+                i === 0 &&
+                  c.slug === "sportswear" &&
+                  "min-h-[28rem] sm:min-h-[32rem] md:min-h-[34rem]",
+              )}
+            >
               <HubTile
                 slug={c.slug}
                 name={hubName(c.slug, t)}
                 count={counts[c.slug]}
                 product={sampleForCategory(catalog, c.slug)}
+                imageSrc={HUB_COVERS[c.slug]}
                 fill={i === 0}
                 shape={i === 0 ? "portrait" : "square"}
                 compact={i !== 0}
+                // Lifestyle covers: contain so full product/outfit stays visible (not hard-cropped by cover).
+                imageFit={
+                  (c.slug === "sportswear" ||
+                    c.slug === "shoes" ||
+                    c.slug === "lifestyle" ||
+                    c.slug === "teampro-2026" ||
+                    c.slug === "rugby") &&
+                  HUB_COVERS[c.slug]
+                    ? "contain"
+                    : "cover"
+                }
                 priority={i < 5}
               />
             </div>

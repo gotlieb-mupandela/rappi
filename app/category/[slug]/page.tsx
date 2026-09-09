@@ -125,7 +125,9 @@ export default async function CategoryHubPage({
                   count={g.count}
                   href={g.href}
                   product={g.sample}
+                  imageSrc={g.cover}
                   shape="square"
+                  imageFit={g.cover ? "contain" : "cover"}
                   priority
                 />
               ))}

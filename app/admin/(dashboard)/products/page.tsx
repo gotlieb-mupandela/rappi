@@ -78,9 +78,9 @@ export default async function AdminProductsPage({
         </Button>
       </form>
 
-      <div className="mt-6 overflow-hidden rounded-xl border border-[var(--border)]">
+      <div className="mt-6 max-h-[calc(100dvh-14rem)] overflow-auto rounded-xl border border-[var(--border)]">
         <table className="w-full min-w-[720px] text-left text-sm">
-          <thead className="bg-[var(--hover)] text-[11px] uppercase tracking-wider text-[var(--muted)]">
+          <thead className="sticky top-0 z-10 bg-[var(--surface)] text-[11px] uppercase tracking-wider text-[var(--muted)] shadow-[0_1px_0_var(--border)]">
             <tr>
               <th className="px-4 py-3">Product</th>
               <th className="px-4 py-3">Category</th>

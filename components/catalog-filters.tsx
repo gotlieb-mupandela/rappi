@@ -103,6 +103,7 @@ export function CatalogFilters({
       <aside
         className={cn(
           "space-y-7 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 sm:p-6",
+          "lg:sticky lg:top-[calc(var(--header-h)+env(safe-area-inset-top)+0.75rem)] lg:max-h-[calc(100dvh-var(--header-h)-env(safe-area-inset-top)-1.5rem)] lg:overflow-y-auto lg:overscroll-contain",
           filtersOpen ? "block" : "hidden lg:block",
         )}
       >

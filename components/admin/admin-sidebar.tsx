@@ -37,7 +37,7 @@ export function AdminSidebar() {
   }
 
   return (
-    <aside className="flex w-full shrink-0 flex-col border-b border-[var(--border)] bg-[var(--footer-bg)] lg:w-60 lg:border-b-0 lg:border-r">
+    <aside className="flex w-full shrink-0 flex-col border-b border-[var(--border)] bg-[var(--footer-bg)] lg:sticky lg:top-0 lg:h-dvh lg:w-60 lg:overflow-y-auto lg:border-b-0 lg:border-r">
       <div className="flex items-center gap-2 border-b border-[var(--border)] px-4 py-3">
         <BrandLogo variant="mark" className="h-10 w-10" />
         <div>

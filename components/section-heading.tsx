@@ -15,10 +15,10 @@ export function SectionHeading({
   className?: string;
 }) {
   return (
-    <div className={cn("mb-6 flex items-end justify-between gap-4", className)}>
+    <div className={cn("mb-6 flex flex-wrap items-end justify-between gap-x-4 gap-y-2", className)}>
       <div>
         {eyebrow ? (
-          <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--muted-2)]">
+          <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted-2)]">
             {eyebrow}
           </p>
         ) : null}
@@ -29,7 +29,7 @@ export function SectionHeading({
       {href && linkLabel ? (
         <Link
           href={href}
-          className="shrink-0 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--accent)] transition-colors hover:text-[var(--accent-bright)]"
+          className="shrink-0 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--accent)] transition-colors hover:text-[var(--accent-bright)]"
         >
           {linkLabel}
         </Link>

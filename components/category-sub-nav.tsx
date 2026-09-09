@@ -29,13 +29,13 @@ export function CategorySubNav({ taxonomy }: { taxonomy: StorefrontTaxonomy }) {
 
   return (
     <nav className="border-t border-[var(--border)] bg-[var(--header-bg-scrolled)]">
-      <ul className="scroll-touch page-shell flex items-center gap-x-5 overflow-x-auto py-1 [mask-image:linear-gradient(90deg,transparent,black_1.25rem,black_calc(100%-1.25rem),transparent)] lg:justify-center lg:[mask-image:none] xl:gap-x-6">
+      <ul className="scroll-touch page-shell flex items-center gap-x-5 overflow-x-auto py-2 [mask-image:linear-gradient(90deg,transparent,black_1.25rem,black_calc(100%-1.25rem),transparent)] lg:justify-center lg:[mask-image:none] xl:gap-x-6">
         <li className="shrink-0">
           <Link
             href={`/shop/${slug}`}
             data-active={onShop && !active ? "true" : undefined}
             className={cn(
-              "nav-link text-[11px] font-medium uppercase tracking-[0.12em]",
+              "nav-link text-xs font-medium uppercase tracking-[0.12em]",
             )}
           >
             {t("common.all")}
@@ -46,7 +46,7 @@ export function CategorySubNav({ taxonomy }: { taxonomy: StorefrontTaxonomy }) {
             <Link
               href={`/shop/${slug}?sub=${encodeURIComponent(s.slug)}`}
               data-active={active === s.slug ? "true" : undefined}
-              className="nav-link text-[11px] font-medium uppercase tracking-[0.12em]"
+              className="nav-link text-xs font-medium uppercase tracking-[0.12em]"
             >
               {subName(s.slug, t)}
             </Link>

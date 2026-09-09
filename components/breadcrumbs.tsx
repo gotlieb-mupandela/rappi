@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { useT } from "@/components/locale-provider";
+import { cn } from "@/lib/utils";
 
 export type Crumb = { href?: string; label: string };
 
@@ -18,18 +19,24 @@ export function Breadcrumbs({ items }: { items: Crumb[] }) {
         {t("back")}
       </Link>
       <span className="text-[var(--border-strong)]">/</span>
-      {items.map((item, i) => (
-        <span key={`${item.label}-${i}`} className="flex items-center gap-2">
-          {item.href ? (
-            <Link href={item.href} className="transition-colors hover:text-[var(--accent)]">
-              {item.label}
-            </Link>
-          ) : (
-            <span className="text-ink">{item.label}</span>
-          )}
-          {i < items.length - 1 ? <span className="text-[var(--border-strong)]">/</span> : null}
-        </span>
-      ))}
+      {items.map((item, i) => {
+        const last = i === items.length - 1;
+        return (
+          <span
+            key={`${item.label}-${i}`}
+            className={cn("items-center gap-2", last || items.length < 3 ? "flex" : "hidden sm:flex")}
+          >
+            {item.href ? (
+              <Link href={item.href} className="transition-colors hover:text-[var(--accent)]">
+                {item.label}
+              </Link>
+            ) : (
+              <span className="text-ink">{item.label}</span>
+            )}
+            {!last ? <span className="text-[var(--border-strong)]">/</span> : null}
+          </span>
+        );
+      })}
     </div>
   );
 }

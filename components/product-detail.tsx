@@ -183,7 +183,7 @@ export function ProductDetail({ product }: { product: Product }) {
           </Button>
         </div>
       </div>
-      <div className="h-20 md:hidden" />
+      <div className="h-[6.5rem] md:hidden" />
     </div>
   );
 }

@@ -164,7 +164,7 @@ export function CatalogFilters({
                 type="button"
                 onClick={() => setParam("size", "all")}
                 className={cn(
-                  "inline-flex h-9 min-w-9 items-center justify-center rounded-full border px-3 text-[11px] font-medium uppercase tracking-wide transition-colors",
+                  "inline-flex h-11 min-w-11 items-center justify-center rounded-full border px-3 text-xs font-medium uppercase tracking-wide transition-colors",
                   size === "all"
                     ? "border-[var(--accent)] text-[var(--accent)]"
                     : "border-[var(--border-strong)] text-[var(--muted)] hover:border-[var(--text)] hover:text-ink",
@@ -178,7 +178,7 @@ export function CatalogFilters({
                   type="button"
                   onClick={() => setParam("size", s)}
                   className={cn(
-                    "inline-flex h-9 min-w-9 items-center justify-center rounded-full border px-3 text-[11px] font-medium uppercase tracking-wide transition-colors",
+                    "inline-flex h-11 min-w-11 items-center justify-center rounded-full border px-3 text-xs font-medium uppercase tracking-wide transition-colors",
                     size === s
                       ? "border-[var(--accent)] text-[var(--accent)]"
                       : "border-[var(--border-strong)] text-[var(--muted)] hover:border-[var(--text)] hover:text-ink",
@@ -256,7 +256,7 @@ export function CatalogFilters({
                 aria-label={t("common.gridView")}
                 onClick={() => setLayout("grid")}
                 className={cn(
-                  "rounded-full p-2 transition-colors",
+                  "flex h-11 w-11 items-center justify-center rounded-full transition-colors",
                   layout === "grid" ? "bg-[var(--hover-strong)] text-[var(--accent)]" : "text-[var(--muted-2)] hover:text-ink",
                 )}
               >
@@ -267,7 +267,7 @@ export function CatalogFilters({
                 aria-label={t("common.listView")}
                 onClick={() => setLayout("list")}
                 className={cn(
-                  "rounded-full p-2 transition-colors",
+                  "flex h-11 w-11 items-center justify-center rounded-full transition-colors",
                   layout === "list" ? "bg-[var(--hover-strong)] text-[var(--accent)]" : "text-[var(--muted-2)] hover:text-ink",
                 )}
               >
@@ -312,7 +312,7 @@ export function CatalogFilters({
 function FilterBlock({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div>
-      <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+      <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
         {title}
       </p>
       <div className="space-y-1.5">{children}</div>
@@ -334,7 +334,7 @@ function FilterLink({
       type="button"
       onClick={onClick}
       className={cn(
-        "block w-full rounded-md py-1.5 pl-2 text-left text-[12px] uppercase tracking-[0.12em] transition-colors",
+        "block min-h-11 w-full rounded-md py-2.5 pl-2 text-left text-xs uppercase tracking-[0.12em] transition-colors",
         active
           ? "border-l-2 border-[var(--accent)] pl-[6px] font-semibold text-[var(--accent)]"
           : "text-[var(--text-secondary)] hover:text-ink",

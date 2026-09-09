@@ -72,7 +72,7 @@ export function HubTile({
           fill
             ? contain
               ? // Featured lifestyle (sportswear): tall enough for head-to-toe in a col-span-2 cell
-                "h-full min-h-[28rem] sm:min-h-[32rem] md:min-h-full"
+                "h-full min-h-[18rem] sm:min-h-[24rem] md:min-h-full"
               : "h-full min-h-[20rem] md:min-h-full"
             : shape === "square" || compact
               ? "aspect-square"
@@ -118,7 +118,7 @@ export function HubTile({
         ) : null}
         <div className="absolute inset-x-0 bottom-0 p-3">
           {n > 0 ? (
-            <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[var(--accent)]">
+            <p className="text-xs font-medium uppercase tracking-[0.2em] text-[var(--accent)]">
               {t.plural("count.pieces", n)}
             </p>
           ) : null}

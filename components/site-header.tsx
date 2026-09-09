@@ -117,7 +117,7 @@ export function SiteHeader({
           : "border-[var(--border)] bg-[var(--header-bg)]",
       )}
     >
-      <div className="page-shell flex h-[4.75rem] items-center gap-2 sm:h-[5.5rem] sm:gap-4">
+      <div className="page-shell flex h-16 items-center gap-1 sm:h-[5.5rem] sm:gap-4">
         <button
           type="button"
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink transition-colors hover:bg-[var(--hover)] lg:hidden"
@@ -130,7 +130,7 @@ export function SiteHeader({
 
         <Link href="/" className="flex shrink-0 items-center" aria-label={t("nav.homeAria")}>
           <BrandLogo
-            className="h-[4.25rem] w-auto max-w-none sm:h-[4.75rem]"
+            className="h-12 w-auto max-w-none sm:h-[4.75rem]"
             priority
           />
         </Link>
@@ -149,8 +149,8 @@ export function SiteHeader({
         </form>
 
         <div className="ml-auto flex items-center gap-0.5 sm:gap-1">
-          <LocaleSwitcher className="mr-0.5" />
-          <ThemeToggle />
+          <LocaleSwitcher className="mr-0.5 hidden md:flex" />
+          <ThemeToggle className="hidden md:flex" />
           <button
             type="button"
             className="flex h-11 w-11 items-center justify-center rounded-full text-ink transition-colors hover:bg-[var(--hover)] hover:text-[var(--accent)] md:hidden"
@@ -176,7 +176,7 @@ export function SiteHeader({
             ) : null}
           </Link>
           {ready && user ? (
-            <div className="relative" ref={accountRef}>
+            <div className="relative hidden md:block" ref={accountRef}>
               <button
                 type="button"
                 className="flex h-11 items-center gap-2 rounded-full px-2 text-ink transition-colors hover:bg-[var(--hover)] hover:text-[var(--accent)]"
@@ -233,7 +233,7 @@ export function SiteHeader({
           ) : (
             <Link
               href="/login"
-              className="flex h-11 items-center gap-2 rounded-full px-2 text-ink transition-colors hover:bg-[var(--hover)] hover:text-[var(--accent)]"
+              className="hidden h-11 items-center gap-2 rounded-full px-2 text-ink transition-colors hover:bg-[var(--hover)] hover:text-[var(--accent)] md:flex"
             >
               <User className="h-5 w-5" />
               <span className="hidden text-[11px] font-semibold uppercase tracking-wider sm:inline">
@@ -349,8 +349,9 @@ export function SiteHeader({
               className="h-11"
             />
           </form>
-          <div className="mb-4 flex justify-center">
+          <div className="mb-5 flex items-center justify-between gap-3">
             <LocaleSwitcher />
+            <ThemeToggle />
           </div>
           <ul className="mb-3 grid grid-cols-3 gap-1">
             {AUDIENCES.map((a) => (

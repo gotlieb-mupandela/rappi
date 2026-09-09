@@ -245,7 +245,7 @@ export default function CheckoutPage() {
         </div>
       </div>
 
-      <form onSubmit={onSubmit} className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+      <form id="checkout-form" onSubmit={onSubmit} className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
         <div className="space-y-4">
           <section className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
             <h2 className="text-sm font-bold uppercase tracking-wider">{t("checkout.address")}</h2>
@@ -330,14 +330,32 @@ export default function CheckoutPage() {
               <span>{format(total)}</span>
             </p>
           </div>
-          <Button type="submit" size="lg" className="mt-6 w-full" disabled={submitting || !user}>
+          <Button type="submit" size="lg" className="mt-6 hidden w-full md:inline-flex" disabled={submitting || !user}>
             {submitting ? t("checkout.placing") : t("checkout.placeOrder")}
           </Button>
-          <p className="mt-3 text-center text-[11px] text-[var(--muted-2)]">
+          <p className="mt-3 hidden text-center text-xs text-[var(--muted-2)] md:block">
             {market === "eu" ? t("checkout.totalsEur") : t("checkout.totalsNad")}
           </p>
         </aside>
       </form>
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-[var(--border)] bg-[var(--header-bg-scrolled)] px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-xl md:hidden">
+        <div className="mx-auto flex max-w-[1440px] items-center gap-3">
+          <div className="min-w-0">
+            <p className="text-xs uppercase tracking-wider text-[var(--muted)]">{t("checkout.total")}</p>
+            <p className="price text-lg font-semibold">{format(total)}</p>
+          </div>
+          <Button
+            type="submit"
+            form="checkout-form"
+            size="lg"
+            className="min-w-0 flex-1"
+            disabled={submitting || !user}
+          >
+            {submitting ? t("checkout.placing") : t("checkout.placeOrder")}
+          </Button>
+        </div>
+      </div>
+      <div className="h-24 md:hidden" />
     </div>
   );
 }

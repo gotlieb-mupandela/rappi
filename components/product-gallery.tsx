@@ -38,14 +38,14 @@ export function ProductGallery({ product }: { product: Product }) {
         />
       </div>
       {shots.length > 1 ? (
-        <div className="mt-4 grid grid-cols-5 gap-2.5">
+        <div className="scroll-touch mt-4 flex gap-2.5 overflow-x-auto pb-1 sm:grid sm:grid-cols-5 sm:overflow-visible sm:pb-0">
           {shots.map((src, i) => (
             <button
               key={src}
               type="button"
               onClick={() => setActive(i)}
               className={cn(
-                "media-frame overflow-hidden rounded-md border transition-[border-color,opacity] duration-300",
+                "media-frame h-20 w-20 shrink-0 overflow-hidden rounded-md border transition-[border-color,opacity] duration-300 sm:h-auto sm:w-auto sm:min-w-0",
                 i === active
                   ? "border-[var(--accent)] opacity-100"
                   : "border-transparent opacity-55 hover:opacity-100",

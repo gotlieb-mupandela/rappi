@@ -23,7 +23,7 @@ html[data-theme="dark"] {
   --ok: #8fd14f;
   --font-display: var(--font-oswald), "Oswald", "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
   --font-body: var(--font-inter), "Inter", "Segoe UI", system-ui, sans-serif;
-  --header-h: 5.5rem;
+  --header-h: 4rem;
   --container: 1440px;
   --radius: 0.625rem;
   --radius-lg: 0.875rem;
@@ -95,6 +95,14 @@ html[data-theme="light"] {
   --toast-bg: #ffffff;
   --toast-border: rgba(18, 21, 18, 0.1);
   --toast-fg: #121512;
+}
+
+@media (min-width: 640px) {
+  :root,
+  html[data-theme="dark"],
+  html[data-theme="light"] {
+    --header-h: 5.5rem;
+  }
 }
 
 body {

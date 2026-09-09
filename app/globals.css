@@ -23,6 +23,7 @@ html {
   color-scheme: dark;
   overflow-x: clip;
   scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + env(safe-area-inset-top) + 0.75rem);
 }
 
 html[data-theme="light"] {

@@ -4,13 +4,20 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { OrderLineItems } from "@/components/admin/order-line-items";
 import { Button } from "@/components/ui/button";
+import {
+  fillMissingProducts,
+  mapOrderLine,
+  ORDER_LINE_SELECT,
+  type OrderLine,
+  type RawOrderLine,
+} from "@/lib/admin/order-lines";
 import { formatDate, formatPrice } from "@/lib/format";
 import { createClient } from "@/lib/supabase/client";
 import type { Database } from "@/lib/database.types";
 
 type Order = Database["public"]["Tables"]["orders"]["Row"];
-type OrderItem = Database["public"]["Tables"]["order_items"]["Row"];
 type Status = Database["public"]["Enums"]["order_status"];
 
 const STEPS: Status[] = ["reserved", "preparing", "shipped", "cancelled"];
@@ -18,7 +25,7 @@ const STEPS: Status[] = ["reserved", "preparing", "shipped", "cancelled"];
 export function OrderDetail({ orderId }: { orderId: string }) {
   const router = useRouter();
   const [order, setOrder] = useState<Order | null>(null);
-  const [items, setItems] = useState<OrderItem[]>([]);
+  const [items, setItems] = useState<OrderLine[]>([]);
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -28,7 +35,7 @@ export function OrderDetail({ orderId }: { orderId: string }) {
     void (async () => {
       const [{ data: o }, { data: lines }] = await Promise.all([
         supabase.from("orders").select("*").eq("id", orderId).single(),
-        supabase.from("order_items").select("*").eq("order_id", orderId),
+        supabase.from("order_items").select(ORDER_LINE_SELECT).eq("order_id", orderId),
       ]);
       if (!o) {
         toast.error("Order not found");
@@ -37,7 +44,7 @@ export function OrderDetail({ orderId }: { orderId: string }) {
       }
       setOrder(o);
       setNotes(o.notes ?? "");
-      setItems(lines ?? []);
+      setItems(await fillMissingProducts(supabase, (lines as RawOrderLine[] | null)?.map(mapOrderLine) ?? []));
       setLoading(false);
     })();
   }, [orderId, router]);
@@ -65,10 +72,7 @@ export function OrderDetail({ orderId }: { orderId: string }) {
     if (!order) return;
     setSaving(true);
     const supabase = createClient();
-    const { error } = await supabase
-      .from("orders")
-      .update({ notes })
-      .eq("id", order.id);
+    const { error } = await supabase.from("orders").update({ notes }).eq("id", order.id);
     if (error) toast.error(error.message);
     else toast.success("Notes saved");
     setSaving(false);
@@ -114,7 +118,13 @@ export function OrderDetail({ orderId }: { orderId: string }) {
             <br />
             {order.city}, {order.country}
             <br />
-            {order.email}
+            {order.user_id ? (
+              <Link href={`/admin/customers/${order.user_id}`} className="text-[var(--accent)] hover:underline">
+                {order.email}
+              </Link>
+            ) : (
+              order.email
+            )}
           </p>
           <p className="mt-3 text-sm text-[var(--muted)]">{order.shipping_method}</p>
         </section>
@@ -135,21 +145,9 @@ export function OrderDetail({ orderId }: { orderId: string }) {
         </section>
       </div>
 
-      <section className="mt-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
-        <h2 className="text-sm font-bold uppercase tracking-wider">Items</h2>
-        <ul className="mt-3 divide-y divide-[var(--border)] text-sm">
-          {items.map((item) => (
-            <li key={item.id} className="flex justify-between gap-4 py-2">
-              <span>
-                {item.code} · {item.name} · {item.size} × {item.qty}
-              </span>
-              <span className="font-semibold">
-                {formatPrice(Number(item.unit_price) * item.qty)}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <div className="mt-4">
+        <OrderLineItems items={items} />
+      </div>
 
       <section className="mt-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
         <h2 className="text-sm font-bold uppercase tracking-wider">Notes</h2>

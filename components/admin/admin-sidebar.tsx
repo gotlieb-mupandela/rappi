@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   LogOut,
   Package,
+  Percent,
   Settings2,
   ShoppingBag,
   Truck,
@@ -21,6 +22,7 @@ const NAV = [
   { href: "/admin/products", label: "Products", icon: Package },
   { href: "/admin/orders", label: "Orders", icon: ShoppingBag },
   { href: "/admin/customers", label: "Customers", icon: Users },
+  { href: "/admin/promotions", label: "Promotions", icon: Percent },
   { href: "/admin/content", label: "Content", icon: Settings2 },
   { href: "/admin/shipping", label: "Shipping", icon: Truck },
 ];

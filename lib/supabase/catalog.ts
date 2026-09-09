@@ -110,6 +110,36 @@ export async function getSiteSettings() {
   return getCachedSiteSettings();
 }
 
+const getCachedProductBadges = unstable_cache(
+  async () => {
+    if (!isSupabaseConfigured()) return null;
+    try {
+      const supabase = createPublicClient();
+      const { data, error } = await supabase
+        .from("products")
+        .select("code, badge")
+        .in("badge", ["new", "offer"]);
+      if (error) return null;
+      return data ?? [];
+    } catch {
+      return null;
+    }
+  },
+  ["product-badges-v1"],
+  { revalidate: 60, tags: ["product-badges"] },
+);
+
+/** Overlay live New/Offer badges onto the baked catalog for merchandising pages. */
+export async function withLiveBadges(catalog: Product[]): Promise<Product[]> {
+  const rows = await getCachedProductBadges();
+  if (!rows) return catalog;
+  const live = new Map(rows.map((row) => [row.code, row.badge as Product["badge"]]));
+  return catalog.map((product) => ({
+    ...product,
+    badge: live.get(product.code) ?? null,
+  }));
+}
+
 const getCachedShippingMethods = unstable_cache(
   async () => {
     const locked = shippingMethodsSnapshot();

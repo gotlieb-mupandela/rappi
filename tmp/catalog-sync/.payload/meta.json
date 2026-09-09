@@ -1,0 +1,15 @@
+{
+  "index": 48,
+  "source": "products_0048.sql",
+  "totalBytes": 133647,
+  "parts": [
+    {
+      "file": "D:\\Projects\\rappi-webapp\\tmp\\catalog-sync\\.payload\\0048_part0.txt",
+      "bytes": 95174
+    },
+    {
+      "file": "D:\\Projects\\rappi-webapp\\tmp\\catalog-sync\\.payload\\0048_part1.txt",
+      "bytes": 38473
+    }
+  ]
+}

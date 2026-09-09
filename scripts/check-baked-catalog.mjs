@@ -221,6 +221,70 @@ if (/\b(vest|shirt|tee)\b/i.test(`${shoeSample.displayName} ${shoeSample.name}`)
   fail("shoes sample SKU looks like apparel");
 }
 
+const jomaRugbyLeafMissingFromHub = [
+  "104253.100",
+  "104253.150",
+  "104253.331",
+  "104253.480",
+  "104253.600",
+  "104253.700",
+  "104315.100",
+  "104315.150",
+  "104315.331",
+  "104316.100",
+  "104316.331",
+  "104384.100",
+  "104384.200",
+  "104384.331",
+  "104384.482",
+  "104384.600",
+  "104384.700",
+  "104385.100",
+  "104385.200",
+  "104385.331",
+  "104385.482",
+  "104385.600",
+  "104385.700",
+  "104511.109",
+  "104511.110",
+  "104511.312",
+  "104511.452",
+  "104511.601",
+  "104511.703",
+  "104511.709",
+  "105198.102",
+  "105198.201",
+  "105198.383",
+  "105198.451",
+  "105198.601",
+  "105198.703",
+  "400679.206",
+  "400680.209",
+  "400680.217",
+  "400742.201",
+];
+const rugbyOffHub = jomaRugbyLeafMissingFromHub.filter((code) => {
+  const row = catalog.find((p) => p.code === code);
+  return !row || row.category !== "rugby";
+});
+if (rugbyOffHub.length) fail(`Joma rugby leaf SKUs not in rugby: ${rugbyOffHub.join(",")}`);
+
+const rugbyKeep = ["102219.081", "103839.100", "102220.100", "101339.100", "903311.100", "401735.208"];
+for (const code of rugbyKeep) {
+  const row = catalog.find((p) => p.code === code);
+  if (!row || row.category !== "rugby") fail(`${code} dropped off rugby hub`);
+}
+
+const rugbyCount = catalog.filter((p) => p.category === "rugby").length;
+if (rugbyCount < 67) fail(`rugby hub too small: ${rugbyCount}`);
+// Tactical Stimulus / other Phoenix III lines are not the rugby leaf.
+if (catalog.find((p) => p.code === "104245.100")?.category === "rugby") {
+  fail("104245.100 Tactical Stimulus should stay off rugby");
+}
+if (catalog.find((p) => p.code === "105113.102")?.category === "rugby") {
+  fail("105113.102 Phoenix III tracksuit should stay off rugby");
+}
+
 console.log("ok", {
   catalog: catalog.length,
   bib: bib && { price: bib.price, image: bib.imageUrl, descLen: bib.description.length },

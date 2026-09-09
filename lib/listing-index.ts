@@ -8,20 +8,28 @@ export function getListingIndexSync(): ListingItem[] | null {
   return cached;
 }
 
+async function fetchListingIndex(): Promise<ListingItem[]> {
+  let res = await fetch("/listing-index.json", { cache: "force-cache" });
+  // Dev/Turbopack can briefly 404 static files; a cached 404 also sticks with
+  // force-cache — retry once bypassing the HTTP cache.
+  if (!res.ok) {
+    res = await fetch("/listing-index.json", { cache: "no-store" });
+  }
+  if (!res.ok) throw new Error(`listing index ${res.status}`);
+  const rows = (await res.json()) as ListingItem[];
+  for (const row of rows) {
+    if (!row.images) row.images = row.imageUrl ? [row.imageUrl] : [];
+    if (!row.currency) row.currency = "NAD";
+    row.hay = listingHay(row);
+  }
+  return rows;
+}
+
 export function loadListingIndex(): Promise<ListingItem[]> {
   if (cached) return Promise.resolve(cached);
   if (pending) return pending;
-  pending = fetch("/listing-index.json", { cache: "force-cache" })
-    .then((res) => {
-      if (!res.ok) throw new Error(`listing index ${res.status}`);
-      return res.json() as Promise<ListingItem[]>;
-    })
+  pending = fetchListingIndex()
     .then((rows) => {
-      for (const row of rows) {
-        if (!row.images) row.images = row.imageUrl ? [row.imageUrl] : [];
-        if (!row.currency) row.currency = "NAD";
-        row.hay = listingHay(row);
-      }
       cached = rows;
       pending = null;
       return rows;

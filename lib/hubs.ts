@@ -204,7 +204,7 @@ export function bramaHubGroups(catalog: Product[] = bundled) {
 /** Local lifestyle covers for homepage / hub audience tiles. */
 export const AUDIENCE_COVERS: Partial<Record<AudienceSlug, string>> = {
   men: "/brand/audience-men.png?v=2",
-  women: "/brand/audience-women.png?v=2",
+  women: "/brand/audience-women.png?v=3",
 };
 
 /** Local lifestyle covers for homepage SHOP hub tiles (by category slug). */

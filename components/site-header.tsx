@@ -61,9 +61,32 @@ export function SiteHeader({
   }, [pathname]);
 
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
+    if (!open) return;
+    const { body, documentElement } = document;
+    const scrollY = window.scrollY;
+    const prevHtmlOverflow = documentElement.style.overflow;
+    const prevBodyOverflow = body.style.overflow;
+    const prevBodyPosition = body.style.position;
+    const prevBodyTop = body.style.top;
+    const prevBodyLeft = body.style.left;
+    const prevBodyRight = body.style.right;
+    const prevBodyWidth = body.style.width;
+    documentElement.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.left = "0";
+    body.style.right = "0";
+    body.style.width = "100%";
     return () => {
-      document.body.style.overflow = "";
+      documentElement.style.overflow = prevHtmlOverflow;
+      body.style.overflow = prevBodyOverflow;
+      body.style.position = prevBodyPosition;
+      body.style.top = prevBodyTop;
+      body.style.left = prevBodyLeft;
+      body.style.right = prevBodyRight;
+      body.style.width = prevBodyWidth;
+      window.scrollTo({ top: scrollY, left: 0, behavior: "instant" });
     };
   }, [open]);
 
@@ -77,6 +100,8 @@ export function SiteHeader({
       if (e.key === "Escape") {
         setAccountOpen(false);
         setMoreOpen(false);
+        setOpen(false);
+        setSearchOpen(false);
       }
     }
     document.addEventListener("mousedown", onPointer);
@@ -109,21 +134,36 @@ export function SiteHeader({
   const activeAudience = AUDIENCES.find((a) => pathname.startsWith(`/shop/${a.slug}`))?.slug;
 
   return (
+    <>
+    {open ? (
+      <div
+        className="lg:hidden"
+        style={{ height: "calc(var(--header-h) + env(safe-area-inset-top))" }}
+        aria-hidden
+      />
+    ) : null}
     <header
       className={cn(
-        "sticky top-0 z-50 border-b pt-[env(safe-area-inset-top)] backdrop-blur-xl backdrop-saturate-150 transition-[background-color,box-shadow,border-color] duration-300",
-        scrolled
-          ? "border-[var(--border)] bg-[var(--header-bg-scrolled)] shadow-[var(--shadow-soft)]"
-          : "border-[var(--border)] bg-[var(--header-bg)]",
+        "z-50 border-b pt-[env(safe-area-inset-top)] backdrop-blur-xl backdrop-saturate-150 transition-[background-color,box-shadow,border-color] duration-300",
+        open ? "fixed inset-x-0 top-0" : "sticky top-0",
+        open
+          ? "border-[var(--border)] bg-[var(--chrome)]"
+          : scrolled
+            ? "border-[var(--border)] bg-[var(--header-bg-scrolled)] shadow-[var(--shadow-soft)]"
+            : "border-[var(--border)] bg-[var(--header-bg)]",
       )}
     >
-      <div className="page-shell flex h-16 items-center gap-1 sm:h-[5.5rem] sm:gap-4">
+      <div className="relative z-[70] page-shell flex h-16 items-center gap-1 sm:h-[5.5rem] sm:gap-4">
         <button
           type="button"
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink transition-colors hover:bg-[var(--hover)] lg:hidden"
           aria-label={open ? t("nav.closeMenu") : t("nav.openMenu")}
           aria-expanded={open}
-          onClick={() => setOpen((v) => !v)}
+          aria-controls="mobile-nav"
+          onClick={() => {
+            setSearchOpen(false);
+            setOpen((v) => !v);
+          }}
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
@@ -335,12 +375,21 @@ export function SiteHeader({
           </li>
         </ul>
       </nav>
-      <Suspense fallback={null}>
-        <CategorySubNav taxonomy={taxonomy} />
-      </Suspense>
+      {!open ? (
+        <Suspense fallback={null}>
+          <CategorySubNav taxonomy={taxonomy} />
+        </Suspense>
+      ) : null}
 
       {open ? (
-        <div className="max-h-[calc(100dvh-var(--header-h)-env(safe-area-inset-top))] overflow-y-auto border-t border-[var(--border)] bg-[var(--chrome)] px-4 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] lg:hidden">
+        <div
+          id="mobile-nav"
+          role="dialog"
+          aria-modal="true"
+          aria-label={t("nav.openMenu")}
+          className="fixed inset-0 z-[60] flex flex-col bg-[var(--chrome)] pt-[calc(var(--header-h)+env(safe-area-inset-top))] lg:hidden"
+        >
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
           <form onSubmit={onSearch} className="mb-5">
             <Input
               value={q}
@@ -408,8 +457,10 @@ export function SiteHeader({
               </Button>
             ) : null}
           </div>
+          </div>
         </div>
       ) : null}
     </header>
+    </>
   );
 }

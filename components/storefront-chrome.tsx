@@ -22,7 +22,11 @@ export function StorefrontChrome({
   const isAdmin = pathname?.startsWith("/admin");
 
   useEffect(() => {
-    if (!isAdmin) void loadListingIndex();
+    if (!isAdmin) {
+      void loadListingIndex().catch(() => {
+        /* Prefetch is best-effort; catalog pages load their own fallback. */
+      });
+    }
   }, [isAdmin]);
 
   if (isAdmin) {

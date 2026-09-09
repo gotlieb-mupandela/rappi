@@ -7,11 +7,11 @@ import { Button } from "@/components/ui/button";
 import { CATEGORIES, TAGLINE } from "@/lib/catalog";
 import { sampleForCategory } from "@/lib/classify";
 import { audienceTiles, collectionTiles, HUB_COVERS } from "@/lib/hubs";
-import { productInHub } from "@/lib/hub-membership";
 import { audienceName, hubName } from "@/lib/i18n/labels";
 import { currencyCode } from "@/lib/i18n/currency";
 import { getMarket, getT } from "@/lib/i18n/server";
 import { categoryCountsFrom } from "@/lib/products";
+import { getProductByCode, productsInHub } from "@/lib/offline-catalog";
 import { getCatalog, getSiteSettings } from "@/lib/supabase/catalog";
 import type { Product } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -25,9 +25,7 @@ export default async function HomePage() {
     getT(),
     getMarket(),
   ]);
-  const byCode = (code: string) => catalog.find((p) => p.code === code);
-  const byCategory = (slug: string) => catalog.filter((p) => productInHub(p, slug));
-
+  const byCode = (code: string) => getProductByCode(code);
   const counts = categoryCountsFrom(catalog);
   const hubs = CATEGORIES.filter((c) => sampleForCategory(catalog, c.slug));
   const spotlightCodes =
@@ -39,7 +37,7 @@ export default async function HomePage() {
     .filter((p): p is Product => Boolean(p));
   const collections = collectionTiles(catalog);
   const audiences = audienceTiles(catalog);
-  const football = byCategory("football");
+  const football = productsInHub("football");
   const defaultHeroBody =
     "Your home for quality sportswear, footwear & equipment. Shop trusted brands for athletes, teams, schools and clubs — all at competitive prices in Namibian Dollars.";
   const tagline =

@@ -29,6 +29,19 @@ const nextConfig: NextConfig = {
       { source: "/category/teampro", destination: "/category/teampro-2026", permanent: true },
     ];
   },
+  async headers() {
+    return [
+      {
+        source: "/listing-index.json",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=3600, stale-while-revalidate=86400",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

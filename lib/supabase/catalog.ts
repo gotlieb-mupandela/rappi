@@ -1,18 +1,12 @@
-import { cache } from "react";
 import { unstable_cache } from "next/cache";
 import { createClient } from "@supabase/supabase-js";
 import type { Product } from "@/lib/types";
-import bundled from "@/data/products.json";
 import type { Database } from "@/lib/database.types";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { withStorefrontCategories } from "@/lib/classify";
 import { withProductImages } from "@/lib/media";
+import { getOfflineCatalog, offlineCatalog } from "@/lib/offline-catalog";
 import { shippingMethodsSnapshot } from "@/lib/shipping";
-
-/** Process-level memo of the offline bundled catalog (avoid re-mapping 11k rows per call). */
-const offlineCatalog: Product[] = withStorefrontCategories(
-  (bundled as Product[]).map(withProductImages),
-);
 
 function createPublicClient() {
   return createClient<Database>(
@@ -26,9 +20,7 @@ function createPublicClient() {
  * Avoids live Supabase full-table scans that burn Fluid Active CPU.
  * Stock/price updates ship via bake/deploy.
  */
-export const getCatalog = cache(async (): Promise<Product[]> => {
-  return offlineCatalog;
-});
+export const getCatalog = getOfflineCatalog;
 
 /** Admin/ops helper — live Supabase catalog when configured (not used by storefront browse). */
 export async function getLiveCatalog(): Promise<Product[]> {

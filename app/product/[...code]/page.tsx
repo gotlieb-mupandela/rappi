@@ -5,7 +5,6 @@ import { ProductCard } from "@/components/product-card";
 import { SectionHeading } from "@/components/section-heading";
 import { getProduct, productsByCategory } from "@/lib/products";
 import { withFullResProductImages } from "@/lib/media";
-import { getCatalog } from "@/lib/supabase/catalog";
 import { decodeProductCode } from "@/lib/utils";
 import { getT } from "@/lib/i18n/server";
 import { hubName } from "@/lib/i18n/labels";
@@ -19,13 +18,12 @@ export default async function ProductPage({
 }) {
   const { code } = await params;
   const sku = decodeProductCode(code);
-  const catalog = await getCatalog();
-  const found = getProduct(sku, catalog);
+  const found = getProduct(sku);
   if (!found) notFound();
   const product = withFullResProductImages(found);
   const t = await getT();
   const catName = hubName(product.category, t);
-  const related = productsByCategory(product.category, catalog)
+  const related = productsByCategory(product.category)
     .filter((p) => p.code !== product.code)
     .slice(0, 4);
 

@@ -1,10 +1,11 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Suspense, type ReactNode } from "react";
+import { Suspense, useEffect, type ReactNode } from "react";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { useT } from "@/components/locale-provider";
+import { loadListingIndex } from "@/lib/listing-index";
 import type { StorefrontTaxonomy } from "@/lib/listing-types";
 
 export function StorefrontChrome({
@@ -19,6 +20,10 @@ export function StorefrontChrome({
   const pathname = usePathname();
   const t = useT();
   const isAdmin = pathname?.startsWith("/admin");
+
+  useEffect(() => {
+    if (!isAdmin) void loadListingIndex();
+  }, [isAdmin]);
 
   if (isAdmin) {
     return <>{children}</>;

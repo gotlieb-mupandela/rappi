@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { CatalogFilters } from "@/components/catalog-filters";
+import { CatalogBrowser } from "@/components/catalog-browser";
 import { PageHeader } from "@/components/page-header";
-import { ProductGrid } from "@/components/product-grid";
 import { Button } from "@/components/ui/button";
 import {
   AUDIENCES,
@@ -12,7 +11,7 @@ import {
   categoryBySlug,
   resolveCategorySlug,
 } from "@/lib/catalog";
-import { buildListing } from "@/lib/listing";
+import { buildListing } from "@/lib/listing-core";
 import { getCatalog } from "@/lib/supabase/catalog";
 import { getT } from "@/lib/i18n/server";
 import { audienceBlurb, audienceName, hubBlurb, hubName } from "@/lib/i18n/labels";
@@ -29,20 +28,10 @@ export function generateStaticParams() {
 
 export default async function ShopListingPage({
   params,
-  searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{
-    q?: string;
-    sub?: string;
-    size?: string;
-    max?: string;
-    audience?: string;
-    page?: string;
-  }>;
 }) {
   const { slug } = await params;
-  const sp = await searchParams;
   const hubSlug = resolveCategorySlug(slug);
   const audience = audienceBySlug(slug);
   const cat = categoryBySlug(hubSlug);
@@ -51,13 +40,14 @@ export default async function ShopListingPage({
   const catalog = await getCatalog();
   const t = await getT();
   const listing = audience
-    ? buildListing(catalog, { ...sp, audience: slug })
-    : buildListing(catalog, sp, { categorySlug: hubSlug });
+    ? buildListing(catalog, { audience: slug })
+    : buildListing(catalog, {}, { categorySlug: hubSlug });
 
   const title = audience ? audienceName(audience.slug, t) : hubName(hubSlug, t);
   const description = audience ? audienceBlurb(audience.slug, t) : hubBlurb(hubSlug, t);
   const backHref = audience ? "/" : `/category/${hubSlug}`;
   const backLabel = audience ? t("common.backToHome") : t("common.backToHub");
+  const shopPath = `/shop/${audience ? audience.slug : hubSlug}`;
 
   return (
     <div>
@@ -79,29 +69,22 @@ export default async function ShopListingPage({
         }
       />
       <div className="page-shell py-8 sm:py-10">
-        <CatalogFilters
-          listing={listing}
-          query={sp}
+        <CatalogBrowser
+          initialListing={listing}
           categorySlug={audience ? undefined : hubSlug}
-          basePath={`/shop/${hubSlug}`}
+          audienceSlug={audience?.slug}
+          basePath={shopPath}
           grouped
           showCategoryFilter={Boolean(audience)}
           showAudienceFilter={!audience}
+          showLayoutToggle={false}
           emptyTitle={
             audience
               ? t("shop.emptyAudience", { name: audienceName(audience.slug, t).toLowerCase() })
               : t("shop.emptyHub", { name: hubName(hubSlug, t).toLowerCase() })
           }
           emptyBody={t("shop.emptyBody")}
-        >
-          <ProductGrid
-            products={listing.products}
-            grouped
-            groupCounts={Object.fromEntries(
-              listing.facets.subs.map((s) => [s.slug, s.count]),
-            )}
-          />
-        </CatalogFilters>
+        />
       </div>
     </div>
   );

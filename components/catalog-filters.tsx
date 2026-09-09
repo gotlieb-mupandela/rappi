@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useTransition, type ReactNode } from "react";
+import { useEffect, useState, useTransition, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { ProductGrid } from "@/components/product-grid";
 import { ListingPagination } from "@/components/listing-pagination";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { listingHref, parseListingQuery } from "@/lib/listing-core";
 import type { ListingQuery, ListingResult } from "@/lib/listing-types";
 import { LayoutGrid, List } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -29,6 +30,8 @@ export function CatalogFilters({
   emptyTitle,
   emptyBody,
   children,
+  onNavigate,
+  showLayoutToggle,
 }: {
   listing: ListingResult;
   query?: ListingQuery;
@@ -40,52 +43,65 @@ export function CatalogFilters({
   emptyTitle?: string;
   emptyBody?: string;
   children?: ReactNode;
+  onNavigate?: (href: string) => void;
+  showLayoutToggle?: boolean;
 }) {
   const router = useRouter();
   const { t, market } = useLocale();
-  const sub = asAll(query?.sub);
-  const size = asAll(query?.size);
-  const maxPrice = query?.max ?? "";
-  const q = query?.q ?? "";
-  const cat = asAll(query?.cat) !== "all" ? asAll(query?.cat) : categorySlug ?? "all";
-  const audience = asAll(query?.audience);
+  const parsed = parseListingQuery(query ?? {});
+  const sub = asAll(parsed.sub);
+  const size = asAll(parsed.size);
+  const maxPrice = parsed.max ?? "";
+  const q = parsed.q ?? "";
+  const cat = asAll(parsed.cat) !== "all" ? asAll(parsed.cat) : categorySlug ?? "all";
+  const audience = asAll(parsed.audience);
   const [draftQ, setDraftQ] = useState(q);
   const [layout, setLayout] = useState<"grid" | "list">("grid");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [pending, startTransition] = useTransition();
+  const layoutToggle = showLayoutToggle ?? !children;
 
-  function currentParams() {
-    const next = new URLSearchParams();
-    if (q) next.set("q", q);
-    if (cat && cat !== "all" && cat !== categorySlug) next.set("cat", cat);
-    if (sub !== "all") next.set("sub", sub);
-    if (size !== "all") next.set("size", size);
-    if (maxPrice) next.set("max", maxPrice);
-    if (audience !== "all") next.set("audience", audience);
-    if (query?.page && Number(query.page) > 1) next.set("page", String(query.page));
-    return next;
+  useEffect(() => {
+    setDraftQ(q);
+  }, [q]);
+
+  function currentQuery(overrides: Partial<ListingQuery> = {}): ListingQuery {
+    return {
+      q,
+      cat: cat !== "all" && cat !== categorySlug ? cat : undefined,
+      sub: sub !== "all" ? sub : undefined,
+      size: size !== "all" ? size : undefined,
+      max: maxPrice || undefined,
+      audience: audience !== "all" ? audience : undefined,
+      page: parsed.page,
+      ...overrides,
+    };
   }
 
-  function hrefWith(next: URLSearchParams) {
-    const qs = next.toString();
-    return qs ? `${basePath}?${qs}` : basePath;
+  function hrefWith(next: ListingQuery) {
+    return listingHref(basePath, next, categorySlug);
   }
 
-  function setParam(key: string, value: string, resetPage = true) {
-    const next = currentParams();
-    if (!value || value === "all") next.delete(key);
-    else next.set(key, value);
-    if (resetPage && key !== "page") next.delete("page");
+  function go(href: string) {
+    if (onNavigate) {
+      onNavigate(href);
+      return;
+    }
     startTransition(() => {
-      router.push(hrefWith(next));
+      router.push(href);
     });
   }
 
+  function setParam(key: string, value: string, resetPage = true) {
+    const next = currentQuery({
+      [key]: !value || value === "all" ? undefined : value,
+      ...(resetPage && key !== "page" ? { page: undefined } : {}),
+    });
+    go(hrefWith(next));
+  }
+
   function pageHref(page: number) {
-    const next = currentParams();
-    if (page <= 1) next.delete("page");
-    else next.set("page", String(page));
-    return hrefWith(next);
+    return hrefWith(currentQuery({ page: page <= 1 ? undefined : page }));
   }
 
   return (
@@ -236,7 +252,7 @@ export function CatalogFilters({
           variant="outline"
           size="sm"
           className="w-full"
-          onClick={() => startTransition(() => router.push(basePath))}
+          onClick={() => go(basePath)}
         >
           {t("filters.clear")}
         </Button>
@@ -250,7 +266,7 @@ export function CatalogFilters({
               ? t("filters.pageOf", { page: listing.page, pageCount: listing.pageCount })
               : ""}
           </p>
-          {children ? null : (
+          {layoutToggle ? (
             <div className="flex items-center gap-1">
               <button
                 type="button"
@@ -275,7 +291,7 @@ export function CatalogFilters({
                 <List className="h-4 w-4" />
               </button>
             </div>
-          )}
+          ) : null}
         </div>
         {listing.total === 0 ? (
           <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-6 py-16 text-center">
@@ -302,6 +318,7 @@ export function CatalogFilters({
               page={listing.page}
               pageCount={listing.pageCount}
               hrefFor={pageHref}
+              onNavigate={onNavigate}
             />
           </>
         )}

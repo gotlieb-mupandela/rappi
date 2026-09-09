@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAssortment } from "@/lib/assortment";
-import { buildListing, LISTING_PAGE_SIZE } from "@/lib/listing";
+import { buildListing, LISTING_PAGE_SIZE } from "@/lib/listing-core";
 import { isSoldOut } from "@/lib/product-stock";
 import { getCatalog } from "@/lib/supabase/catalog";
 
@@ -44,8 +44,8 @@ export async function GET(request: Request) {
     },
     {
       headers: {
-        // Short CDN/browser cache for repeated typeahead queries.
-        "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+        // CDN cache for leftover typeahead / bot hits. Browse uses the client listing index.
+        "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
       },
     },
   );

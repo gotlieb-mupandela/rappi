@@ -1,6 +1,20 @@
+import type { ListingAudience } from "@/lib/audience";
 import type { Product } from "@/lib/types";
 
 export const LISTING_PAGE_SIZE = 48;
+
+/** Slim catalog row for client listing (full Product fields + search/facet helpers). */
+export type ListingItem = Product & {
+  audience?: ListingAudience;
+  hay?: string;
+};
+
+export type ListingFilterOpts = {
+  categorySlug?: string;
+  requireQuery?: boolean;
+  pageSize?: number;
+  badges?: Array<NonNullable<Product["badge"]>>;
+};
 
 export type ListingQuery = {
   q?: string;

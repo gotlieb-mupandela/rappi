@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { FormEvent, Suspense, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Menu, Search, ShoppingBag, User, X, ChevronDown } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -144,16 +145,20 @@ export function SiteHeader({
     ) : null}
     <header
       className={cn(
-        "z-50 border-b pt-[env(safe-area-inset-top)] backdrop-blur-xl backdrop-saturate-150 transition-[background-color,box-shadow,border-color] duration-300",
-        open ? "fixed inset-x-0 top-0" : "sticky top-0",
+        "border-b pt-[env(safe-area-inset-top)] transition-[background-color,box-shadow,border-color] duration-300",
+        // backdrop-filter creates a containing block that clips fixed descendants —
+        // keep blur only when the mobile drawer is closed.
         open
-          ? "border-[var(--border)] bg-[var(--chrome)]"
-          : scrolled
-            ? "border-[var(--border)] bg-[var(--header-bg-scrolled)] shadow-[var(--shadow-soft)]"
-            : "border-[var(--border)] bg-[var(--header-bg)]",
+          ? "fixed inset-x-0 top-0 z-[100] border-[var(--border)] bg-[var(--chrome)]"
+          : cn(
+              "sticky top-0 z-50 backdrop-blur-xl backdrop-saturate-150",
+              scrolled
+                ? "border-[var(--border)] bg-[var(--header-bg-scrolled)] shadow-[var(--shadow-soft)]"
+                : "border-[var(--border)] bg-[var(--header-bg)]",
+            ),
       )}
     >
-      <div className="relative z-[70] page-shell flex h-16 items-center gap-1 sm:h-[5.5rem] sm:gap-4">
+      <div className="page-shell flex h-16 items-center gap-1 sm:h-[5.5rem] sm:gap-4">
         <button
           type="button"
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ink transition-colors hover:bg-[var(--hover)] lg:hidden"
@@ -381,86 +386,89 @@ export function SiteHeader({
         </Suspense>
       ) : null}
 
-      {open ? (
-        <div
-          id="mobile-nav"
-          role="dialog"
-          aria-modal="true"
-          aria-label={t("nav.openMenu")}
-          className="fixed inset-0 z-[60] flex flex-col bg-[var(--chrome)] pt-[calc(var(--header-h)+env(safe-area-inset-top))] lg:hidden"
-        >
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
-          <form onSubmit={onSearch} className="mb-5">
-            <Input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder={t("nav.searchPlaceholderLong")}
-              className="h-11"
-            />
-          </form>
-          <div className="mb-5 flex items-center justify-between gap-3">
-            <LocaleSwitcher />
-            <ThemeToggle />
-          </div>
-          <ul className="mb-3 grid grid-cols-3 gap-1">
-            {AUDIENCES.map((a) => (
-              <li key={a.slug}>
-                <Link
-                  href={`/shop/${a.slug}`}
-                  className={cn(
-                    "flex min-h-11 items-center justify-center rounded-lg bg-[var(--hover)] px-2 text-xs font-semibold uppercase tracking-wider text-ink hover:text-[var(--accent)]",
-                    activeAudience === a.slug && "text-[var(--accent)]",
-                  )}
-                >
-                  {audienceName(a.slug, t)}
-                </Link>
-              </li>
-            ))}
-          </ul>
-          <ul className="grid grid-cols-2 gap-1">
-            {visibleCategories.map((c) => (
-              <li key={c.slug}>
-                <Link
-                  href={`/category/${c.slug}`}
-                  className={cn(
-                    "flex min-h-11 items-center rounded-lg px-2 text-xs font-semibold uppercase tracking-wider text-ink hover:bg-[var(--hover)] hover:text-[var(--accent)]",
-                    activeSlug === c.slug && "text-[var(--accent)]",
-                  )}
-                >
-                  {hubName(c.slug, t)}
-                </Link>
-              </li>
-            ))}
-          </ul>
-          <div className="mt-5 grid gap-2">
-            <Button asChild className="w-full" variant="outline">
-              <Link href="/promotions">{t("nav.newCollections")}</Link>
-            </Button>
-            <Button asChild className="w-full" variant="outline">
-              <Link href={user ? "/account" : "/login"}>
-                {user ? t("nav.myAccount") : t("nav.signIn")}
-              </Link>
-            </Button>
-            {user ? (
-              <Button
-                type="button"
-                variant="ghost"
-                className="w-full"
-                onClick={() => {
-                  void logout().then(() => {
-                    setOpen(false);
-                    router.push("/");
-                  });
-                }}
-              >
-                {t("nav.logout")}
-              </Button>
-            ) : null}
-          </div>
-          </div>
-        </div>
-      ) : null}
     </header>
+    {ready && open
+      ? createPortal(
+          <div
+            id="mobile-nav"
+            role="dialog"
+            aria-modal="true"
+            aria-label={t("nav.openMenu")}
+            className="fixed inset-x-0 bottom-0 z-[90] flex flex-col bg-[var(--chrome)] top-[calc(var(--header-h)+env(safe-area-inset-top))] lg:hidden"
+          >
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+              <form onSubmit={onSearch} className="mb-5">
+                <Input
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                  placeholder={t("nav.searchPlaceholderLong")}
+                  className="h-11"
+                />
+              </form>
+              <div className="mb-5 flex items-center justify-between gap-3">
+                <LocaleSwitcher />
+                <ThemeToggle />
+              </div>
+              <ul className="mb-3 grid grid-cols-3 gap-1">
+                {AUDIENCES.map((a) => (
+                  <li key={a.slug}>
+                    <Link
+                      href={`/shop/${a.slug}`}
+                      className={cn(
+                        "flex min-h-11 items-center justify-center rounded-lg bg-[var(--hover)] px-2 text-xs font-semibold uppercase tracking-wider text-ink hover:text-[var(--accent)]",
+                        activeAudience === a.slug && "text-[var(--accent)]",
+                      )}
+                    >
+                      {audienceName(a.slug, t)}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              <ul className="grid grid-cols-2 gap-1">
+                {visibleCategories.map((c) => (
+                  <li key={c.slug}>
+                    <Link
+                      href={`/category/${c.slug}`}
+                      className={cn(
+                        "flex min-h-11 items-center rounded-lg px-2 text-xs font-semibold uppercase tracking-wider text-ink hover:bg-[var(--hover)] hover:text-[var(--accent)]",
+                        activeSlug === c.slug && "text-[var(--accent)]",
+                      )}
+                    >
+                      {hubName(c.slug, t)}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-5 grid gap-2">
+                <Button asChild className="w-full" variant="outline">
+                  <Link href="/promotions">{t("nav.newCollections")}</Link>
+                </Button>
+                <Button asChild className="w-full" variant="outline">
+                  <Link href={user ? "/account" : "/login"}>
+                    {user ? t("nav.myAccount") : t("nav.signIn")}
+                  </Link>
+                </Button>
+                {user ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="w-full"
+                    onClick={() => {
+                      void logout().then(() => {
+                        setOpen(false);
+                        router.push("/");
+                      });
+                    }}
+                  >
+                    {t("nav.logout")}
+                  </Button>
+                ) : null}
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )
+      : null}
     </>
   );
 }

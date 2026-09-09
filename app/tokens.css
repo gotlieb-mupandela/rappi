@@ -91,7 +91,7 @@ html[data-theme="light"] {
   --visual-from: #eef1e8;
   --visual-to: #e2e7d8;
   --visual-base: #e8ebe3;
-  --hero-glow: rgba(94, 255, 56, 0.28);
+  --hero-glow: rgba(34, 176, 22, 0.1);
   --toast-bg: #ffffff;
   --toast-border: rgba(18, 21, 18, 0.1);
   --toast-fg: #121512;

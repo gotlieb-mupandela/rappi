@@ -96,7 +96,7 @@ export default async function HomePage() {
           <div className="relative -mx-4 h-[18rem] sm:-mx-0 sm:h-[30rem] lg:-mr-4 lg:h-[44rem]">
             <div
               aria-hidden
-              className="pointer-events-none absolute inset-x-[6%] bottom-[4%] top-[14%] rounded-[100%] bg-[radial-gradient(ellipse_at_center,var(--hero-glow),transparent_70%)] blur-3xl"
+              className="hero-glow pointer-events-none absolute inset-x-[6%] bottom-[4%] top-[14%] rounded-[100%] bg-[radial-gradient(ellipse_at_center,var(--hero-glow),transparent_70%)] blur-3xl"
             />
             <Image
               src="/brand/hero-athlete.png"
@@ -104,7 +104,7 @@ export default async function HomePage() {
               width={900}
               height={1100}
               priority
-              className="absolute inset-x-0 bottom-0 mx-auto h-full w-auto max-w-none object-contain object-bottom [mask-image:linear-gradient(to_top,transparent_0%,#000_8%,#000_100%)] [-webkit-mask-image:linear-gradient(to_top,transparent_0%,#000_8%,#000_100%)]"
+              className="hero-athlete absolute inset-x-0 bottom-0 mx-auto h-full w-auto max-w-none object-contain object-bottom [mask-image:linear-gradient(to_top,transparent_0%,#000_8%,#000_100%)] [-webkit-mask-image:linear-gradient(to_top,transparent_0%,#000_8%,#000_100%)]"
             />
           </div>
           <dl className="col-span-full grid grid-cols-2 gap-4 border-t border-[var(--border)] pt-6 sm:grid-cols-4 lg:hidden">

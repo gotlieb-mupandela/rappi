@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Button } from "@/components/ui/button";
-import { ClearCartOnPaid } from "./clear-cart-on-paid";
+import { ClearCartOnPaid } from "@/components/clear-cart-on-paid";
 import { fulfillDpoPayment } from "@/lib/dpo-payments";
 import { formatPrice } from "@/lib/format";
 

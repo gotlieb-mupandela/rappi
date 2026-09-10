@@ -5,6 +5,7 @@ import { CATEGORIES } from "@/lib/catalog";
 import { ProductImage } from "@/components/product-image";
 import { useT } from "@/components/locale-provider";
 import { productImageAlt } from "@/lib/copy";
+import { audienceName, groupName, hubName } from "@/lib/i18n/labels";
 import { productCardImageUrl } from "@/lib/media";
 import type { Product } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -21,12 +22,16 @@ const ACCENTS = [
 export function HubTile({
   slug,
   name,
+  nameHub,
+  nameAudience,
+  nameGroup,
   count,
   href,
   compact = false,
   product,
   imageSrc,
   banner,
+  bannerKey,
   shape = "portrait",
   fill = false,
   /** Cover crops to fill (product tiles). Contain keeps full lifestyle subjects visible. */
@@ -35,7 +40,10 @@ export function HubTile({
   className,
 }: {
   slug: string;
-  name: string;
+  name?: string;
+  nameHub?: string;
+  nameAudience?: string;
+  nameGroup?: { kind: "shoes" | "kids" | "rugby" | "brama"; key: string };
   count?: number;
   href?: string;
   compact?: boolean;
@@ -43,6 +51,7 @@ export function HubTile({
   /** Optional local/override cover (e.g. audience lifestyle photos). */
   imageSrc?: string;
   banner?: string;
+  bannerKey?: string;
   shape?: "portrait" | "square";
   fill?: boolean;
   imageFit?: "cover" | "contain";
@@ -57,6 +66,13 @@ export function HubTile({
   const n = count ?? 0;
   const to = href ?? `/category/${slug}`;
   const t = useT();
+  const label = nameAudience
+    ? audienceName(nameAudience, t)
+    : nameHub
+      ? hubName(nameHub, t)
+      : nameGroup
+        ? groupName(nameGroup.kind, nameGroup.key, t)
+        : (name ?? slug);
   const contain = imageFit === "contain";
   const imageClassName = cn(
     // max-w-none: global `img { max-width:100% }` breaks object-fit on absolute fill images
@@ -92,7 +108,7 @@ export function HubTile({
           <ProductImage
             product={product}
             src={imageSrc ?? productCardImageUrl(product)}
-            alt={imageSrc ? name : productImageAlt(product)}
+            alt={imageSrc ? label : productImageAlt(product)}
             priority={priority}
             className={imageClassName}
             fallbackClassName="absolute inset-0 h-full w-full"
@@ -101,7 +117,7 @@ export function HubTile({
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={imageSrc}
-            alt={name}
+            alt={label}
             className={imageClassName}
             loading={priority ? "eager" : "lazy"}
             decoding="async"
@@ -111,9 +127,9 @@ export function HubTile({
           <div className="absolute inset-0 opacity-40 mix-blend-overlay [background-image:repeating-linear-gradient(90deg,transparent,transparent_18px,rgba(255,255,255,0.04)_19px)]" />
         )}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent" />
-        {banner ? (
+        {banner || bannerKey ? (
           <div className="absolute inset-x-3 top-3 rounded-full bg-[var(--danger)] py-1 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-white">
-            {banner}
+            {bannerKey ? t(bannerKey) : banner}
           </div>
         ) : null}
         <div className="absolute inset-x-0 bottom-0 p-3">
@@ -123,7 +139,7 @@ export function HubTile({
             </p>
           ) : null}
           <p className="mt-0.5 font-[family-name:var(--font-oswald)] text-sm uppercase tracking-wide text-white sm:text-base">
-            {name}
+            {label}
           </p>
         </div>
       </div>

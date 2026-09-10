@@ -108,7 +108,7 @@ export function ProductDetail({ product }: { product: Product }) {
                     row.stock === 0 && "cursor-not-allowed opacity-35",
                   )}
                 >
-                  {sizeDisplayLabel(row.size)}
+                  {sizeDisplayLabel(row.size, t)}
                 </button>
               ))}
             </div>

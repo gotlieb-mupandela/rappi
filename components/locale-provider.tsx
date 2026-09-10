@@ -110,6 +110,7 @@ export function LocaleProvider({
 
     if (isMarket(cookieMarket)) {
       persistMarket(cookieMarket, "auto");
+      if (cookieMarket !== initialMarket) router.refresh();
       return;
     }
 

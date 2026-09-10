@@ -2,11 +2,10 @@ import { CatalogBrowser } from "@/components/catalog-browser";
 import { HubTile } from "@/components/hub-tile";
 import { PageHeader } from "@/components/page-header";
 import { SectionHeading } from "@/components/section-heading";
+import { Translated } from "@/components/translated";
 import { collectionTiles } from "@/lib/hubs";
 import { buildListing } from "@/lib/listing-core";
 import { getCatalog } from "@/lib/supabase/catalog";
-import { getT } from "@/lib/i18n/server";
-import { hubName } from "@/lib/i18n/labels";
 
 export const revalidate = 3600;
 
@@ -14,17 +13,16 @@ const PROMO_BADGES = ["offer", "new"] as const;
 
 export default async function PromotionsPage() {
   const catalog = await getCatalog();
-  const t = await getT();
   const listing = buildListing(catalog, {}, { badges: [...PROMO_BADGES] });
   const collections = collectionTiles(catalog);
 
   return (
     <div>
       <PageHeader
-        crumbs={[{ href: "/", label: t("common.home") }, { label: t("promotions.crumb") }]}
-        eyebrow={t("promotions.eyebrow")}
-        title={t("promotions.title")}
-        description={t("promotions.description")}
+        crumbs={[{ href: "/", key: "common.home" }, { key: "promotions.crumb" }]}
+        eyebrowKey="promotions.eyebrow"
+        titleKey="promotions.title"
+        descriptionKey="promotions.description"
       />
       <div className="page-shell py-10 lg:py-14">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 md:gap-5">
@@ -32,7 +30,7 @@ export default async function PromotionsPage() {
             <HubTile
               key={c.key}
               slug={c.key}
-              name={hubName(c.key, t)}
+              nameHub={c.key}
               count={c.count}
               href={c.href}
               product={c.sample}
@@ -42,10 +40,13 @@ export default async function PromotionsPage() {
         </div>
 
         <section className="mt-14">
-          <SectionHeading title={t("promotions.highlighted", { count: listing.total })} />
+          <SectionHeading
+            titleKey="promotions.highlighted"
+            titleVars={{ count: listing.total }}
+          />
           {listing.total === 0 ? (
             <p className="text-sm text-[var(--muted)]">
-              {t("promotions.none")}
+              <Translated k="promotions.none" />
             </p>
           ) : (
             <CatalogBrowser

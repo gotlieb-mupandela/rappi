@@ -234,6 +234,63 @@ export type Database = {
           },
         ]
       }
+      payments: {
+        Row: {
+          amount: number
+          company_ref: string
+          created_at: string
+          currency: string
+          customer_email: string | null
+          customer_name: string | null
+          id: string
+          paid_at: string | null
+          product_code: string
+          provider: string
+          raw_verify: string | null
+          status: string
+          trans_ref: string | null
+          trans_token: string | null
+          updated_at: string
+          verify_result: string | null
+        }
+        Insert: {
+          amount: number
+          company_ref: string
+          created_at?: string
+          currency?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          id?: string
+          paid_at?: string | null
+          product_code: string
+          provider?: string
+          raw_verify?: string | null
+          status?: string
+          trans_ref?: string | null
+          trans_token?: string | null
+          updated_at?: string
+          verify_result?: string | null
+        }
+        Update: {
+          amount?: number
+          company_ref?: string
+          created_at?: string
+          currency?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          id?: string
+          paid_at?: string | null
+          product_code?: string
+          provider?: string
+          raw_verify?: string | null
+          status?: string
+          trans_ref?: string | null
+          trans_token?: string | null
+          updated_at?: string
+          verify_result?: string | null
+        }
+        Relationships: []
+      }
       product_sizes: {
         Row: {
           id: string

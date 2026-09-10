@@ -19,6 +19,7 @@ import {
   isSoldOut,
   pickerSizes,
   sizeDisplayLabel,
+  sizeStock,
   stockLabel,
 } from "@/lib/product-stock";
 import { useCart } from "@/lib/stores/cart";
@@ -32,7 +33,7 @@ export function ProductDetail({ product }: { product: Product }) {
   const add = useCart((s) => s.add);
   const { t, format, market } = useLocale();
   const selected = product.sizes.find((s) => s.size === size);
-  const stock = selected?.stock ?? 0;
+  const stock = sizeStock(product, size);
   const soldOut = isSoldOut(product);
   const catName = hubName(product.category, t);
   const title = product.displayName || product.item;
@@ -51,6 +52,25 @@ export function ProductDetail({ product }: { product: Product }) {
     if (result.ok) toast.success(t(result.messageKey, result.values));
     else toast.error(t(result.messageKey, result.values));
   }
+
+  const actions = (
+    <>
+      <QtyStepper
+        value={qty}
+        max={Math.max(stock, 1)}
+        onChange={setQty}
+        className="shrink-0"
+      />
+      <Button
+        size="lg"
+        onClick={addToBag}
+        disabled={soldOut || stock === 0}
+        className="min-w-0 w-full sm:w-auto sm:min-w-48 sm:flex-1"
+      >
+        {soldOut ? t("product.soldOut") : t("common.addToBag")}
+      </Button>
+    </>
+  );
 
   return (
     <div className="grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-start lg:gap-16">
@@ -128,7 +148,9 @@ export function ProductDetail({ product }: { product: Product }) {
               ? t("product.orderPack10")
               : assortment?.isAssortment
                 ? t("product.orderAssortment")
-                : t("product.orderSku")}
+                : /^ONE$/i.test(size)
+                  ? t("product.orderOneSize")
+                  : t("product.orderSku")}
           </p>
         )}
 
@@ -139,27 +161,13 @@ export function ProductDetail({ product }: { product: Product }) {
           <p className="mt-3 text-sm leading-7 text-[var(--muted)]">{details}</p>
         </div>
 
-        <div className="mt-8 hidden items-center gap-3 md:flex">
-          <QtyStepper
-            value={qty}
-            max={Math.max(stock, 1)}
-            onChange={setQty}
-          />
-          <Button
-            size="lg"
-            onClick={addToBag}
-            disabled={soldOut || stock === 0}
-            className="min-w-48 flex-1"
-          >
-            {soldOut ? t("product.soldOut") : t("common.addToBag")}
-          </Button>
-        </div>
-        <p className="mt-8 hidden max-w-md text-sm leading-7 text-[var(--muted)] md:block">
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">{actions}</div>
+        <p className="mt-8 max-w-md text-sm leading-7 text-[var(--muted)]">
           {market === "eu" ? t("product.pricedEur") : t("product.pricedNad")}
         </p>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-[var(--border)] bg-[var(--header-bg-scrolled)] px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-xl md:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[var(--border)] bg-[var(--header-bg-scrolled)] px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-xl md:hidden">
         <div className="mx-auto flex max-w-[1440px] items-center gap-3">
           <div className="min-w-0">
             <p className="price text-sm font-semibold">{format(product.price)}</p>

@@ -8,8 +8,16 @@ export function skuStock(product: Pick<Product, "stockQty" | "totalQty">) {
   return Number.isFinite(n) ? Math.max(0, n) : 0;
 }
 
-export function totalStock(product: Pick<Product, "sizes">) {
-  return (product.sizes ?? []).reduce((sum, s) => sum + s.stock, 0);
+function sizeRows(product: Pick<Product, "sizes">) {
+  return product.sizes ?? [];
+}
+
+export function totalStock(
+  product: Pick<Product, "sizes" | "stockQty" | "totalQty">,
+) {
+  const rows = sizeRows(product);
+  if (!rows.length) return skuStock(product);
+  return rows.reduce((sum, s) => sum + s.stock, 0);
 }
 
 export function isLowStock(stock: number) {
@@ -17,17 +25,42 @@ export function isLowStock(stock: number) {
 }
 
 export function inStockSizes(product: Pick<Product, "sizes">) {
-  return (product.sizes ?? []).filter((s) => s.stock > 0);
+  return sizeRows(product).filter((s) => s.stock > 0);
 }
 
-export function buyableSizes(product: Pick<Product, "sizes">): SizeStock[] {
-  return (product.sizes ?? []).filter((s) => s.stock > 0);
+/**
+ * Sizes that can go in the bag. Empty `sizes` with SKU stock still sells
+ * as a one-unit item (ONE/SKU) so sandbox / accessory SKUs are purchasable.
+ */
+export function buyableSizes(
+  product: Pick<Product, "sizes" | "stockQty" | "totalQty">,
+): SizeStock[] {
+  const rows = inStockSizes(product);
+  if (rows.length) return rows;
+  if (sizeRows(product).length === 0) {
+    const total = skuStock(product);
+    if (total > 0) return [{ size: "SKU", stock: total }];
+  }
+  return [];
 }
 
 export function isSoldOut(
   product: Pick<Product, "sizes" | "stockQty" | "totalQty">,
 ) {
-  return buyableSizes(product).length === 0 || skuStock(product) <= 0;
+  if (skuStock(product) <= 0) return true;
+  if (sizeRows(product).length === 0) return false;
+  return inStockSizes(product).length === 0;
+}
+
+/** Units on the selected size, or SKU stock when the product has no size run. */
+export function sizeStock(
+  product: Pick<Product, "sizes" | "stockQty" | "totalQty">,
+  size: string,
+) {
+  const row = sizeRows(product).find((s) => s.size === size);
+  if (row) return row.stock;
+  if (sizeRows(product).length === 0) return skuStock(product);
+  return 0;
 }
 
 export function pickerSizes(product: Pick<Product, "sizes">): SizeStock[] {

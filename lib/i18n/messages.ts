@@ -268,6 +268,7 @@ export const en = {
     orderPack10: "Order unit: pack of 10.",
     orderAssortment: "Order unit: assortment pack.",
     orderSku: "Order unit: SKU. A per-size run is attached when the Joma B2B export lists one.",
+    orderOneSize: "Order unit: one size.",
     pack10:
       "Sold as a pack of 10. The {symbol} price is for the full pack. Choose a size — S01–S04 follow the Joma grid (3XS, XS, M, XL).",
     packAssortment:
@@ -813,6 +814,7 @@ export const fr: Messages = {
     orderPack10: "Unité de commande : pack de 10.",
     orderAssortment: "Unité de commande : pack assortiment.",
     orderSku: "Unité de commande : SKU. Une grille de tailles est jointe lorsque l’export Joma B2B en liste une.",
+    orderOneSize: "Unité de commande : taille unique.",
     pack10:
       "Vendu par pack de 10. Le prix {symbol} concerne le pack entier. Choisissez une taille — S01–S04 suivent la grille Joma (3XS, XS, M, XL).",
     packAssortment:

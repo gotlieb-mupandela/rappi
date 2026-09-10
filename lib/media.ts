@@ -81,20 +81,31 @@ export function productStorageUrls(id: string) {
 export function withProductImages<
   T extends { id: string; imageUrl: string; images: string[]; code?: string },
 >(product: T): T {
-  const remoteImages = (product.images ?? []).filter(isRemoteUrl);
-  const remotePrimary = isRemoteUrl(product.imageUrl)
-    ? product.imageUrl
-    : remoteImages[0];
+  if (isRemoteUrl(product.imageUrl) || product.images?.some(isRemoteUrl)) {
+    const remoteImages = (product.images ?? []).filter(isRemoteUrl);
+    const remotePrimary = isRemoteUrl(product.imageUrl)
+      ? product.imageUrl
+      : remoteImages[0];
 
-  if (remotePrimary) {
+    if (remotePrimary) {
+      return {
+        ...product,
+        ...mergeGallery(
+          product,
+          remotePrimary,
+          remoteImages.length ? remoteImages : [remotePrimary],
+          false,
+        ),
+      };
+    }
+  }
+
+  if (product.imageUrl?.startsWith("/") && !product.imageUrl.startsWith("/products/")) {
+    const localImages = (product.images ?? []).filter((url) => url.startsWith("/"));
     return {
       ...product,
-      ...mergeGallery(
-        product,
-        remotePrimary,
-        remoteImages.length ? remoteImages : [remotePrimary],
-        false,
-      ),
+      imageUrl: product.imageUrl,
+      images: localImages.length ? localImages : [product.imageUrl],
     };
   }
 

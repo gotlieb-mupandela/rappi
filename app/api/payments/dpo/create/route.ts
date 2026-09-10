@@ -9,12 +9,29 @@ import {
   requestSiteUrl,
   splitName,
 } from "@/lib/dpo";
+import { shippingCostById, SHIPPING_METHODS } from "@/lib/shipping";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 
+function parseQty(value: unknown) {
+  const qty = typeof value === "number" ? value : Number(value);
+  if (!Number.isInteger(qty) || qty < 1 || qty > 99) return null;
+  return qty;
+}
+
+function parseShippingMethod(value: unknown) {
+  const id = String(value ?? "pickup");
+  return SHIPPING_METHODS.some((method) => method.id === id) ? id : null;
+}
+
 export async function POST(req: Request) {
-  let body: { name?: string; email?: string };
+  let body: {
+    name?: string;
+    email?: string;
+    qty?: number;
+    shippingMethod?: string;
+  };
   try {
     body = await req.json();
   } catch {
@@ -27,17 +44,23 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Enter a name and a valid email." }, { status: 400 });
   }
 
+  const qty = parseQty(body.qty) ?? 1;
+  const shippingMethod = parseShippingMethod(body.shippingMethod) ?? "pickup";
+  const shippingCost = shippingCostById(shippingMethod);
+  const amount = DPO_TEST_AMOUNT * qty + shippingCost;
+
   const companyRef = `DPO-TEST-${crypto.randomUUID().replace(/-/g, "").slice(0, 16).toUpperCase()}`;
   const { firstName, lastName } = splitName(name);
   const currency = dpoCurrency();
+  const description = `${DPO_TEST_PRODUCT_NAME} ×${qty} ${companyRef}`;
 
   let created;
   try {
     created = await createToken({
       companyRef,
-      amount: DPO_TEST_AMOUNT,
+      amount,
       currency,
-      description: `${DPO_TEST_PRODUCT_NAME} ${companyRef}`,
+      description,
       customer: { firstName, lastName, email },
       siteUrl: requestSiteUrl(req),
     });
@@ -50,7 +73,11 @@ export async function POST(req: Request) {
 
   if (created.result !== "000" || !created.transToken) {
     return NextResponse.json(
-      { error: created.explanation ?? "DPO createToken failed." },
+      {
+        error:
+          created.explanation ??
+          `DPO createToken failed (${created.result ?? "no result"}).`,
+      },
       { status: 400 },
     );
   }
@@ -63,7 +90,7 @@ export async function POST(req: Request) {
       trans_token: created.transToken,
       trans_ref: created.transRef,
       product_code: DPO_TEST_PRODUCT_CODE,
-      amount: DPO_TEST_AMOUNT,
+      amount,
       currency,
       status: "pending",
       customer_email: email,

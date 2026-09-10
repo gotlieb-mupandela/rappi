@@ -43,7 +43,7 @@ export default async function DpoTestCancelPage({
       <Breadcrumbs
         items={[
           { href: "/", label: "Home" },
-          { href: "/dpo-test", label: "DPO Test" },
+          { href: "/product/DPO-TEST", label: "DPO Test" },
           { label: "Cancelled" },
         ]}
       />
@@ -53,7 +53,7 @@ export default async function DpoTestCancelPage({
       </h1>
       <p className="mt-3 max-w-xl text-sm text-[var(--muted)]">{body}</p>
       <Button asChild className="mt-8">
-        <Link href="/dpo-test">Back to DPO Test</Link>
+        <Link href="/product/DPO-TEST">Back to DPO Test</Link>
       </Button>
     </div>
   );

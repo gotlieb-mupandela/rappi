@@ -144,6 +144,10 @@ export const en = {
       "Select a delivery address and shipping method, then place the order. Merchandise and shipping are in Namibian dollars (N$). Payment is stubbed — no real charges.",
     introEur:
       "Select a delivery address and shipping method, then place the order. Merchandise and shipping are shown in euros (converted from NAD). Payment is stubbed — no real charges.",
+    introDpo:
+      "This bag is the DPO sandbox product. Pay with a DPO test card (expiry 01/26). Do not use a live card.",
+    introDpoEur:
+      "This bag is the DPO sandbox product. Totals are shown in euros (from NAD). Pay with a DPO test card (expiry 01/26). Do not use a live card.",
     address: "Shipping address",
     method: "Shipping method",
     fullName: "Full name",
@@ -160,6 +164,11 @@ export const en = {
     placing: "Placing…",
     totalsNad: "Totals in N$. Checkout stub — no payment is collected.",
     totalsEur: "Totals in € (from NAD). Checkout stub — no payment is collected.",
+    totalsDpo: "Sandbox payment via DPO. Test card expiry 01/26.",
+    payDpo: "Pay with DPO",
+    payingDpo: "Starting DPO…",
+    dpoMixed: "DPO Test must be checked out on its own. Remove the other items first.",
+    completeNameEmail: "Enter a name and a valid email.",
     cartEmpty: "Cart is empty.",
     completeDetails: "Complete shipping details.",
     signInRequired: "Sign in or create an account to place your order.",
@@ -286,6 +295,10 @@ export const en = {
     descPack: "Sold as {label}. The {symbol} price is the pack price.",
     descPricedNad: "Priced in Namibian dollars.",
     descPricedEur: "Priced in euros (converted from NAD).",
+    descDpoNad:
+      "DPO Pay sandbox product. N$10. Pay with a DPO test card (expiry 01/26). Do not use a live card.",
+    descDpoEur:
+      "DPO Pay sandbox product. Shown in euros (N$10). Pay with a DPO test card (expiry 01/26). Do not use a live card.",
   },
   shop: {
     emptyAudience: "No {name} pieces in this filter",
@@ -676,6 +689,10 @@ export const fr: Messages = {
       "Choisissez une adresse et un mode de livraison, puis passez commande. Marchandises et livraison en dollars namibiens (N$). Paiement simulé — aucun débit réel.",
     introEur:
       "Choisissez une adresse et un mode de livraison, puis passez commande. Marchandises et livraison affichées en euros (convertis depuis le NAD). Paiement simulé — aucun débit réel.",
+    introDpo:
+      "Ce panier contient uniquement le produit sandbox DPO. Payez avec une carte de test DPO (expiration 01/26). N’utilisez pas de vraie carte.",
+    introDpoEur:
+      "Ce panier contient uniquement le produit sandbox DPO. Totaux affichés en euros (depuis le NAD). Payez avec une carte de test DPO (expiration 01/26). N’utilisez pas de vraie carte.",
     address: "Adresse de livraison",
     method: "Mode de livraison",
     fullName: "Nom complet",
@@ -692,6 +709,11 @@ export const fr: Messages = {
     placing: "Envoi…",
     totalsNad: "Totaux en N$. Commande simulée — aucun paiement n’est encaissé.",
     totalsEur: "Totaux en € (depuis le NAD). Commande simulée — aucun paiement n’est encaissé.",
+    totalsDpo: "Paiement sandbox via DPO. Expiration de la carte de test : 01/26.",
+    payDpo: "Payer avec DPO",
+    payingDpo: "Ouverture de DPO…",
+    dpoMixed: "Le produit DPO Test doit être commandé seul. Retirez d’abord les autres articles.",
+    completeNameEmail: "Indiquez un nom et un e-mail valide.",
     cartEmpty: "Le panier est vide.",
     completeDetails: "Complétez les informations de livraison.",
     signInRequired: "Connectez-vous ou créez un compte pour passer commande.",
@@ -818,6 +840,10 @@ export const fr: Messages = {
     descPack: "Vendu en {label}. Le prix {symbol} est le prix du pack.",
     descPricedNad: "Prix en dollars namibiens.",
     descPricedEur: "Prix en euros (convertis depuis le NAD).",
+    descDpoNad:
+      "Produit sandbox DPO Pay. N$10. Payez avec une carte de test DPO (expiration 01/26). N’utilisez pas de vraie carte.",
+    descDpoEur:
+      "Produit sandbox DPO Pay. Affiché en euros (N$10). Payez avec une carte de test DPO (expiration 01/26). N’utilisez pas de vraie carte.",
   },
   shop: {
     emptyAudience: "Aucun article {name} pour ce filtre",

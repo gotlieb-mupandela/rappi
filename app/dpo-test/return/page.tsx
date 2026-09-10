@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Button } from "@/components/ui/button";
+import { ClearCartOnPaid } from "./clear-cart-on-paid";
 import { fulfillDpoPayment } from "@/lib/dpo-payments";
 import { formatPrice } from "@/lib/format";
 
@@ -26,7 +27,7 @@ export default async function DpoTestReturnPage({
   const companyRef = params.CompanyRef || null;
 
   let heading = "Payment not verified";
-  let body = "Missing transaction token. Start again from the DPO test page.";
+  let body = "Missing transaction token. Start again from the DPO Test product.";
   let paid = false;
   let ref: string | null = companyRef;
   let amount: string | null = null;
@@ -52,10 +53,11 @@ export default async function DpoTestReturnPage({
       <Breadcrumbs
         items={[
           { href: "/", label: "Home" },
-          { href: "/dpo-test", label: "DPO Test" },
+          { href: "/product/DPO-TEST", label: "DPO Test" },
           { label: "Return" },
         ]}
       />
+      <ClearCartOnPaid paid={paid} />
       <p className="mt-6 text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
         {paid ? "Verified" : "Sandbox"}
       </p>
@@ -80,7 +82,7 @@ export default async function DpoTestReturnPage({
         </section>
       )}
       <Button asChild className="mt-8">
-        <Link href="/dpo-test">{paid ? "Run another test" : "Back to DPO Test"}</Link>
+        <Link href="/product/DPO-TEST">{paid ? "Buy again" : "Back to DPO Test"}</Link>
       </Button>
     </div>
   );

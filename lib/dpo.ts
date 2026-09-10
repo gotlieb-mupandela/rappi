@@ -24,9 +24,18 @@ export function dpoSiteUrl() {
 }
 
 export function requestSiteUrl(req: Request) {
-  const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
+  const host = (req.headers.get("x-forwarded-host") || req.headers.get("host") || "")
+    .split(",")[0]
+    .trim();
   const proto = req.headers.get("x-forwarded-proto") || "https";
-  if (host) return `${proto}://${host.split(",")[0].trim()}`.replace(/\/$/, "");
+  if (
+    host &&
+    !/^localhost\b/i.test(host) &&
+    !/^127\.0\.0\.1\b/.test(host) &&
+    !/^\[::1\]\b/.test(host)
+  ) {
+    return `${proto}://${host}`.replace(/\/$/, "");
+  }
   return dpoSiteUrl();
 }
 

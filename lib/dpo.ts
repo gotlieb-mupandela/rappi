@@ -6,7 +6,7 @@ export {
 
 const DEFAULT_API_URL = "https://secure.3gdirectpay.com/API/v6/";
 const DEFAULT_PAY_URL = "https://secure.3gdirectpay.com/payv3.php";
-const DEFAULT_SITE_URL = "https://rappisportshub.com";
+const DEFAULT_SITE_URL = "https://www.rappisportshub.com";
 
 export type DpoXmlResult = {
   result: string | null;
@@ -21,6 +21,13 @@ export type DpoXmlResult = {
 
 export function dpoSiteUrl() {
   return (process.env.NEXT_PUBLIC_SITE_URL || DEFAULT_SITE_URL).replace(/\/$/, "");
+}
+
+export function requestSiteUrl(req: Request) {
+  const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
+  const proto = req.headers.get("x-forwarded-proto") || "https";
+  if (host) return `${proto}://${host.split(",")[0].trim()}`.replace(/\/$/, "");
+  return dpoSiteUrl();
 }
 
 export function dpoCurrency() {
@@ -98,9 +105,10 @@ export async function createToken(input: {
   currency: string;
   description: string;
   customer: { firstName: string; lastName: string; email: string };
+  siteUrl?: string;
 }) {
   const { companyToken, serviceType } = dpoConfig();
-  const site = dpoSiteUrl();
+  const site = (input.siteUrl || dpoSiteUrl()).replace(/\/$/, "");
   const xml = `<?xml version="1.0" encoding="utf-8"?>
 <API3G>
   <CompanyToken>${escapeXml(companyToken)}</CompanyToken>

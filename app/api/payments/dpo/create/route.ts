@@ -6,6 +6,7 @@ import {
   createToken,
   dpoCurrency,
   dpoPaymentUrl,
+  requestSiteUrl,
   splitName,
 } from "@/lib/dpo";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -38,6 +39,7 @@ export async function POST(req: Request) {
       currency,
       description: `${DPO_TEST_PRODUCT_NAME} ${companyRef}`,
       customer: { firstName, lastName, email },
+      siteUrl: requestSiteUrl(req),
     });
   } catch (err) {
     return NextResponse.json(

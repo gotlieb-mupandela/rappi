@@ -65,7 +65,7 @@ export function ProductDetail({ product }: { product: Product }) {
         size="lg"
         onClick={addToBag}
         disabled={soldOut || stock === 0}
-        className="min-w-0 flex-1 sm:min-w-48"
+        className="min-w-0 w-full sm:w-auto sm:min-w-48 sm:flex-1"
       >
         {soldOut ? t("product.soldOut") : t("common.addToBag")}
       </Button>
@@ -161,7 +161,7 @@ export function ProductDetail({ product }: { product: Product }) {
           <p className="mt-3 text-sm leading-7 text-[var(--muted)]">{details}</p>
         </div>
 
-        <div className="mt-8 flex items-center gap-3">{actions}</div>
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">{actions}</div>
         <p className="mt-8 max-w-md text-sm leading-7 text-[var(--muted)]">
           {market === "eu" ? t("product.pricedEur") : t("product.pricedNad")}
         </p>

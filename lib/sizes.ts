@@ -10,6 +10,7 @@ export {
   isSoldOut,
   pickerSizes,
   sizeDisplayLabel,
+  sizeStock,
   skuStock,
   stockLabel,
 } from "@/lib/product-stock";

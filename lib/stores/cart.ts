@@ -3,7 +3,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { CartLine, CartLineSnapshot, Product } from "@/lib/types";
-import { sizeDisplayLabel } from "@/lib/product-stock";
+import { sizeDisplayLabel, sizeStock, skuStock } from "@/lib/product-stock";
 
 type CartMessage = {
   ok: boolean;
@@ -20,7 +20,6 @@ type CartState = {
 };
 
 function snapshotFromProduct(product: Product, size: string): CartLineSnapshot {
-  const sizeRow = product.sizes.find((s) => s.size === size);
   return {
     id: product.id,
     name: product.name,
@@ -30,8 +29,8 @@ function snapshotFromProduct(product: Product, size: string): CartLineSnapshot {
     price: product.price,
     unitPrice: product.unitPrice,
     imageUrl: product.imageUrl,
-    sizeStock: sizeRow?.stock ?? 0,
-    stockQty: product.stockQty ?? 0,
+    sizeStock: sizeStock(product, size),
+    stockQty: skuStock(product),
     category: product.category,
     subcategory: product.subcategory,
     gender: product.gender,
@@ -63,8 +62,8 @@ export const useCart = create<CartState>()(
     (set, get) => ({
       lines: [],
       add: (product, size, qty): CartMessage => {
-        const sizeRow = product.sizes.find((s) => s.size === size);
-        if (!sizeRow || sizeRow.stock <= 0) {
+        const available = sizeStock(product, size);
+        if (available <= 0) {
           return { ok: false, messageKey: "cart.sizeNotInStock" };
         }
         const snap = snapshotFromProduct(product, size);
@@ -72,7 +71,7 @@ export const useCart = create<CartState>()(
         const nextQty = (existing?.qty ?? 0) + qty;
         const left =
           remainingSku(get().lines, product.code, snap.stockQty, size) + (existing?.qty ?? 0);
-        const max = Math.min(sizeRow.stock, left, snap.stockQty);
+        const max = Math.min(available, left, snap.stockQty);
         if (nextQty > max) {
           return {
             ok: false,

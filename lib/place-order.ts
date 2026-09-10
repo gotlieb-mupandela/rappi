@@ -14,18 +14,25 @@ type PlaceInput = {
   lines: CartLine[];
 };
 
-type PlaceResult = { ok: true; order: Order } | { ok: false; message: string };
+type PlaceFail = {
+  ok: false;
+  messageKey: string;
+  values?: Record<string, string | number>;
+  message?: string;
+};
+type PlaceResult = { ok: true; order: Order } | PlaceFail;
 
 function localPlace(input: PlaceInput): PlaceResult {
   const items: Order["items"] = [];
   for (const line of input.lines) {
     if (!line.code || !line.size || line.qty <= 0) {
-      return { ok: false, message: `Invalid cart line for ${line.code ?? "unknown"}.` };
+      return { ok: false, messageKey: "checkout.invalidLine", values: { code: line.code ?? "—" } };
     }
     if (line.sizeStock < line.qty) {
       return {
         ok: false,
-        message: `Only ${line.sizeStock} in stock for ${line.code} size ${line.size}.`,
+        messageKey: "checkout.lineStock",
+        values: { max: line.sizeStock, code: line.code, size: line.size },
       };
     }
     items.push({
@@ -36,7 +43,7 @@ function localPlace(input: PlaceInput): PlaceResult {
       price: line.price,
     });
   }
-  if (!items.length) return { ok: false, message: "Cart is empty." };
+  if (!items.length) return { ok: false, messageKey: "checkout.cartEmpty" };
   const subtotal = items.reduce((s, i) => s + i.price * i.qty, 0);
   return {
     ok: true,
@@ -59,9 +66,9 @@ function localPlace(input: PlaceInput): PlaceResult {
 }
 
 export async function placeOrder(input: PlaceInput): Promise<PlaceResult> {
-  if (!input.lines.length) return { ok: false, message: "Cart is empty." };
+  if (!input.lines.length) return { ok: false, messageKey: "checkout.cartEmpty" };
   if (!input.name || !input.email || !input.address || !input.city || !input.country) {
-    return { ok: false, message: "Complete shipping details." };
+    return { ok: false, messageKey: "checkout.completeDetails" };
   }
 
   if (isSupabaseConfigured()) {
@@ -71,7 +78,7 @@ export async function placeOrder(input: PlaceInput): Promise<PlaceResult> {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) {
-        return { ok: false, message: "Sign in to place an order." };
+        return { ok: false, messageKey: "checkout.signInRequired" };
       }
 
       const { data, error } = await supabase.rpc("place_order", {
@@ -88,7 +95,7 @@ export async function placeOrder(input: PlaceInput): Promise<PlaceResult> {
           qty: l.qty,
         })),
       });
-      if (error) return { ok: false, message: error.message };
+      if (error) return { ok: false, messageKey: "checkout.failed", message: error.message };
       const payload = data as {
         id: string;
         created_at: string;
@@ -125,7 +132,8 @@ export async function placeOrder(input: PlaceInput): Promise<PlaceResult> {
     } catch (err) {
       return {
         ok: false,
-        message: err instanceof Error ? err.message : "Checkout failed.",
+        messageKey: "checkout.failed",
+        message: err instanceof Error ? err.message : undefined,
       };
     }
   }

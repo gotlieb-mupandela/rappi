@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useLocale } from "@/components/locale-provider";
 import { cartCount, cartLineAsProduct, useCart } from "@/lib/stores/cart";
 import { QtyStepper } from "@/components/qty-stepper";
+import { sizeDisplayLabel } from "@/lib/product-stock";
 import { productPath } from "@/lib/utils";
 
 export default function CartPage() {
@@ -93,7 +94,8 @@ export default function CartPage() {
                   {product.name}
                 </p>
                 <p className="mt-2 text-sm text-[var(--muted)]">
-                  {t("cart.size")} <span className="font-semibold text-ink">{line.size}</span>
+                  {t("cart.size")}{" "}
+                  <span className="font-semibold text-ink">{sizeDisplayLabel(line.size, t)}</span>
                   <span className="mx-2 text-[var(--border-strong)]">·</span>
                   {format(line.price)}
                 </p>

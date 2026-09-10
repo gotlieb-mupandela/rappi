@@ -1,22 +1,69 @@
+"use client";
+
 import type { ReactNode } from "react";
 import { Breadcrumbs, type Crumb } from "@/components/breadcrumbs";
+import { useT } from "@/components/locale-provider";
+import { audienceBlurb, audienceName, hubBlurb, hubName } from "@/lib/i18n/labels";
+import type { MessageVars } from "@/lib/i18n/translate";
 import { cn } from "@/lib/utils";
 
 export function PageHeader({
   crumbs,
   eyebrow,
+  eyebrowKey,
+  eyebrowPlural,
+  eyebrowCount,
   title,
+  titleKey,
+  titleHub,
+  titleAudience,
   description,
+  descriptionKey,
+  descriptionVars,
+  descriptionHub,
+  descriptionAudience,
   actions,
   media,
 }: {
   crumbs?: Crumb[];
   eyebrow?: string;
-  title: string;
+  eyebrowKey?: string;
+  eyebrowPlural?: string;
+  eyebrowCount?: number;
+  title?: string;
+  titleKey?: string;
+  titleHub?: string;
+  titleAudience?: string;
   description?: string;
+  descriptionKey?: string;
+  descriptionVars?: MessageVars;
+  descriptionHub?: string;
+  descriptionAudience?: string;
   actions?: ReactNode;
   media?: ReactNode;
 }) {
+  const t = useT();
+  const resolvedEyebrow =
+    eyebrowPlural && typeof eyebrowCount === "number"
+      ? t.plural(eyebrowPlural, eyebrowCount)
+      : eyebrowKey
+        ? t(eyebrowKey)
+        : eyebrow;
+  const resolvedTitle = titleAudience
+    ? audienceName(titleAudience, t)
+    : titleHub
+      ? hubName(titleHub, t)
+      : titleKey
+        ? t(titleKey)
+        : (title ?? "");
+  const resolvedDescription = descriptionAudience
+    ? audienceBlurb(descriptionAudience, t)
+    : descriptionHub
+      ? hubBlurb(descriptionHub, t)
+      : descriptionKey
+        ? t(descriptionKey, descriptionVars)
+        : description;
+
   return (
     <header className="border-b border-[var(--border)]">
       <div
@@ -28,27 +75,27 @@ export function PageHeader({
       >
         <div className="min-w-0">
           {crumbs?.length ? <Breadcrumbs items={crumbs} /> : null}
-          {eyebrow ? (
+          {resolvedEyebrow ? (
             <p
               className={cn(
                 "text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--accent)]",
                 crumbs?.length ? "mt-6" : "",
               )}
             >
-              {eyebrow}
+              {resolvedEyebrow}
             </p>
           ) : null}
           <h1
             className={cn(
               "font-[family-name:var(--font-oswald)] text-4xl uppercase leading-[0.92] tracking-tight text-ink sm:text-5xl md:text-6xl",
-              eyebrow || crumbs?.length ? "mt-3" : "",
+              resolvedEyebrow || crumbs?.length ? "mt-3" : "",
             )}
           >
-            {title}
+            {resolvedTitle}
           </h1>
-          {description ? (
+          {resolvedDescription ? (
             <p className="mt-4 max-w-xl text-sm leading-7 text-[var(--muted)] sm:text-base">
-              {description}
+              {resolvedDescription}
             </p>
           ) : null}
           {actions ? (

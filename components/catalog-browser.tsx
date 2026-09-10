@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useMemo, useState, type ReactNode } from "react";
 import { CatalogFilters } from "@/components/catalog-filters";
 import { useT } from "@/components/locale-provider";
+import { audienceName, hubName } from "@/lib/i18n/labels";
 import {
   buildListing,
   listingQueryFromSearchParams,
@@ -31,6 +32,10 @@ export function CatalogBrowser({
   showLayoutToggle,
   emptyTitle,
   emptyBody,
+  emptyTitleKey,
+  emptyBodyKey,
+  emptyKind,
+  emptySlug,
   emptyQuery,
   initialListing,
 }: {
@@ -45,6 +50,10 @@ export function CatalogBrowser({
   showLayoutToggle?: boolean;
   emptyTitle?: string;
   emptyBody?: string;
+  emptyTitleKey?: string;
+  emptyBodyKey?: string;
+  emptyKind?: "audience" | "hub";
+  emptySlug?: string;
   emptyQuery?: ReactNode;
   initialListing?: ListingResult;
 }) {
@@ -137,8 +146,19 @@ export function CatalogBrowser({
       showCategoryFilter={showCategoryFilter}
       showAudienceFilter={showAudienceFilter}
       showLayoutToggle={showLayoutToggle}
-      emptyTitle={emptyTitle}
-      emptyBody={emptyBody}
+      emptyTitle={
+        emptyTitleKey
+          ? t(emptyTitleKey, {
+              name:
+                emptyKind === "audience" && emptySlug
+                  ? audienceName(emptySlug, t).toLowerCase()
+                  : emptyKind === "hub" && emptySlug
+                    ? hubName(emptySlug, t).toLowerCase()
+                    : "",
+            })
+          : emptyTitle
+      }
+      emptyBody={emptyBodyKey ? t(emptyBodyKey) : emptyBody}
       onNavigate={onNavigate}
     />
   );

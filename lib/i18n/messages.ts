@@ -81,6 +81,7 @@ export const en = {
     listView: "List view",
     searching: "Searching the catalog…",
     otherHubs: "Other hubs",
+    loadingStorefront: "Loading storefront…",
   },
   count: {
     pieces: { one: "{count} piece", other: "{count} pieces" },
@@ -98,6 +99,7 @@ export const en = {
     emptyBody: "Nothing in the catalog matched that code, name, or category.",
     noProducts: "No products found",
     noProductsBody: "Try another code, category, or clear filters.",
+    searchingShort: "Searching…",
   },
   filters: {
     filters: "Filters",
@@ -179,6 +181,9 @@ export const en = {
     confirmationHint: "This confirmation is stored in this browser only.",
     totalNad: "Total (N$)",
     totalEur: "Total (€)",
+    invalidLine: "Invalid cart line for {code}.",
+    lineStock: "Only {max} in stock for {code} size {size}.",
+    failed: "Checkout failed.",
   },
   shipping: {
     standard: "Standard (5–8 days)",
@@ -321,6 +326,12 @@ export const en = {
   qty: {
     decrease: "Decrease quantity",
     increase: "Increase quantity",
+  },
+  theme: {
+    dark: "Dark mode",
+    light: "Light mode",
+    toDark: "Switch to dark mode",
+    toLight: "Switch to light mode",
   },
   hub: {
     sportswear: {
@@ -602,6 +613,7 @@ export const fr: Messages = {
     listView: "Vue liste",
     searching: "Recherche dans le catalogue…",
     otherHubs: "Autres rayons",
+    loadingStorefront: "Chargement de la boutique…",
   },
   count: {
     pieces: { one: "{count} article", other: "{count} articles" },
@@ -619,6 +631,7 @@ export const fr: Messages = {
     emptyBody: "Rien dans le catalogue ne correspond à ce code, nom ou catégorie.",
     noProducts: "Aucun produit",
     noProductsBody: "Essayez un autre code, une autre catégorie, ou réinitialisez les filtres.",
+    searchingShort: "Recherche…",
   },
   filters: {
     filters: "Filtres",
@@ -700,6 +713,9 @@ export const fr: Messages = {
     confirmationHint: "Cette confirmation est stockée uniquement dans ce navigateur.",
     totalNad: "Total (N$)",
     totalEur: "Total (€)",
+    invalidLine: "Ligne de panier invalide pour {code}.",
+    lineStock: "Plus que {max} en stock pour {code} taille {size}.",
+    failed: "Échec de la commande.",
   },
   shipping: {
     standard: "Standard (5–8 jours)",
@@ -842,6 +858,12 @@ export const fr: Messages = {
   qty: {
     decrease: "Diminuer la quantité",
     increase: "Augmenter la quantité",
+  },
+  theme: {
+    dark: "Mode sombre",
+    light: "Mode clair",
+    toDark: "Passer en mode sombre",
+    toLight: "Passer en mode clair",
   },
   hub: {
     sportswear: {

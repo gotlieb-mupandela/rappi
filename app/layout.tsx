@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import { Geist_Mono, Inter, Oswald } from "next/font/google";
 import Script from "next/script";
 import { BrandAtmosphere } from "@/components/brand-atmosphere";
@@ -6,11 +7,8 @@ import { Providers } from "@/components/providers";
 import { StorefrontChrome } from "@/components/storefront-chrome";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TAGLINE } from "@/lib/catalog";
-import {
-  DEFAULT_MARKET,
-  MARKET_BOOTSTRAP,
-  htmlLang,
-} from "@/lib/i18n/config";
+import { MARKET_BOOTSTRAP, htmlLang } from "@/lib/i18n/config";
+import { getMarket } from "@/lib/i18n/server";
 import type { StorefrontTaxonomy } from "@/lib/listing-types";
 import { THEME_BOOTSTRAP } from "@/lib/theme";
 import storefrontNav from "@/data/storefront-nav.json";
@@ -59,8 +57,8 @@ const nav = storefrontNav as {
   categoryCounts: Record<string, number>;
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
-  const market = DEFAULT_MARKET;
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const market = await getMarket();
 
   return (
     <html

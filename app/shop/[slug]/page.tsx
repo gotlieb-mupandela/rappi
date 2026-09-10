@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { CatalogBrowser } from "@/components/catalog-browser";
 import { PageHeader } from "@/components/page-header";
-import { Button } from "@/components/ui/button";
+import { TLink } from "@/components/t-link";
 import {
   AUDIENCES,
   CATEGORIES,
@@ -13,8 +12,6 @@ import {
 } from "@/lib/catalog";
 import { buildListing } from "@/lib/listing-core";
 import { getCatalog } from "@/lib/supabase/catalog";
-import { getT } from "@/lib/i18n/server";
-import { audienceBlurb, audienceName, hubBlurb, hubName } from "@/lib/i18n/labels";
 
 export const revalidate = 3600;
 
@@ -38,34 +35,36 @@ export default async function ShopListingPage({
   if (!audience && !cat) notFound();
 
   const catalog = await getCatalog();
-  const t = await getT();
   const listing = audience
     ? buildListing(catalog, { audience: slug })
     : buildListing(catalog, {}, { categorySlug: hubSlug });
 
-  const title = audience ? audienceName(audience.slug, t) : hubName(hubSlug, t);
-  const description = audience ? audienceBlurb(audience.slug, t) : hubBlurb(hubSlug, t);
   const backHref = audience ? "/" : `/category/${hubSlug}`;
-  const backLabel = audience ? t("common.backToHome") : t("common.backToHub");
   const shopPath = `/shop/${audience ? audience.slug : hubSlug}`;
 
   return (
     <div>
       <PageHeader
         crumbs={[
-          { href: "/", label: t("common.home") },
+          { href: "/", key: "common.home" },
           audience
-            ? { label: audienceName(audience.slug, t) }
-            : { href: `/category/${hubSlug}`, label: hubName(hubSlug, t) },
-          { label: t("common.products") },
+            ? { audience: audience.slug }
+            : { href: `/category/${hubSlug}`, hub: hubSlug },
+          { key: "common.products" },
         ]}
-        eyebrow={t.plural("count.pieces", listing.total)}
-        title={title}
-        description={description}
+        eyebrowPlural="count.pieces"
+        eyebrowCount={listing.total}
+        titleAudience={audience?.slug}
+        titleHub={audience ? undefined : hubSlug}
+        descriptionAudience={audience?.slug}
+        descriptionHub={audience ? undefined : hubSlug}
         actions={
-          <Button asChild variant="outline" className="w-full sm:w-auto">
-            <Link href={backHref}>{backLabel}</Link>
-          </Button>
+          <TLink
+            href={backHref}
+            k={audience ? "common.backToHome" : "common.backToHub"}
+            variant="outline"
+            className="w-full sm:w-auto"
+          />
         }
       />
       <div className="page-shell py-8 sm:py-10">
@@ -78,12 +77,10 @@ export default async function ShopListingPage({
           showCategoryFilter={Boolean(audience)}
           showAudienceFilter={!audience}
           showLayoutToggle={false}
-          emptyTitle={
-            audience
-              ? t("shop.emptyAudience", { name: audienceName(audience.slug, t).toLowerCase() })
-              : t("shop.emptyHub", { name: hubName(hubSlug, t).toLowerCase() })
-          }
-          emptyBody={t("shop.emptyBody")}
+          emptyTitleKey={audience ? "shop.emptyAudience" : "shop.emptyHub"}
+          emptyKind={audience ? "audience" : "hub"}
+          emptySlug={audience ? audience.slug : hubSlug}
+          emptyBodyKey="shop.emptyBody"
         />
       </div>
     </div>

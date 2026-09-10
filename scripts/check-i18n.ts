@@ -1,12 +1,30 @@
 import { DEFAULT_EUR_PER_NAD } from "../lib/i18n/config";
 import { nadToEur, eurToNad, formatMoney } from "../lib/i18n/currency";
 import { detectMarketFromSignals, prefersFrench } from "../lib/i18n/detect";
+import { audienceName, hubName, subName } from "../lib/i18n/labels";
+import { en, fr } from "../lib/i18n/messages";
 import { makeT } from "../lib/i18n/translate";
 import { SHIPPING_METHODS } from "../lib/shipping";
+import { SUBCATEGORY_LABELS, CATEGORIES, AUDIENCES } from "../lib/catalog";
 
 function fail(msg: string) {
   console.error(`FAIL ${msg}`);
   process.exitCode = 1;
+}
+
+function keysOf(obj: unknown, prefix = ""): string[] {
+  if (!obj || typeof obj !== "object") return [];
+  const rec = obj as Record<string, unknown>;
+  const out: string[] = [];
+  for (const [k, v] of Object.entries(rec)) {
+    const path = prefix ? `${prefix}.${k}` : k;
+    if (v && typeof v === "object" && !("one" in (v as object) && "other" in (v as object))) {
+      out.push(...keysOf(v, path));
+    } else {
+      out.push(path);
+    }
+  }
+  return out;
 }
 
 if (DEFAULT_EUR_PER_NAD !== 0.05) fail("default rate is not 0.05");
@@ -45,5 +63,58 @@ const tEn = makeT("na");
 if (tEn("nav.cart") === tFr("nav.cart")) fail("FR cart label matches EN");
 if (tFr("shipping.pickup") === tEn("shipping.pickup")) fail("FR pickup label matches EN");
 if (!tFr("checkout.emptyHint").includes("{standard}")) fail("FR empty checkout hint missing rate slots");
+
+const enKeys = keysOf(en).sort();
+const frKeys = keysOf(fr).sort();
+for (const key of enKeys) {
+  if (!frKeys.includes(key)) fail(`FR missing key ${key}`);
+}
+for (const key of frKeys) {
+  if (!enKeys.includes(key)) fail(`EN missing key ${key}`);
+}
+
+const mustDiffer = [
+  "nav.cart",
+  "nav.search",
+  "common.home",
+  "common.addToBag",
+  "search.title",
+  "filters.filters",
+  "cart.empty",
+  "checkout.placeOrder",
+  "account.orders",
+  "login.title",
+  "product.soldOut",
+  "hub.swimming.name",
+  "hub.shoes.name",
+  "hub.hiking.name",
+  "audience.men.name",
+  "audience.women.name",
+  "audience.kids.name",
+  "sub.tees",
+  "sub.jackets",
+  "theme.toDark",
+  "common.loadingStorefront",
+];
+for (const key of mustDiffer) {
+  if (tFr(key) === tEn(key)) fail(`FR ${key} still equals EN`);
+  if (tFr(key) === key) fail(`FR ${key} missing`);
+}
+
+for (const cat of CATEGORIES) {
+  if (hubName(cat.slug, tFr).startsWith("hub.")) fail(`FR hub name missing for ${cat.slug}`);
+}
+for (const a of AUDIENCES) {
+  if (audienceName(a.slug, tFr).startsWith("audience.")) fail(`FR audience missing for ${a.slug}`);
+}
+for (const slug of Object.keys(SUBCATEGORY_LABELS)) {
+  if (subName(slug, tFr) === `sub.${slug}`) fail(`FR subcategory missing for ${slug}`);
+}
+
+if (audienceName("men", tFr) !== "Hommes") fail("FR men label");
+if (audienceName("women", tFr) !== "Femmes") fail("FR women label");
+if (audienceName("kids", tFr) !== "Enfants") fail("FR kids label");
+if (hubName("shoes", tFr) !== "Chaussures") fail("FR shoes hub");
+if (hubName("swimming", tFr) !== "Natation") fail("FR swimming hub");
 
 if (!process.exitCode) console.log("i18n checks ok");

@@ -12,6 +12,7 @@ import { useLocale } from "@/components/locale-provider";
 import { placeOrder } from "@/lib/place-order";
 import { shippingMethodsSnapshot } from "@/lib/shipping";
 import { shippingName } from "@/lib/i18n/labels";
+import { sizeDisplayLabel } from "@/lib/product-stock";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { useAuth } from "@/lib/stores/auth";
 import { useCart } from "@/lib/stores/cart";
@@ -118,7 +119,7 @@ export default function CheckoutPage() {
     });
     setSubmitting(false);
     if (!result.ok) {
-      toast.error(result.message);
+      toast.error(t(result.messageKey, result.values));
       return;
     }
     addOrder(result.order);
@@ -209,7 +210,7 @@ export default function CheckoutPage() {
               {rows.map((r) => (
                 <li key={`${r.code}-${r.size}`} className="flex flex-col gap-1 py-2 sm:flex-row sm:justify-between">
                   <span className="break-all">
-                    {r.code} · {r.size} × {r.qty}
+                    {r.code} · {sizeDisplayLabel(r.size, t)} × {r.qty}
                   </span>
                   <span className="shrink-0">{format(r.price * r.qty)}</span>
                 </li>
@@ -310,7 +311,7 @@ export default function CheckoutPage() {
             {rows.map((r) => (
               <li key={`${r.code}-${r.size}`} className="flex flex-col gap-1 py-2 sm:flex-row sm:justify-between">
                 <span className="break-all">
-                  {r.code} · {r.size} × {r.qty}
+                    {r.code} · {sizeDisplayLabel(r.size, t)} × {r.qty}
                 </span>
                 <span className="shrink-0">{format(r.price * r.qty)}</span>
               </li>

@@ -137,6 +137,27 @@ img {
   box-shadow: inset 0 0 0 1px var(--media-inset);
 }
 
+/*
+  PDP hero: hug intrinsic media. A forced aspect-ratio + object-contain on the
+  <img> letterboxes square CDN shots and can collapse SVGs (DPO-TEST) to a thin
+  strip inside a tall empty frame — especially with the global max-width rule.
+*/
+.pdp-stage {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  object-position: center;
+  background: var(--bg-elevated);
+  vertical-align: middle;
+}
+
+.pdp-stage[src$=".svg"],
+.pdp-stage[src*=".svg?"] {
+  aspect-ratio: 1;
+}
+
 .page-enter {
   animation: page-enter 560ms var(--ease) both;
 }

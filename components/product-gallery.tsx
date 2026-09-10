@@ -19,8 +19,8 @@ export function ProductGallery({ product }: { product: Product }) {
 
   if (!current) {
     return (
-      <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--bg-elevated)]">
-        <ProductVisual product={product} className="aspect-[3/4] max-h-[640px]" />
+      <div className="media-frame overflow-hidden rounded-xl border border-[var(--border)]">
+        <ProductVisual product={product} className="aspect-square w-full sm:aspect-[4/5]" />
       </div>
     );
   }
@@ -32,8 +32,8 @@ export function ProductGallery({ product }: { product: Product }) {
           product={product}
           src={current}
           alt={productImageAlt(product, shots.length > 1 ? `photo ${active + 1}` : undefined)}
-          className="aspect-[3/4] w-full max-h-[760px] object-contain object-center"
-          fallbackClassName="aspect-[3/4] max-h-[640px]"
+          className="pdp-stage"
+          fallbackClassName="aspect-square w-full sm:aspect-[4/5]"
           priority
         />
       </div>
